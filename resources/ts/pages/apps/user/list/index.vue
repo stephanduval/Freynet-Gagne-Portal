@@ -62,24 +62,19 @@ const { data: usersData, execute: fetchUsers } = useApi(() => {
   const params = new URLSearchParams({
     page: String(page.value),
     itemsPerPage: String(itemsPerPage.value),
-  }).toString()
+  }).toString();
 
-  const token = localStorage.getItem('accessToken')
-  console.log('Access Token before API call:', token) // Debugging line
+  console.log('API URL:', `/users?${params}`);
 
-
-  console.log('Access Token:', token)
-  console.log('API URL:', `/users?${params}`)
-
-  return `/users?${params}`
+  return `/users?${params}`;
 }, {
   method: 'GET',
   headers: {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
   },
-  credentials: 'include',
-})
+});
+
 
 // Add this to store pagination metadata
 const paginationMeta = ref({

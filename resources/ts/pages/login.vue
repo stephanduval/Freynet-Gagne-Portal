@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import type { RouteLocationRaw } from 'vue-router'
-import { useRouter } from 'vue-router'
-import { VForm } from 'vuetify/components/VForm'
 import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import authV2LoginIllustration from '@images/pages/auth-v2-login-illustration.png'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
+import { useRouter } from 'vue-router'
+import { VForm } from 'vuetify/components/VForm'
 
 definePage({
   meta: {
@@ -55,71 +54,68 @@ const login = async () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json', // Ensure response is JSON
       },
-      credentials: 'include', // Ensure credentials are included
       body: JSON.stringify({
         email: credentials.value.email,
         password: credentials.value.password,
         remember_me: rememberMe.value,
       }),
-    })
+    });
 
     if (!res.ok) {
-      const error = await res.json()
-
-      errors.value.general = error.message || 'Login failed. Please try again.'
-
-      return
+      const error = await res.json();
+      errors.value.general = error.message || 'Login failed. Please try again.';
+      return;
     }
 
-    const { accessToken, userData, abilityRules } = await res.json()
+    // Get response data
+    const { accessToken, userData, abilityRules } = await res.json();
 
-    console.log('Ability Rules received:', abilityRules)
+    console.log('User Data:', userData);
+    console.log('Ability Rules received:', abilityRules);
 
-    console.log('User Data:', userData) // Add this line to check the user data
-    // Update ability
+    // ✅ Store only essential data in localStorage
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('userData', JSON.stringify({
+      id: userData.id,
+      fullName: userData.fullName,
+      email: userData.email,
+      role: userData.role,
+    }));
+    localStorage.setItem('abilityRules', JSON.stringify(abilityRules));
+
+    // ✅ Update ability rules
     ability.update(abilityRules.map(rule => ({
       action: rule.action.toLowerCase(),
       subject: rule.subject.toLowerCase(),
-    })))
+    })));
 
-    // Set cookies BEFORE navigation
-    const userDataCookie = useCookie('userData')
-    const abilityCookie = useCookie('userAbilityRules')
-    const tokenCookie = useCookie('accessToken')
+    console.log('Login successful!');
 
-    // Set localStorage BEFORE navigation
-    localStorage.setItem('userData', JSON.stringify(userData))
-    localStorage.setItem('abilityRules', JSON.stringify(abilityRules))
-    localStorage.setItem('accessToken', accessToken.toString())
-
-    // Ensure the values are strings or serialized properly
-    userDataCookie.value = JSON.stringify(userData)
-    abilityCookie.value = JSON.stringify(abilityRules)
-    tokenCookie.value = accessToken.toString()
-
-    console.log('Document.cookie from login.vue', document.cookie)
-
-    // Redirect user
-    const userRole = userData.role?.toLowerCase() || 'User'
-
+    // Redirect user to correct page
+    const userRole = userData.role?.toLowerCase() || 'user';
     const targetRoute = userRole === 'admin'
       ? { name: 'sdtestpage' }
-      : userRole === 'client'
-        ? { name: 'sdtestpage' }
-        : userRole === 'user'
-          ? { name: 'dashboards-crm' }
-          : userRole === 'manager'
-            ? { name: 'sdtestpage' }
-            : { name: 'dashboards-analytics' }
+      : { name: 'dashboards-analytics' };
 
-    router.replace(targetRoute as RouteLocationRaw)
+    router.replace(targetRoute);
   }
   catch (err) {
-    console.error('login error', err)
-    errors.value.general = 'An error occurred. Please try again.'
+    console.error('Login error:', err);
+    errors.value.general = 'An error occurred. Please try again.';
   }
+};
+
+// ✅ Check if user is authenticated
+const isAuthenticated = () => {
+  return !!localStorage.getItem('accessToken');
+};
+
+if (isAuthenticated()) {
+  router.replace({ name: 'dashboards-crm' }); // Redirect if already logged in
 }
+
 
 const onSubmit = () => {
   refVForm.value?.validate()
@@ -293,5 +289,5 @@ const onSubmit = () => {
 </template>
 
 <style lang="scss">
-@use "@core-scss/template/pages/page-auth.scss";
+@use "@core-scss/template/pages/page-auth";
 </style>

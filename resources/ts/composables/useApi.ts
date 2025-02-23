@@ -7,38 +7,34 @@ export const useApi = createFetch({
     headers: {
       Accept: 'application/json',
     },
-    credentials: 'include', // Ensures cookies & tokens are sent
-
   },
   options: {
     refetch: true,
     async beforeFetch({ options }) {
-      // const accessToken = useCookie('accessToken').value
+      // ✅ Get token from LocalStorage
       const accessToken = localStorage.getItem('accessToken');
 
       if (accessToken) {
         options.headers = {
           ...options.headers,
           Authorization: `Bearer ${accessToken}`,
-        }
+        };
       }
 
-      return { options }
+      return { options };
     },
     afterFetch(ctx) {
-      const { data, response } = ctx
+      const { data, response } = ctx;
 
-      // Parse data if it's JSON
-
-      let parsedData = null
+      // ✅ Parse JSON response safely
+      let parsedData = null;
       try {
-        parsedData = destr(data)
-      }
-      catch (error) {
-        console.error(error)
+        parsedData = destr(data);
+      } catch (error) {
+        console.error(error);
       }
 
-      return { data: parsedData, response }
+      return { data: parsedData, response };
     },
   },
-})
+});
