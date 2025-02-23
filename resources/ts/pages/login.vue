@@ -37,14 +37,7 @@ const credentials = ref({
   password: 'password',
 })
 
-const isAuthenticated = () => {
-  const accessToken = document.cookie.split('; ').find(row => row.startsWith('accessToken='))
 
-  return !!accessToken
-}
-
-if (isAuthenticated())
-  router.replace({ name: 'dashboards-crm' }) // Redirect to home if already logged in
 
 const rememberMe = ref(false)
 

@@ -15,10 +15,9 @@ return [
     |
     */
 
-    return [
-        'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', '')),
+    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', '')),
         'guard' => ['api'], // ✅ Use `api` guard instead of `web`
-    ];
+    
     
 
     /*
