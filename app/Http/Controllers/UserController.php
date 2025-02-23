@@ -26,13 +26,15 @@ class UserController extends Controller
         'itemsPerPage' => $itemsPerPage,
         'q' => $request->get('q'),
     ]);
+    
     $users = User::query()
+    ->select(['id', 'name', 'email']) // ✅ Only fetch necessary fields
     ->when($request->get('q'), function ($query, $search) {
         $query->where('name', 'like', "%{$search}%")
               ->orWhere('email', 'like', "%{$search}%");
     })
     ->paginate($itemsPerPage, ['*'], 'page', $page);
-    
+
 
 // Transform users data only if there are results
 $transformedUsers = $users->getCollection()->map(function ($user) {

@@ -36,17 +36,11 @@ return [
     */
 
     'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
-        'api' => [
-            'driver' => 'sanctum',
+    'api' => [
+        'driver' => 'sanctum',
         'provider' => 'users',
-        // Hashing the api breaks authentication
-        // 'hash' => false,
-        ],
     ],
+],
 
     /*
     |--------------------------------------------------------------------------

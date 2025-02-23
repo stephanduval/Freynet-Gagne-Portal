@@ -17,19 +17,18 @@ class User extends Authenticatable
      * The attributes that are mass assignable.
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'password_reset_required',
+        'name', 'email', 'password',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      */
     protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+        'password', 'remember_token',
+    ]; // ✅ Hides unnecessary fields
+
+
+    protected $with = []; // ✅ Prevents auto-loading relationships
 
     /**
      * The attributes that should be cast.
@@ -84,27 +83,29 @@ class User extends Authenticatable
      * @return \Illuminate\Support\Collection
      */
     public function getPermissionsAttribute()
-    {
-        \Log::info('Fetching permissions for user roles.');
-
-        return $this->roles->flatMap(function ($role) {
-            \Log::info('Mapping role permissions:', ['role_id' => $role->id]);
-
-            return $role->permissions->map(function ($permission) {
-                \Log::info('Mapping permission:', [
-                    'id' => $permission->id ?? 'N/A',
-                    'action' => $permission->action ?? 'N/A',
-                    'subject' => $permission->subject ?? 'N/A',
-                ]);
-
-                return [
-                    'id' => $permission->id,
-                    'action' => $permission->action,
-                    'subject' => $permission->subject,
-                ];
-            });
-        })->unique('id')->values();
+{
+    if (!$this->relationLoaded('roles')) {
+        $this->load('roles.permissions');
     }
+
+    $permissions = $this->roles->flatMap(function ($role) {
+        return $role->permissions->map(function ($permission) {
+            return [
+                'id' => $permission->id ?? null,
+                'action' => $permission->action ?? 'read',
+                'subject' => $permission->subject ?? 'all',
+            ];
+        });
+    })->unique('id')->values();
+
+    \Log::info("User [{$this->id}] permissions:", $permissions->toArray());
+
+    return $permissions;
+}
+
+
+    
+
     protected static function boot()
     {
         parent::boot();
