@@ -16,7 +16,7 @@ return [
     */
 
     'stateful' => [],
-        'guard' => ['api'], // ✅ Use `api` guard instead of `web`
+    'guard' => ['api'], // ✅ Use `api` guard instead of `web`
     
     
 
@@ -72,10 +72,6 @@ return [
     |
     */
 
-    'middleware' => [
-        'authenticate_session' => Laravel\Sanctum\Http\Middleware\AuthenticateSession::class,
-        'encrypt_cookies' => Illuminate\Cookie\Middleware\EncryptCookies::class,
-        'validate_csrf_token' => Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
-    ],
+    'middleware' => [],
 
 ];
