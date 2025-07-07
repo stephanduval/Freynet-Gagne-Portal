@@ -55,7 +55,7 @@ interface UserData {
 
 // Add pagination state
 const userPage = ref(1)
-const userItemsPerPage = ref(50) // Show more users per page in dropdown
+const userItemsPerPage = ref(-1) // Load all users for dropdown
 const userSearchQuery = ref('')
 const userTotal = ref(0)
 const isLoadingUsers = ref(false)
@@ -71,23 +71,12 @@ const fetchUsers = async (search = '') => {
     isLoadingUsers.value = true
     const params = new URLSearchParams({
       page: String(userPage.value),
-      itemsPerPage: String(userItemsPerPage.value),
+      itemsPerPage: 'all', // Always use 'all' for admin dropdown
       q: search || userSearchQuery.value,
     })
 
-    const response = await fetch(`/api/users?${params.toString()}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch users')
-    }
-
-    const data = await response.json()
+    // Use $api instead of fetch to handle base URL and authentication properly
+    const data = await $api(`/users?${params.toString()}`)
     
     // Update the users list with the new data
     users.value = data.data.map((user: any) => ({
@@ -110,6 +99,14 @@ const fetchUsers = async (search = '') => {
     })
   } catch (error) {
     console.error('Error fetching users:', error)
+    // Show user-friendly error message
+    if (error?.response?.status === 404) {
+      console.error('Users endpoint not found. Please check API configuration.')
+    } else if (error?.response?.status === 401) {
+      console.error('Authentication failed. Please log in again.')
+    } else {
+      console.error('Failed to fetch users. Please try again later.')
+    }
   } finally {
     isLoadingUsers.value = false
   }

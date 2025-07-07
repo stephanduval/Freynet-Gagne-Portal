@@ -19,7 +19,7 @@ class UserController extends Controller
         // Validate general query parameters first
         $request->validate([
             'page' => 'sometimes|integer|min:1',
-            'itemsPerPage' => 'required|string|in:all,10,25,50,100',
+            'itemsPerPage' => 'sometimes|string', // Make it optional and accept any value
             'q' => 'nullable|string',
             'role' => 'nullable|string|max:50',
         ]);
@@ -75,8 +75,8 @@ class UserController extends Controller
         // Get all unique role names for the filter dropdown
         $allRoles = Role::distinct()->pluck('name')->toArray();
 
-        // Handle 'all' items per page
-        if ($itemsPerPage === 'all') {
+        // Handle 'all' items per page (also handle -1 for backward compatibility)
+        if ($itemsPerPage === 'all' || $itemsPerPage === '-1') {
             $users = $query->get();
             $totalUsers = $users->count();
             $transformedUsers = $users->map($transformUser);
