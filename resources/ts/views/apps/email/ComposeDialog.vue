@@ -402,7 +402,8 @@ const isFormValid = computed(() => {
 <template>
   <VCard
     class="email-compose-dialog"
-    max-width="30vw"
+    max-width="50vw"
+    style="max-height: 90vh; overflow-y: auto;"
   >
     <VCardText
       class="py-3 px-6"

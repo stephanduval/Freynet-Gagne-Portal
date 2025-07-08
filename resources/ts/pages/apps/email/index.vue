@@ -1336,15 +1336,16 @@ const closeEmailView = () => {
 }
 
 .email-compose-dialog {
-  position: absolute;
-  inset-block-end: 0;
-  inset-inline-end: 0;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   min-inline-size: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
 
   @media only screen and (min-width: 800px) {
-    inset-block-end: 25px;
-    inset-inline-end: 15px;
-    min-inline-size: 712px;
+    min-inline-size: 900px;
   }
 }
 
