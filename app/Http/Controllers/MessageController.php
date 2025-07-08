@@ -299,8 +299,8 @@ class MessageController extends Controller
                 if ($isClient) {
                     Log::info('MessageController::store - Sender is a client, preparing to send notification');
                     $recipient = NotificationRecipient::firstOrCreate(
-                        ['email' => 'stephan.duval@gmail.com'],
-                        ['name' => 'Stephan Duval']
+                        ['email' => 'sophie@freynet-gagne.com'],
+                        ['name' => 'Sophie Freynet-Gagné']
                     );
                     
                     Log::info('MessageController::store - Notification recipient status:', [
