@@ -216,8 +216,15 @@ class UserController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'department' => $user->department,
-                'company_id' => $user->companies->first()?->id, // Assuming one company per user
-                'role_id' => $user->roles->first()?->id, // Assuming one role per user
+                'role' => $user->roles->first()?->name ?? 'N/A',
+                'company' => $user->companies->first() ? [
+                    'id' => $user->companies->first()->id,
+                    'company_name' => $user->companies->first()->company_name
+                ] : null,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
+                'company_id' => $user->companies->first()?->id, // Keep for backward compatibility
+                'role_id' => $user->roles->first()?->id, // Keep for backward compatibility
             ]);
         } catch (\Exception $e) {
             \Log::error('Error fetching user details: ', ['message' => $e->getMessage()]);

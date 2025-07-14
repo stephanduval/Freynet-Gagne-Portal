@@ -28,18 +28,34 @@ class ProjectController extends Controller
 
         $query = Project::with(['client:id,name,email', 'messages.attachments']);
 
-        // Show all projects for user ID 1 (admin), otherwise filter by user_id
-        if ($user->id !== 1) {
-            $query->where('client_id', $user->id);
-        }
-
-        // Filter by client for admin users if client_id is provided
-        if ($request->has('client_id') && $userRole === 'admin') {
-            $query->where('client_id', $request->client_id);
-        }
-        // For client users, only show their own projects
-        elseif ($userRole === 'client') {
-            $query->where('client_id', $user->id);
+        // Admin users can see all projects
+        if ($userRole === 'admin') {
+            // Filter by client for admin users if client_id is provided
+            if ($request->has('client_id')) {
+                $query->where('client_id', $request->client_id);
+            }
+        } else {
+            // Non-admin users see all projects from users in their company
+            $userCompanyIds = $user->companies()->pluck('companies.id')->toArray();
+            
+            if (!empty($userCompanyIds)) {
+                // Get all users who belong to the same company/companies
+                $companyUserIds = User::whereHas('companies', function ($q) use ($userCompanyIds) {
+                    $q->whereIn('companies.id', $userCompanyIds);
+                })->pluck('id')->toArray();
+                
+                // Filter projects to those created by users in the same company
+                $query->whereIn('client_id', $companyUserIds);
+                
+                Log::info('Filtering projects by company', [
+                    'user_id' => $user->id,
+                    'user_companies' => $userCompanyIds,
+                    'company_users' => $companyUserIds
+                ]);
+            } else {
+                // If user has no company, only show their own projects
+                $query->where('client_id', $user->id);
+            }
         }
 
         // Filter by status if provided
@@ -331,9 +347,23 @@ class ProjectController extends Controller
         
         $query = Project::query();
         
-        // For client users, only include their own projects
-        if ($userRole === 'client') {
-            $query->where('client_id', $user->id);
+        // Admin users see all projects
+        if ($userRole !== 'admin') {
+            // Non-admin users see all projects from users in their company
+            $userCompanyIds = $user->companies()->pluck('companies.id')->toArray();
+            
+            if (!empty($userCompanyIds)) {
+                // Get all users who belong to the same company/companies
+                $companyUserIds = User::whereHas('companies', function ($q) use ($userCompanyIds) {
+                    $q->whereIn('companies.id', $userCompanyIds);
+                })->pluck('id')->toArray();
+                
+                // Filter projects to those created by users in the same company
+                $query->whereIn('client_id', $companyUserIds);
+            } else {
+                // If user has no company, only show their own projects
+                $query->where('client_id', $user->id);
+            }
         }
         
         $summary = [

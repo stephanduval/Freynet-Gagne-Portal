@@ -1,8 +1,6 @@
 # Development and build artifacts
 /.phpunit.cache
 /node_modules
-/public/build/*
-!/public/build/manifest.json
 /public/hot
 /public/storage
 /storage/*.key
