@@ -38,8 +38,21 @@ class AttachmentController extends Controller
             return response()->json(['error' => 'Attachment record not found.'], 404);
         }
 
-        if (!Storage::disk('public')->exists($attachment->path)) {
-            Log::error("Attachment file not found on disk for attachment ID: {$attachment->id}", ['path' => $attachment->path]);
+        // Use the same disk configuration as the MessageController
+        $disk = config('filesystems.default');
+        
+        Log::info("Checking for attachment file on disk: {$disk}", [
+            'attachment_id' => $attachment->id,
+            'path' => $attachment->path,
+            'filename' => $attachment->filename
+        ]);
+
+        if (!Storage::disk($disk)->exists($attachment->path)) {
+            Log::error("Attachment file not found on disk for attachment ID: {$attachment->id}", [
+                'path' => $attachment->path,
+                'disk' => $disk,
+                'full_path' => Storage::disk($disk)->path($attachment->path)
+            ]);
             return response()->json(['error' => 'File not found.'], 404);
         }
 
@@ -47,9 +60,13 @@ class AttachmentController extends Controller
 
         // Return the file as a download response
         try {
-            return Storage::disk('public')->download($attachment->path, $attachment->filename);
+            return Storage::disk($disk)->download($attachment->path, $attachment->filename);
         } catch (\Exception $e) {
-            Log::error("Error preparing download for attachment ID {$attachment->id}: " . $e->getMessage());
+            Log::error("Error preparing download for attachment ID {$attachment->id}: " . $e->getMessage(), [
+                'disk' => $disk,
+                'path' => $attachment->path,
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json(['error' => 'Could not process file download.'], 500);
         }
     }
