@@ -341,29 +341,76 @@ class MessageController extends Controller
             // Handle Attachments
             if ($request->hasFile('attachments')) {
                 Log::info('Processing attachments for message: ' . $message->id);
-                foreach ($request->file('attachments') as $file) {
-                    if ($file->isValid()) {
-                        $originalName = $file->getClientOriginalName();
-                        $mimeType = $file->getMimeType();
-                        $size = $file->getSize();
-                        // Generate a unique path, e.g., attachments/user_id/message_id/unique_id_filename.ext
-                        $path = $file->store('attachments/' . Auth::id() . '/' . $message->id, 'public');
-                        
-                        if ($path) {
-                            Attachment::create([
-                                'message_id' => $message->id,
-                                'filename' => $originalName,
-                                'path' => $path, // Store the path returned by store()
+                
+                try {
+                    foreach ($request->file('attachments') as $file) {
+                        if ($file->isValid()) {
+                            $originalName = $file->getClientOriginalName();
+                            $mimeType = $file->getMimeType();
+                            $size = $file->getSize();
+                            
+                            Log::info('Processing file:', [
+                                'original_name' => $originalName,
                                 'mime_type' => $mimeType,
                                 'size' => $size,
+                                'message_id' => $message->id
                             ]);
-                            Log::info('Saved attachment:', ['path' => $path, 'original_name' => $originalName]);
+                            
+                            // Use default filesystem disk from config
+                            $disk = config('filesystems.default');
+                            
+                            // Generate a unique path, e.g., attachments/user_id/message_id/unique_id_filename.ext
+                            $storagePath = 'attachments/' . Auth::id() . '/' . $message->id;
+                            
+                            try {
+                                // Use putFileAs for better control over filename
+                                $uniqueFileName = time() . '_' . Str::random(10) . '_' . $originalName;
+                                $path = Storage::disk($disk)->putFileAs($storagePath, $file, $uniqueFileName);
+                                
+                                if ($path) {
+                                    Attachment::create([
+                                        'message_id' => $message->id,
+                                        'filename' => $originalName,
+                                        'path' => $path, // Store the path returned by putFileAs()
+                                        'mime_type' => $mimeType,
+                                        'size' => $size,
+                                    ]);
+                                    Log::info('Saved attachment successfully:', [
+                                        'path' => $path, 
+                                        'original_name' => $originalName,
+                                        'disk' => $disk
+                                    ]);
+                                } else {
+                                    Log::error('Failed to store attachment - putFileAs returned false:', [
+                                        'original_name' => $originalName,
+                                        'disk' => $disk,
+                                        'storage_path' => $storagePath
+                                    ]);
+                                }
+                            } catch (\Exception $e) {
+                                Log::error('Exception during file storage:', [
+                                    'original_name' => $originalName,
+                                    'disk' => $disk,
+                                    'error' => $e->getMessage(),
+                                    'trace' => $e->getTraceAsString()
+                                ]);
+                                // Continue with other files instead of failing completely
+                            }
                         } else {
-                            Log::warning('Failed to store attachment:', ['original_name' => $originalName]);
+                            Log::warning('Invalid file uploaded:', [
+                                'error' => $file->getErrorMessage(),
+                                'original_name' => $file->getClientOriginalName() ?? 'unknown'
+                            ]);
                         }
-                    } else {
-                        Log::warning('Invalid file uploaded:', ['error' => $file->getErrorMessage()]);
                     }
+                } catch (\Exception $e) {
+                    Log::error('Exception during attachment processing:', [
+                        'message_id' => $message->id,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    // Don't fail the entire message creation due to attachment issues
+                    // Return success but log the error
                 }
             }
 
@@ -375,8 +422,14 @@ class MessageController extends Controller
         } catch (\Exception $e) {
             Log::error('MessageController::store - Error creating message:', [
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all(),
+                'user_id' => Auth::id()
             ]);
-            return response()->json(['message' => 'Failed to send message due to server error.'], 500);
+            return response()->json([
+                'message' => 'Failed to send message due to server error.',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
