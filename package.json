@@ -16,6 +16,7 @@
     "deploy:local": "yarn deploy:prepare && rsync -avz --delete public/build/ /var/www/Freynet-Gagne-Portal/public/build/",
     "deploy:prod": "yarn deploy:prepare && rsync -avz --delete -e 'ssh -i ~/.ssh/id_rsa' public/build/ root@138.197.142.132:/var/www/Freynet-Gagne-Portal/public/build/",
     "deploy:full": "yarn deploy:prepare && rsync -avz --delete -e 'ssh -i ~/.ssh/id_rsa' --exclude-from=.deployignore ./ root@138.197.142.132:/var/www/Freynet-Gagne-Portal/",
+    "deploy:debug": "rsync -avz -e 'ssh -i ~/.ssh/id_rsa' debug_production_attachments.php check_storage.php fix_attachments.php debug_message_creation.php root@138.197.142.132:/var/www/Freynet-Gagne-Portal/",
     "db:fresh": "php artisan migrate:fresh --seed --force && php artisan cache:clear && php artisan config:clear && php artisan route:clear && php artisan view:clear"
   },
   "dependencies": {
