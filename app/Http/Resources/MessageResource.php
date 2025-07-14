@@ -59,13 +59,19 @@ class MessageResource extends JsonResource
             'labels' => $this->whenLoaded('labels', fn() => $this->labels->pluck('label_name')->toArray() ?? []),
             'attachments' => $this->whenLoaded('attachments', function() {
                 return $this->attachments->map(function ($attachment) {
-                    // Basic mapping, adjust thumbnail/url logic as needed based on your Attachment model/storage
+                    // Format file size in human-readable format
+                    $sizeFormatted = $this->formatFileSize($attachment->size);
+                    
+                    // Generate file icon based on mime type
+                    $fileIcon = $this->getFileIcon($attachment->mime_type);
+                    
                     return [
                         'id' => $attachment->id,
                         'fileName' => $attachment->filename,
-                        'thumbnail' => '/images/icons/file-icons/doc.png', // Placeholder, adjust logic
-                        'url' => $attachment->path, // Assuming path is the URL or can derive it
-                        'size' => $attachment->size . ' bytes', // Format size as needed
+                        'thumbnail' => $fileIcon,
+                        'url' => $attachment->path,
+                        'size' => $sizeFormatted,
+                        'mime_type' => $attachment->mime_type,
                         'download_url' => URL::temporarySignedRoute(
                             'attachments.download',
                             now()->addMinutes(60), // URL valid for 60 minutes
@@ -98,5 +104,49 @@ class MessageResource extends JsonResource
             // 'created_at' => $this->created_at,
             // 'updated_at' => $this->updated_at,
         ];
+    }
+
+    /**
+     * Format file size in human-readable format
+     */
+    private function formatFileSize($bytes)
+    {
+        if ($bytes >= 1073741824) {
+            return number_format($bytes / 1073741824, 2) . ' GB';
+        } elseif ($bytes >= 1048576) {
+            return number_format($bytes / 1048576, 2) . ' MB';
+        } elseif ($bytes >= 1024) {
+            return number_format($bytes / 1024, 2) . ' KB';
+        } elseif ($bytes > 1) {
+            return $bytes . ' bytes';
+        } elseif ($bytes == 1) {
+            return '1 byte';
+        } else {
+            return '0 bytes';
+        }
+    }
+
+    /**
+     * Get file icon based on mime type
+     */
+    private function getFileIcon($mimeType)
+    {
+        $iconMap = [
+            'application/pdf' => '/images/icons/file-icons/pdf.png',
+            'application/msword' => '/images/icons/file-icons/doc.png',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => '/images/icons/file-icons/doc.png',
+            'application/vnd.ms-excel' => '/images/icons/file-icons/xls.png',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => '/images/icons/file-icons/xls.png',
+            'application/vnd.ms-powerpoint' => '/images/icons/file-icons/ppt.png',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation' => '/images/icons/file-icons/ppt.png',
+            'text/plain' => '/images/icons/file-icons/txt.png',
+            'application/zip' => '/images/icons/file-icons/zip.png',
+            'application/x-zip-compressed' => '/images/icons/file-icons/zip.png',
+            'image/jpeg' => '/images/icons/file-icons/jpg.png',
+            'image/png' => '/images/icons/file-icons/png.png',
+            'image/gif' => '/images/icons/file-icons/gif.png',
+        ];
+
+        return $iconMap[$mimeType] ?? '/images/icons/file-icons/doc.png';
     }
 }
