@@ -148,6 +148,37 @@ public function deleteCompany($id)
         \Log::error('Error deleting company: ', ['message' => $e->getMessage()]);
         return response()->json(['error' => 'Failed to delete company.'], 500);
     }
+}
+
+public function bulkDeleteCompanies(Request $request)
+{
+    try {
+        $validated = $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:companies,id',
+        ]);
+
+        $ids = $validated['ids'];
+        
+        // Use a transaction to ensure data integrity
+        \DB::transaction(function () use ($ids) {
+            Company::whereIn('id', $ids)->delete();
+        });
+
+        $deletedCount = count($ids);
+        \Log::info("Bulk deleted {$deletedCount} companies", ['ids' => $ids]);
+
+        return response()->json([
+            'message' => "Successfully deleted {$deletedCount} companies.",
+            'deleted_count' => $deletedCount
+        ], 200);
+    } catch (\Exception $e) {
+        \Log::error('Error bulk deleting companies: ', [
+            'message' => $e->getMessage(),
+            'request_data' => $request->all()
+        ]);
+        return response()->json(['error' => 'Failed to delete companies.'], 500);
+    }
 }   
 public function showCompany($id)
 {

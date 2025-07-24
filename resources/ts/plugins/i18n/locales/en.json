@@ -394,12 +394,18 @@
     "edit": "Edit Company",
     "search": "Search Company",
     "showing": "Showing {from} to {to} of {total} entries",
+    "deleteSelected": "Delete Selected",
+    "confirmDelete": "Confirm Delete",
+    "confirmDeleteMessage": "Are you sure you want to delete {0} selected companies? This action cannot be undone.",
     "form": {
       "name": "Company Name",
       "namePlaceholder": "Enter company name"
     }
   },
   "itemsPerPage": "Items per page",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "all": "All",
   "emails": {
     "compose": {
       "title": "Compose Message",

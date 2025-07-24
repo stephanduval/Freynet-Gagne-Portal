@@ -394,12 +394,18 @@
     "edit": "Modifier l'entreprise",
     "search": "Rechercher une entreprise",
     "showing": "Affichage de {from} à {to} sur {total} entrées",
+    "deleteSelected": "Supprimer sélectionnées",
+    "confirmDelete": "Confirmer la suppression",
+    "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {0} entreprises sélectionnées ? Cette action ne peut pas être annulée.",
     "form": {
       "name": "Nom de l'entreprise",
       "namePlaceholder": "Entrer le nom de l'entreprise"
     }
   },
   "itemsPerPage": "Éléments par page",
+  "cancel": "Annuler",
+  "delete": "Supprimer",
+  "all": "Tous",
   "emails": {
     "compose": {
       "title": "Composer un message",

@@ -200,6 +200,39 @@ const deleteCompany = async (id: number) => {
     // console.error('Error deleting company:', error)
   }
 }
+
+// 👉 Bulk Delete Companies
+const isDeleteConfirmModalVisible = ref(false)
+
+const bulkDeleteCompanies = async () => {
+  if (selectedRows.value.length === 0) return
+
+  try {
+    const response = await fetch('/api/companies/bulk-delete', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+      },
+      body: JSON.stringify({ ids: selectedRows.value })
+    })
+
+    if (!response.ok) throw new Error('Failed to delete companies.')
+
+    // Clear selected rows and refetch companies
+    selectedRows.value = []
+    fetchCompanies()
+    isDeleteConfirmModalVisible.value = false
+  } catch (error) {
+    // console.error('Error deleting companies:', error)
+  }
+}
+
+const showDeleteConfirmModal = () => {
+  if (selectedRows.value.length > 0) {
+    isDeleteConfirmModalVisible.value = true
+  }
+}
 </script>
 
 <template>
@@ -215,7 +248,7 @@ const deleteCompany = async (id: number) => {
                 { value: 25, title: '25' },
                 { value: 50, title: '50' },
                 { value: 100, title: '100' },
-                { value: -1, title: 'All' },
+                { value: -1, title: t('all') },
               ]"
               :label="t('itemsPerPage')"
               style="inline-size: 6.25rem;"
@@ -233,6 +266,16 @@ const deleteCompany = async (id: number) => {
                 @update:model-value="() => { page.value = 1; fetchCompanies() }"
               />
             </div>
+
+            <!-- 👉 Delete selected button -->
+            <VBtn
+              v-if="selectedRows.length > 0"
+              prepend-icon="bx-trash"
+              color="error"
+              @click="showDeleteConfirmModal"
+            >
+              {{ t('companies.deleteSelected', selectedRows.length) }}
+            </VBtn>
 
             <!-- 👉 Add company button -->
             <VBtn
@@ -257,6 +300,35 @@ const deleteCompany = async (id: number) => {
         :company-id="selectedCompanyId"
         @company-updated="handleCompanyUpdated"
       />
+
+      <!-- 👉 Confirmation Modal -->
+      <VDialog v-model="isDeleteConfirmModalVisible" max-width="500">
+        <VCard>
+          <VCardTitle class="text-h5">
+            {{ t('companies.confirmDelete') }}
+          </VCardTitle>
+          <VCardText>
+            {{ t('companies.confirmDeleteMessage', selectedRows.length) }}
+          </VCardText>
+          <VCardActions>
+            <VSpacer />
+            <VBtn
+              color="grey"
+              variant="text"
+              @click="isDeleteConfirmModalVisible = false"
+            >
+              {{ t('cancel') }}
+            </VBtn>
+            <VBtn
+              color="error"
+              variant="elevated"
+              @click="bulkDeleteCompanies"
+            >
+              {{ t('delete') }}
+            </VBtn>
+          </VCardActions>
+        </VCard>
+      </VDialog>
 
       <!-- 👉 Data Table -->
       <VCard class="mb-6">

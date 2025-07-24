@@ -30,7 +30,7 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
-    retur n config
+    return config
   },
   (error) => {
     return Promise.reject(error)
@@ -61,7 +61,8 @@ const editedUser = ref({
   name: '',
   email: '',
   role: '',
-  company: ''
+  company: '',
+  department: ''
 })
 
 // Add company and role data management
@@ -227,7 +228,8 @@ const startEditing = () => {
     name: user.value?.name || '',
     email: user.value?.email || '',
     role: user.value?.role || '',
-    company: user.value?.company?.company_name || ''
+    company: user.value?.company?.company_name || '',
+    department: user.value?.department || ''
   }
   isEditing.value = true
 }
@@ -239,7 +241,8 @@ const cancelEditing = () => {
     name: '',
     email: '',
     role: '',
-    company: ''
+    company: '',
+    department: ''
   }
 }
 
@@ -250,7 +253,8 @@ const saveChanges = async () => {
       name: editedUser.value.name,
       email: editedUser.value.email,
       role_id: roles.value.find(r => r.name === editedUser.value.role)?.id,
-      company_id: companies.value.find(c => c.name === editedUser.value.company)?.id
+      company_id: companies.value.find(c => c.name === editedUser.value.company)?.id,
+      department: editedUser.value.department
     })
 
     if (response.data) {
@@ -474,6 +478,30 @@ onMounted(async () => {
                   />
                   <template v-else>
                     {{ user?.company?.company_name }}
+                  </template>
+                </VListItemSubtitle>
+              </VListItem>
+              
+              <VListItem>
+                <template #prepend>
+                  <VIcon
+                    color="primary"
+                    icon="mdi-domain"
+                    class="me-3"
+                  />
+                </template>
+                <VListItemTitle>{{ t('users.view.department') }}</VListItemTitle>
+                <VListItemSubtitle>
+                  <VTextField
+                    v-if="isEditing"
+                    v-model="editedUser.department"
+                    density="compact"
+                    hide-details
+                    variant="underlined"
+                    placeholder="Enter department"
+                  />
+                  <template v-else>
+                    {{ user?.department || 'N/A' }}
                   </template>
                 </VListItemSubtitle>
               </VListItem>
