@@ -30,7 +30,7 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
-    return config
+    retur n config
   },
   (error) => {
     return Promise.reject(error)
