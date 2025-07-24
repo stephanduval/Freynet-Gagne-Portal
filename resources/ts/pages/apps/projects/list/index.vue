@@ -188,6 +188,32 @@ const deleteProject = async (id: number) => {
   }
 }
 
+// 👉 Bulk Delete Projects
+const isDeleteConfirmModalVisible = ref(false)
+
+const bulkDeleteProjects = async () => {
+  if (selectedRows.value.length === 0) return
+
+  try {
+    await axios.delete('/projects/bulk-delete', {
+      data: { ids: selectedRows.value }
+    })
+
+    // Clear selected rows and refetch projects
+    selectedRows.value = []
+    fetchProjects()
+    isDeleteConfirmModalVisible.value = false
+  } catch (error) {
+    console.error('Error deleting projects:', error)
+  }
+}
+
+const showDeleteConfirmModal = () => {
+  if (selectedRows.value.length > 0) {
+    isDeleteConfirmModalVisible.value = true
+  }
+}
+
 // Add updateProjectStatus function
 const updateProjectStatus = async (projectId: number, newStatus: string) => {
   if (!isAdmin.value) {
@@ -277,10 +303,49 @@ onMounted(() => {
                 clear-icon="bx-x"
               />
             </div>
+
+            <!-- 👉 Delete selected button -->
+            <VBtn
+              v-if="selectedRows.length > 0 && isAdmin"
+              prepend-icon="bx-trash"
+              color="error"
+              @click="showDeleteConfirmModal"
+            >
+              {{ t('projects.deleteSelected', selectedRows.length) }}
+            </VBtn>
           </div>
         </VCardText>
 
         <VDivider />
+
+        <!-- 👉 Confirmation Modal -->
+        <VDialog v-model="isDeleteConfirmModalVisible" max-width="500">
+          <VCard>
+            <VCardTitle class="text-h5">
+              {{ t('projects.confirmDelete') }}
+            </VCardTitle>
+            <VCardText>
+              {{ t('projects.confirmDeleteMessage', selectedRows.length) }}
+            </VCardText>
+            <VCardActions>
+              <VSpacer />
+              <VBtn
+                color="grey"
+                variant="text"
+                @click="isDeleteConfirmModalVisible = false"
+              >
+                {{ t('cancel') }}
+              </VBtn>
+              <VBtn
+                color="error"
+                variant="elevated"
+                @click="bulkDeleteProjects"
+              >
+                {{ t('delete') }}
+              </VBtn>
+            </VCardActions>
+          </VCard>
+        </VDialog>
 
         <!-- SECTION datatable -->
         <VDataTableServer

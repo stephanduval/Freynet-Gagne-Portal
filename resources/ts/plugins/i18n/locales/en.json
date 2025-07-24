@@ -299,6 +299,9 @@
   "projects": {
     "title": "Projects",
     "search": "Search Project",
+    "deleteSelected": "Delete Selected ({0})",
+    "confirmDelete": "Confirm Delete",
+    "confirmDeleteMessage": "Are you sure you want to delete {0} selected projects? This action cannot be undone.",
     "form": {
       "serviceType": "Service Type",
       "voiceOver": "Voice Over",

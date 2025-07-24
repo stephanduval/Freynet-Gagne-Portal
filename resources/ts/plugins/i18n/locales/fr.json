@@ -300,6 +300,9 @@
   "projects": {
     "title": "Projets",
     "search": "Rechercher un projet",
+    "deleteSelected": "Supprimer sélectionnés ({0})",
+    "confirmDelete": "Confirmer la suppression",
+    "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {0} projets sélectionnés ? Cette action ne peut pas être annulée.",
     "form": {
       "serviceType": "Type de service",
       "voiceOver": "Voice-over",

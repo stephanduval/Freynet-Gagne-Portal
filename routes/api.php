@@ -112,6 +112,7 @@ Route::middleware('auth:sanctum')->get('/test-middleware', function (Request $re
 // Project Routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/projects/summary', [ProjectController::class, 'summary']);
+    Route::delete('/projects/bulk-delete', [ProjectController::class, 'bulkDestroy']);
     Route::apiResource('/projects', ProjectController::class);
 });
 

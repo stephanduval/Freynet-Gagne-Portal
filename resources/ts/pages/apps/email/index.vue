@@ -350,6 +350,12 @@ const handleMoveMailsTo = async (action: MoveEmailToAction, ids: number[] | Ref<
   try {
     await emailComposable.moveSelectedEmailTo(action, actualIds);
 
+    // Optimistically update local state immediately
+    if (action === 'trash') {
+      // Remove deleted messages from local state immediately
+      messages.value = messages.value.filter(msg => !actualIds.includes(msg.id));
+    }
+
     if (openedMessage.value && actualIds.includes(openedMessage.value.id)) {
       openedMessage.value = null;
     }
@@ -357,9 +363,15 @@ const handleMoveMailsTo = async (action: MoveEmailToAction, ids: number[] | Ref<
       selectedMessages.value = [];
     }
     
-      await fetchAllMessages();
+    // Add a small delay to ensure database transaction is committed
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await fetchAllMessages();
   } catch (error) {
-    // console.error(`Error moving emails to ${action}:`, error);
+    console.error(`Error moving emails to ${action}:`, error);
+    // Revert optimistic updates on error
+    if (action === 'trash') {
+      await fetchAllMessages(); // Refresh to get the correct state
+    }
   }
 };
 

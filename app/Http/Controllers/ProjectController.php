@@ -334,6 +334,59 @@ class ProjectController extends Controller
             return response()->json(['message' => 'Failed to delete project'], 500);
         }
     }
+
+    /**
+     * Bulk delete multiple projects.
+     */
+    public function bulkDestroy(Request $request)
+    {
+        Log::info("ProjectController::bulkDestroy - Bulk deleting projects");
+        
+        try {
+            $validated = $request->validate([
+                'ids' => 'required|array|min:1',
+                'ids.*' => 'integer|exists:projects,id',
+            ]);
+
+            $ids = $validated['ids'];
+            $projects = Project::whereIn('id', $ids)->get();
+            
+            // Check authorization for each project
+            foreach ($projects as $project) {
+                if (!auth()->user()->can('delete', $project)) {
+                    return response()->json(['message' => 'Unauthorized to delete one or more projects'], 403);
+                }
+            }
+            
+            // Use a transaction to ensure data integrity
+            \DB::transaction(function () use ($projects) {
+                foreach ($projects as $project) {
+                    // Check if project has messages and handle them
+                    $messagesCount = $project->messages()->count();
+                    if ($messagesCount > 0) {
+                        // Update messages to remove project association
+                        $project->messages()->update(['project_id' => null]);
+                    }
+                    
+                    $project->delete();
+                }
+            });
+
+            $deletedCount = count($ids);
+            Log::info("Bulk deleted {$deletedCount} projects", ['ids' => $ids]);
+
+            return response()->json([
+                'message' => "Successfully deleted {$deletedCount} projects.",
+                'deleted_count' => $deletedCount
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error bulk deleting projects: ', [
+                'message' => $e->getMessage(),
+                'request_data' => $request->all()
+            ]);
+            return response()->json(['message' => 'Failed to delete projects.'], 500);
+        }
+    }
     
     /**
      * Get summary statistics for projects
