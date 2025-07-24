@@ -300,7 +300,7 @@
   "projects": {
     "title": "Projets",
     "search": "Rechercher un projet",
-    "deleteSelected": "Supprimer sélectionnés ({0})",
+    "deleteSelected": "Supprimer sélectionnés {0}",
     "confirmDelete": "Confirmer la suppression",
     "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {0} projets sélectionnés ? Cette action ne peut pas être annulée.",
     "form": {
@@ -397,7 +397,7 @@
     "edit": "Modifier l'entreprise",
     "search": "Rechercher une entreprise",
     "showing": "Affichage de {from} à {to} sur {total} entrées",
-    "deleteSelected": "Supprimer sélectionnées",
+    "deleteSelected": "Supprimer sélectionnées {0}",
     "confirmDelete": "Confirmer la suppression",
     "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {0} entreprises sélectionnées ? Cette action ne peut pas être annulée.",
     "form": {
