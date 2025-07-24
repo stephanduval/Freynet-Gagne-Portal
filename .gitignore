@@ -36,10 +36,15 @@ dist-ssr
 /cypress/videos/
 /cypress/screenshots/
 
-# SQL dump files
+# SQL dump files and database schemas
 *.sql
-laravelweb_schema.sql
-laravelweb_schema_*.sql
+*.dump
+*.schema
+laravelweb_schema*.sql
+working_version_*.sql
+*_schema.sql
+*_dump.sql
+database_*.sql
 
 # 👉 Custom Git ignores
 

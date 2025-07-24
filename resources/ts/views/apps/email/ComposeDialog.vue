@@ -44,6 +44,7 @@ const selectedUser = ref<string | null>(null)
 
 // Add back the loading ref
 const loading = ref(false)
+const isSending = ref(false)
 
 // Update the interface for user data
 interface UserData {
@@ -302,6 +303,11 @@ const isLatestCompletionDateValid = computed(() => {
 
 // Update sendMessage to use selected user ID
 const sendMessage = async () => {
+  // Prevent multiple submissions
+  if (isSending.value) {
+    return;
+  }
+  
   console.log("ComposeDialog: sendMessage called");
   
   // Basic validation
@@ -323,6 +329,8 @@ const sendMessage = async () => {
     console.error('Invalid receiver selected');
     return;
   }
+  
+  isSending.value = true;
   
   // Prepare payload
   const payload: MessagePayload = {
@@ -368,6 +376,8 @@ const sendMessage = async () => {
   } catch (error) {
     console.error('ComposeDialog: Error sending message:', error);
     // You might want to show this error to the user
+  } finally {
+    isSending.value = false;
   }
 }
 
@@ -725,7 +735,8 @@ const isFormValid = computed(() => {
           color="primary"
           class="me-4"
           append-icon="bx-paper-plane"
-          :disabled="!isFormValid || attachmentErrors.length > 0"
+          :disabled="!isFormValid || attachmentErrors.length > 0 || isSending"
+          :loading="isSending"
           @click="sendMessage"
         >
           {{ t('emails.compose.send') }}
