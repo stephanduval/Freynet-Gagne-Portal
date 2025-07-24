@@ -918,18 +918,6 @@ const formatFileSize = (bytes: number) => {
               <template #append>
                 <div class="d-flex flex-column align-end gap-2">
                   <div class="d-flex align-center gap-2">
-                    <!-- Add attachment icon if message has attachments -->
-                    <IconBtn
-                      v-if="message.attachments?.length"
-                      @click.stop="downloadAttachments(message.attachments)"
-                      :title="message.attachments.length > 1 ? `${message.attachments.length} attachments` : '1 attachment'"
-                    >
-                      <VIcon
-                        icon="bx-paperclip"
-                        size="20"
-                        color="primary"
-                      />
-                    </IconBtn>
                     <span class="text-xs text-disabled">{{ formattedDate(message.sent_at || message.time || message.created_at) }}</span>
                   </div>
                   <VChip
@@ -943,6 +931,127 @@ const formatFileSize = (bytes: number) => {
               </template>
             </VListItem>
           </VList>
+        </VCard>
+
+        <!-- Attachments Section -->
+        <VCard class="mb-4">
+          <VCardItem>
+            <VCardTitle>
+              <VIcon
+                icon="bx-paperclip"
+                size="20"
+                class="me-2"
+              />
+              {{ t('projects.details.attachments') }}
+              <VChip
+                v-if="project?.attachments?.length"
+                color="primary"
+                size="small"
+                class="ms-2"
+              >
+                {{ project.attachments.length }}
+              </VChip>
+            </VCardTitle>
+          </VCardItem>
+
+          <VDivider />
+
+          <VCardText>
+            <div v-if="!project?.attachments?.length" class="text-center py-8">
+              <VIcon
+                icon="bx-file"
+                size="48"
+                color="disabled"
+                class="mb-4"
+              />
+              <div class="text-medium-emphasis">
+                {{ t('projects.details.noAttachments') }}
+              </div>
+            </div>
+            <div v-else class="attachment-grid">
+              <VCard
+                v-for="attachment in project.attachments"
+                :key="attachment.id"
+                class="attachment-card mb-4"
+                variant="outlined"
+                hover
+              >
+                <VCardText class="pa-4">
+                  <div class="d-flex align-start gap-3">
+                    <!-- File Icon -->
+                    <div class="attachment-icon-wrapper">
+                      <VIcon
+                        :icon="getFileIcon(attachment.mime_type)"
+                        size="32"
+                        color="primary"
+                      />
+                    </div>
+
+                    <!-- File Details -->
+                    <div class="flex-grow-1 min-width-0">
+                      <div class="d-flex align-center justify-space-between mb-2">
+                        <h6 class="text-h6 text-truncate me-2" style="max-width: 200px;">
+                          {{ attachment.filename }}
+                        </h6>
+                        <VChip
+                          size="x-small"
+                          color="secondary"
+                          variant="tonal"
+                        >
+                          {{ formatFileSize(attachment.size) }}
+                        </VChip>
+                      </div>
+
+                      <!-- File Metadata -->
+                      <div class="mb-3">
+                        <div class="text-caption text-medium-emphasis mb-1">
+                          <VIcon icon="bx-message" size="14" class="me-1" />
+                          {{ t('projects.details.fromMessage') }}: {{ attachment.message_subject }}
+                        </div>
+                        <div class="text-caption text-medium-emphasis">
+                          <VIcon icon="bx-calendar" size="14" class="me-1" />
+                          {{ formattedDate(attachment.message_date) }}
+                        </div>
+                        <div v-if="attachment.mime_type" class="text-caption text-medium-emphasis">
+                          <VIcon icon="bx-info-circle" size="14" class="me-1" />
+                          {{ attachment.mime_type }}
+                        </div>
+                      </div>
+
+                      <!-- Action Buttons -->
+                      <div class="d-flex gap-2">
+                        <VBtn
+                          color="primary"
+                          variant="elevated"
+                          size="small"
+                          @click="downloadAttachment(attachment)"
+                        >
+                          <VIcon
+                            icon="bx-download"
+                            size="16"
+                            class="me-1"
+                          />
+                          {{ t('emails.actions.download') }}
+                        </VBtn>
+                        <VBtn
+                          variant="outlined"
+                          size="small"
+                          @click="downloadAttachment(attachment)"
+                        >
+                          <VIcon
+                            icon="bx-show"
+                            size="16"
+                            class="me-1"
+                          />
+                          {{ t('emails.actions.preview') }}
+                        </VBtn>
+                      </div>
+                    </div>
+                  </div>
+                </VCardText>
+              </VCard>
+            </div>
+          </VCardText>
         </VCard>
       </VCol>
     </VRow>
@@ -960,97 +1069,6 @@ const formatFileSize = (bytes: number) => {
       @send-reply="handleSendReply"
     />
 
-    <!-- Attachments Section -->
-    <VCard class="mb-6">
-      <VCardItem>
-        <VCardTitle>
-          {{ t('projects.details.attachments') }}
-          <VChip
-            v-if="project?.attachments?.length"
-            color="primary"
-            size="small"
-            class="ms-2"
-          >
-            {{ project.attachments.length }}
-          </VChip>
-        </VCardTitle>
-        <template #append>
-          <VBtn
-            v-if="project?.attachments?.length"
-            color="primary"
-            variant="tonal"
-            @click="downloadAttachments(project.attachments)"
-          >
-            <VIcon
-              icon="bx-download"
-              size="20"
-              class="me-1"
-            />
-            {{ t('emails.actions.downloadAll') }}
-          </VBtn>
-        </template>
-      </VCardItem>
-
-      <VDivider />
-
-      <VCardText>
-        <div v-if="!project?.attachments?.length">
-          {{ t('projects.details.noAttachments') }}
-        </div>
-        <div v-else>
-          <VList>
-            <VListItem
-              v-for="attachment in project.attachments"
-              :key="attachment.id"
-              class="attachment-item"
-            >
-              <template #prepend>
-                <VIcon
-                  :icon="getFileIcon(attachment.mime_type)"
-                  size="24"
-                  color="primary"
-                  class="me-3"
-                />
-              </template>
-
-              <VListItemTitle class="d-flex flex-column">
-                <a
-                  href="#"
-                  class="text-decoration-none"
-                  @click.prevent="downloadAttachment(attachment)"
-                >
-                  {{ attachment.filename }}
-                </a>
-                <span class="text-caption text-medium-emphasis">
-                  {{ t('projects.details.fromMessage') }}: {{ attachment.message_subject }}
-                  ({{ formattedDate(attachment.message_date) }})
-                </span>
-              </VListItemTitle>
-
-              <VListItemSubtitle>
-                {{ formatFileSize(attachment.size) }}
-              </VListItemSubtitle>
-
-              <template #append>
-                <VBtn
-                  variant="text"
-                  color="primary"
-                  size="small"
-                  @click="downloadAttachment(attachment)"
-                >
-                  <VIcon
-                    icon="bx-download"
-                    size="20"
-                    class="me-1"
-                  />
-                  {{ t('emails.actions.download') }}
-                </VBtn>
-              </template>
-            </VListItem>
-          </VList>
-        </div>
-      </VCardText>
-    </VCard>
   </div>
 </template>
 
@@ -1064,6 +1082,41 @@ const formatFileSize = (bytes: number) => {
 
   &:hover {
     background-color: rgb(var(--v-theme-surface-variant));
+  }
+}
+
+.attachment-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.attachment-card {
+  transition: all 0.2s ease;
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+.attachment-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background-color: rgba(var(--v-theme-primary), 0.1);
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .attachment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 16px;
   }
 }
 </style> 

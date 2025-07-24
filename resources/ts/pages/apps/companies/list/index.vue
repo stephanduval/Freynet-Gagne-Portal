@@ -203,6 +203,8 @@ const deleteCompany = async (id: number) => {
 
 // 👉 Bulk Delete Companies
 const isDeleteConfirmModalVisible = ref(false)
+const isSingleDeleteConfirmModalVisible = ref(false)
+const selectedCompanyForDelete = ref<number | null>(null)
 
 const bulkDeleteCompanies = async () => {
   if (selectedRows.value.length === 0) return
@@ -231,6 +233,19 @@ const bulkDeleteCompanies = async () => {
 const showDeleteConfirmModal = () => {
   if (selectedRows.value.length > 0) {
     isDeleteConfirmModalVisible.value = true
+  }
+}
+
+const showSingleDeleteConfirmModal = (id: number) => {
+  selectedCompanyForDelete.value = id
+  isSingleDeleteConfirmModalVisible.value = true
+}
+
+const confirmSingleDelete = async () => {
+  if (selectedCompanyForDelete.value) {
+    await deleteCompany(selectedCompanyForDelete.value)
+    isSingleDeleteConfirmModalVisible.value = false
+    selectedCompanyForDelete.value = null
   }
 }
 </script>
@@ -301,7 +316,7 @@ const showDeleteConfirmModal = () => {
         @company-updated="handleCompanyUpdated"
       />
 
-      <!-- 👉 Confirmation Modal -->
+      <!-- 👉 Bulk Delete Confirmation Modal -->
       <VDialog v-model="isDeleteConfirmModalVisible" max-width="500">
         <VCard>
           <VCardTitle class="text-h5">
@@ -323,6 +338,35 @@ const showDeleteConfirmModal = () => {
               color="error"
               variant="elevated"
               @click="bulkDeleteCompanies"
+            >
+              {{ t('delete') }}
+            </VBtn>
+          </VCardActions>
+        </VCard>
+      </VDialog>
+
+      <!-- 👉 Single Delete Confirmation Modal -->
+      <VDialog v-model="isSingleDeleteConfirmModalVisible" max-width="500">
+        <VCard>
+          <VCardTitle class="text-h5">
+            {{ t('companies.confirmDelete') }}
+          </VCardTitle>
+          <VCardText>
+            {{ t('companies.confirmSingleDeleteMessage') }}
+          </VCardText>
+          <VCardActions>
+            <VSpacer />
+            <VBtn
+              color="grey"
+              variant="text"
+              @click="isSingleDeleteConfirmModalVisible = false"
+            >
+              {{ t('cancel') }}
+            </VBtn>
+            <VBtn
+              color="error"
+              variant="elevated"
+              @click="confirmSingleDelete"
             >
               {{ t('delete') }}
             </VBtn>
@@ -354,7 +398,7 @@ const showDeleteConfirmModal = () => {
             <VBtn icon variant="text" color="medium-emphasis" @click="openEditCompanyDrawer(item.id)">
             <VIcon icon="bx-pencil" />
           </VBtn>
-            <IconBtn @click="deleteCompany(item.id)">
+            <IconBtn @click="showSingleDeleteConfirmModal(item.id)">
               <VIcon icon="bx-trash" />
             </IconBtn>
           </template>

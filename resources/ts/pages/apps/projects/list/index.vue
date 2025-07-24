@@ -178,8 +178,6 @@ const deleteProject = async (id: number) => {
     return
   }
   
-  if (!confirm('Are you sure you want to delete this project?')) return
-  
   try {
     await axios.delete(`/projects/${id}`)
     fetchProjects()
@@ -190,6 +188,8 @@ const deleteProject = async (id: number) => {
 
 // 👉 Bulk Delete Projects
 const isDeleteConfirmModalVisible = ref(false)
+const isSingleDeleteConfirmModalVisible = ref(false)
+const selectedProjectForDelete = ref<number | null>(null)
 
 const bulkDeleteProjects = async () => {
   if (selectedRows.value.length === 0) return
@@ -211,6 +211,19 @@ const bulkDeleteProjects = async () => {
 const showDeleteConfirmModal = () => {
   if (selectedRows.value.length > 0) {
     isDeleteConfirmModalVisible.value = true
+  }
+}
+
+const showSingleDeleteConfirmModal = (id: number) => {
+  selectedProjectForDelete.value = id
+  isSingleDeleteConfirmModalVisible.value = true
+}
+
+const confirmSingleDelete = async () => {
+  if (selectedProjectForDelete.value) {
+    await deleteProject(selectedProjectForDelete.value)
+    isSingleDeleteConfirmModalVisible.value = false
+    selectedProjectForDelete.value = null
   }
 }
 
@@ -318,7 +331,7 @@ onMounted(() => {
 
         <VDivider />
 
-        <!-- 👉 Confirmation Modal -->
+        <!-- 👉 Bulk Delete Confirmation Modal -->
         <VDialog v-model="isDeleteConfirmModalVisible" max-width="500">
           <VCard>
             <VCardTitle class="text-h5">
@@ -340,6 +353,35 @@ onMounted(() => {
                 color="error"
                 variant="elevated"
                 @click="bulkDeleteProjects"
+              >
+                {{ t('delete') }}
+              </VBtn>
+            </VCardActions>
+          </VCard>
+        </VDialog>
+
+        <!-- 👉 Single Delete Confirmation Modal -->
+        <VDialog v-model="isSingleDeleteConfirmModalVisible" max-width="500">
+          <VCard>
+            <VCardTitle class="text-h5">
+              {{ t('projects.confirmDelete') }}
+            </VCardTitle>
+            <VCardText>
+              {{ t('projects.confirmSingleDeleteMessage') }}
+            </VCardText>
+            <VCardActions>
+              <VSpacer />
+              <VBtn
+                color="grey"
+                variant="text"
+                @click="isSingleDeleteConfirmModalVisible = false"
+              >
+                {{ t('cancel') }}
+              </VBtn>
+              <VBtn
+                color="error"
+                variant="elevated"
+                @click="confirmSingleDelete"
               >
                 {{ t('delete') }}
               </VBtn>
@@ -454,7 +496,7 @@ onMounted(() => {
 
             <IconBtn
               v-if="isAdmin"
-              @click="deleteProject(item.id)"
+              @click="showSingleDeleteConfirmModal(item.id)"
             >
               <VIcon icon="bx-trash" />
             </IconBtn>

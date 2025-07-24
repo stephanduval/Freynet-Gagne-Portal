@@ -692,7 +692,6 @@ const isFormValid = computed(() => {
         multiple
         :label="t('emails.compose.attachments')"
         :placeholder="t('emails.compose.selectFiles')"
-        prepend-icon="bx-paperclip"
         density="compact"
         :error-messages="attachmentErrors"
         @change="handleFileChange"

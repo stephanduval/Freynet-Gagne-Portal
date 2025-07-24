@@ -303,6 +303,7 @@
     "deleteSelected": "Supprimer sélectionnés {0}",
     "confirmDelete": "Confirmer la suppression",
     "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {0} projets sélectionnés ? Cette action ne peut pas être annulée.",
+    "confirmSingleDeleteMessage": "Êtes-vous sûr de vouloir supprimer ce projet ? Cette action ne peut pas être annulée.",
     "form": {
       "serviceType": "Type de service",
       "voiceOver": "Voice-over",
@@ -345,6 +346,9 @@
       "unknown": "Inconnu",
       "attachments": "Pièces Jointes",
       "noAttachments": "Aucune pièce jointe trouvée",
+      "bulkDownload": "Télécharger Tous les Fichiers",
+      "downloadAllDescription": "Télécharger toutes les {count} pièces jointes en une fois",
+      "fromMessage": "Du message",
       "comments": "Commentaires",
       "noComments": "Aucun commentaire trouvé",
       "addComment": "Ajouter un Commentaire",
@@ -400,6 +404,7 @@
     "deleteSelected": "Supprimer sélectionnées {0}",
     "confirmDelete": "Confirmer la suppression",
     "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {0} entreprises sélectionnées ? Cette action ne peut pas être annulée.",
+    "confirmSingleDeleteMessage": "Êtes-vous sûr de vouloir supprimer cette entreprise ? Cette action ne peut pas être annulée.",
     "form": {
       "name": "Nom de l'entreprise",
       "namePlaceholder": "Entrer le nom de l'entreprise"
@@ -503,7 +508,8 @@
       "refresh": "Actualiser",
       "changeTaskStatus": "Changer le statut de la tâche",
       "download": "Télécharger",
-      "downloadAll": "Tout télécharger"
+      "downloadAll": "Tout télécharger",
+      "preview": "Aperçu"
     },
     "status": {
       "new": "Nouveau",

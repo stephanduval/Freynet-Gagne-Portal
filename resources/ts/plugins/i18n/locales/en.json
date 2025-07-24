@@ -302,6 +302,7 @@
     "deleteSelected": "Delete Selected {0}",
     "confirmDelete": "Confirm Delete",
     "confirmDeleteMessage": "Are you sure you want to delete {0} selected projects? This action cannot be undone.",
+    "confirmSingleDeleteMessage": "Are you sure you want to delete this project? This action cannot be undone.",
     "form": {
       "serviceType": "Service Type",
       "voiceOver": "Voice Over",
@@ -344,6 +345,9 @@
       "unknown": "Unknown",
       "attachments": "Attachments",
       "noAttachments": "No attachments found",
+      "bulkDownload": "Download All Files",
+      "downloadAllDescription": "Download all {count} attachments at once",
+      "fromMessage": "From message",
       "comments": "Comments",
       "noComments": "No comments found",
       "addComment": "Add Comment",
@@ -400,6 +404,7 @@
     "deleteSelected": "Delete Selected {0}",
     "confirmDelete": "Confirm Delete",
     "confirmDeleteMessage": "Are you sure you want to delete {0} selected companies? This action cannot be undone.",
+    "confirmSingleDeleteMessage": "Are you sure you want to delete this company? This action cannot be undone.",
     "form": {
       "name": "Company Name",
       "namePlaceholder": "Enter company name"
@@ -497,7 +502,8 @@
       "refresh": "Refresh",
       "changeTaskStatus": "Change Task Status",
       "download": "Download",
-      "downloadAll": "Download All"
+      "downloadAll": "Download All",
+      "preview": "Preview"
     },
     "status": {
       "new": "New",
