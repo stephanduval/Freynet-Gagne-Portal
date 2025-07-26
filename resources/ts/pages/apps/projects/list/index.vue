@@ -490,9 +490,15 @@ onMounted(() => {
 
           <!-- Actions -->
           <template #item.actions="{ item }">
-            <IconBtn @click="viewProject(item.id)">
-              <VIcon icon="bx-show" />
-            </IconBtn>
+            <RouterLink
+              :to="{ name: 'apps-projects-view-id', params: { id: item.id }}"
+              custom
+              v-slot="{ navigate }"
+            >
+              <IconBtn @click="navigate">
+                <VIcon icon="bx-show" />
+              </IconBtn>
+            </RouterLink>
 
             <IconBtn
               v-if="isAdmin"
