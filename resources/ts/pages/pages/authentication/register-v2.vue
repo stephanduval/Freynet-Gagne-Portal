@@ -23,54 +23,16 @@ const isPasswordVisible = ref(false)
 </script>
 
 <template>
-  <RouterLink to="/">
-    <div class="auth-logo d-flex align-center gap-x-2">
-      <VNodeRenderer :nodes="themeConfig.app.logo" />
-      <h1 class="auth-title">
-        {{ themeConfig.app.title }}
-      </h1>
-    </div>
-  </RouterLink>
-
-  <VRow
-    no-gutters
-    class="auth-wrapper bg-surface"
-  >
-    <VCol
-      md="8"
-      class="d-none d-md-flex"
+  <div class="register-page d-flex align-center justify-center">
+    <VCard
+      class="register-card"
+      max-width="450"
+      elevation="2"
     >
-      <div class="position-relative bg-background w-100 pa-8">
-        <div class="d-flex align-center justify-center w-100 h-100">
-          <VImg
-            max-width="700"
-            :src="authV2RegisterIllustration"
-            class="auth-illustration"
-          />
-        </div>
-      </div>
-    </VCol>
-
-    <VCol
-      cols="12"
-      md="4"
-      class="auth-card-v2 d-flex align-center justify-center"
-    >
-      <VCard
-        flat
-        :max-width="500"
-        class="mt-12 pa-6"
-      >
-        <VCardText>
-          <h4 class="text-h4 mb-1">
-            Adventure starts here 🚀
-          </h4>
-          <p class="mb-0">
-            Make your app management easy and fun!
-          </p>
-        </VCardText>
-
-        <VCardText>
+      <VCardText class="pa-10">
+        <h4 class="text-h4 mb-6 text-center">
+          Adventure starts here 🚀
+        </h4>
           <VForm @submit.prevent="() => {}">
             <VRow>
               <!-- Username -->
@@ -138,7 +100,7 @@ const isPasswordVisible = ref(false)
                 <span class="d-inline-block">Already have an account?</span>
                 <RouterLink
                   class="text-primary ms-1 d-inline-block"
-                  :to="{ name: 'pages-authentication-login-v2' }"
+                  :to="{ name: 'login' }"
                 >
                   Sign in instead
                 </RouterLink>
@@ -162,12 +124,18 @@ const isPasswordVisible = ref(false)
               </VCol>
             </VRow>
           </VForm>
-        </VCardText>
-      </VCard>
-    </VCol>
-  </VRow>
+      </VCardText>
+    </VCard>
+  </div>
 </template>
 
-<style lang="scss">
-@use "@core-scss/template/pages/page-auth.scss";
+<style lang="scss" scoped>
+.register-page {
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.register-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
 </style>

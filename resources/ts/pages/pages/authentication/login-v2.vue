@@ -22,54 +22,16 @@ const isPasswordVisible = ref(false)
 </script>
 
 <template>
-  <RouterLink to="/">
-    <div class="auth-logo d-flex align-center gap-x-2">
-      <VNodeRenderer :nodes="themeConfig.app.logo" />
-      <h1 class="auth-title">
-        {{ themeConfig.app.title }}
-      </h1>
-    </div>
-  </RouterLink>
-
-  <VRow
-    no-gutters
-    class="auth-wrapper bg-surface"
-  >
-    <VCol
-      md="8"
-      class="d-none d-md-flex"
+  <div class="login-page d-flex align-center justify-center">
+    <VCard
+      class="login-card"
+      max-width="450"
+      elevation="2"
     >
-      <!-- illustration -->
-      <div class="position-relative bg-background w-100 pa-8">
-        <div class="d-flex align-center justify-center w-100 h-100">
-          <VImg
-            max-width="700"
-            :src="authV2LoginIllustration"
-            class="auth-illustration"
-          />
-        </div>
-      </div>
-    </VCol>
-
-    <VCol
-      cols="12"
-      md="4"
-      class="auth-card-v2 d-flex align-center justify-center"
-    >
-      <VCard
-        flat
-        :max-width="500"
-        class="mt-12 mt-sm-0 pa-6"
-      >
-        <VCardText>
-          <h4 class="text-h4 mb-1">
-            Welcome to <span class="text-capitalize">{{ themeConfig.app.title }}</span>! 👋🏻
-          </h4>
-          <p class="mb-0">
-            Please sign-in to your account and start the adventure
-          </p>
-        </VCardText>
-        <VCardText>
+      <VCardText class="pa-10">
+        <h4 class="text-h4 mb-6 text-center">
+          Welcome to <span class="text-capitalize">{{ themeConfig.app.title }}</span>!
+        </h4>
           <VForm @submit.prevent="() => {}">
             <VRow>
               <!-- email -->
@@ -149,12 +111,18 @@ const isPasswordVisible = ref(false)
               </VCol>
             </VRow>
           </VForm>
-        </VCardText>
-      </VCard>
-    </VCol>
-  </VRow>
+      </VCardText>
+    </VCard>
+  </div>
 </template>
 
-<style lang="scss">
-@use "@core-scss/template/pages/page-auth.scss";
+<style lang="scss" scoped>
+.login-page {
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.login-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
 </style>
