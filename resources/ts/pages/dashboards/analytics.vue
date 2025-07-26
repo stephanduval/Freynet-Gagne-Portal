@@ -12,25 +12,42 @@ interface MessageSummary {
   id: number;
   due_date: string | null;
   task_status: 'new' | 'in_process' | 'completed' | null;
+  is_read?: boolean;
+  status?: 'read' | 'unread' | 'sent' | 'draft' | 'archived' | 'deleted' | 'spam';
 }
 
 // Ref for storing summary data of ALL user messages
 const allUserMessagesSummary = ref<MessageSummary[]>([]);
 
-// Fetch summary data for ALL user messages (same API as email index.vue)
+// Fetch ALL user messages to get full data including read status
 const fetchAllUserMessagesSummary = async () => {
   try {
-    // console.log("🔥 Fetching summary data for ALL user messages in dashboard...");
-    const response = await $api('/messages/summary'); 
-    // console.log("✅ Summary Data:", response);
-    if (response && Array.isArray(response)) {
-      allUserMessagesSummary.value = response;
+    console.log("🔥 Fetching ALL messages to count unread...");
+    // Fetch full messages data instead of summary to get read status
+    const response = await $api('/messages'); 
+    console.log("✅ Messages Data:", response);
+    
+    // Check if response has data property
+    const messages = response.data || response;
+    
+    if (messages && Array.isArray(messages)) {
+      allUserMessagesSummary.value = messages;
+      // Log the first few messages to see their structure
+      if (messages.length > 0) {
+        console.log("First message:", messages[0]);
+        console.log("Total messages:", messages.length);
+        // Check if messages have read status fields
+        const hasIsRead = 'isRead' in messages[0];
+        const hasStatus = 'status' in messages[0];
+        const hasIs_Read = 'is_read' in messages[0];
+        console.log("Message fields - isRead:", hasIsRead, "status:", hasStatus, "is_read:", hasIs_Read);
+      }
     } else {
-      // console.error("❌ Invalid API response format for summary data:", response);
+      console.error("❌ Invalid API response format:", response);
       allUserMessagesSummary.value = [];
     }
   } catch (error) {
-    // console.error("❌ Error fetching summary data:", error);
+    console.error("❌ Error fetching messages:", error);
     allUserMessagesSummary.value = [];
   }
 };
@@ -54,9 +71,24 @@ const dueTodayCount = computed(() => {
   return count;
 });
 
-const newTasksCount = computed(() => {
-  // Count based on ALL user messages summary with task_status === 'new'
-  return allUserMessagesSummary.value.filter(m => m.task_status === 'new').length;
+const unreadMessagesCount = computed(() => {
+  // Count based on ALL user messages that are unread
+  const unreadMessages = allUserMessagesSummary.value.filter(m => {
+    // Check multiple possible field names for read status
+    const isUnread = 
+      m.is_read === false || 
+      m.status === 'unread' || 
+      (m as any).isRead === false ||
+      (m as any).read_status === 'unread';
+    
+    if (isUnread) {
+      console.log("Found unread message:", m);
+    }
+    return isUnread;
+  });
+  console.log("Total unread messages count:", unreadMessages.length);
+  console.log("All messages for debugging:", allUserMessagesSummary.value);
+  return unreadMessages.length;
 });
 
 onMounted(async () => {
@@ -88,8 +120,8 @@ onMounted(async () => {
       <VCol cols="12" md="6">
         <VCard class="cursor-pointer" @click="$router.push('/apps/email')">
           <VCardText class="text-center">
-            <div class="text-subtitle-1">{{ t('dashboard.newTasks') }}</div>
-            <div class="text-h4">{{ newTasksCount }}</div>
+            <div class="text-subtitle-1">{{ t('dashboard.unreadMessages', 'Unread Messages') }}</div>
+            <div class="text-h4">{{ unreadMessagesCount }}</div>
             <div class="mt-3">
               <RouterLink :to="{ path: '/apps/email' }" v-slot="{ navigate }">
                 <VBtn color="primary" @click="navigate">{{ t('dashboard.viewMessages') }}</VBtn>
