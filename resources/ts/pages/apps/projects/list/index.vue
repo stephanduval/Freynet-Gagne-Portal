@@ -17,6 +17,9 @@ interface Project {
     name: string
     email: string
   }
+  company?: {
+    name: string
+  }
   has_attachments: boolean
 }
 
@@ -81,6 +84,7 @@ const isClient = computed(() => userRole.value === 'client')
 // Headers
 const headers = computed(() => [
   { title: t('headers.projects.project'), key: 'project', sortable: true },
+  { title: t('headers.projects.company'), key: 'company', sortable: true },
   { title: t('headers.projects.client'), key: 'client', sortable: true },
   { title: t('headers.projects.serviceType'), key: 'service_type', sortable: true },
   { title: t('headers.projects.deadline'), key: 'deadline', sortable: true },
@@ -413,6 +417,17 @@ onMounted(() => {
                   >
                     {{ item.title }}
                   </RouterLink>
+                </h6>
+              </div>
+            </div>
+          </template>
+
+          <!-- Company -->
+          <template #item.company="{ item }">
+            <div class="d-flex align-center">
+              <div class="d-flex flex-column text-truncate" style="max-inline-size: 200px;">
+                <h6 class="text-base text-truncate">
+                  {{ item.company?.name || 'N/A' }}
                 </h6>
               </div>
             </div>

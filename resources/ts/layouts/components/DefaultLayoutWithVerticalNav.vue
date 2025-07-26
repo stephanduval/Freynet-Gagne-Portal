@@ -19,6 +19,20 @@ const configStore = useConfigStore()
 // ℹ️ Provide animation name for vertical nav collapse icon.
 const verticalNavHeaderActionAnimationName = ref<null | 'rotate-180' | 'rotate-back-180'>(null)
 
+// Get user role from localStorage
+const userRole = computed(() => {
+  const userData = localStorage.getItem('userData')
+  if (userData) {
+    try {
+      const parsed = JSON.parse(userData)
+      return parsed.role?.toLowerCase() || 'user'
+    } catch {
+      return 'user'
+    }
+  }
+  return 'user'
+})
+
 watch([
   () => configStore.isVerticalNavCollapsed,
   () => configStore.isAppRTL,
@@ -55,7 +69,7 @@ const actionArrowInitialRotation = configStore.isVerticalNavCollapsed ? '180deg'
           :languages="themeConfig.app.i18n.langConfig"
         />
         <NavbarThemeSwitcher />
-        <NavbarShortcuts />
+        <NavbarShortcuts v-if="userRole !== 'client'" />
         <!-- <NavBarNotifications class="me-1" /> -->
         <UserProfile />
       </div>

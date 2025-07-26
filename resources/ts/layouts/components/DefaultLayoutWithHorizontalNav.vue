@@ -11,6 +11,20 @@ import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue'
 import NavBarI18n from '@core/components/I18n.vue'
 import { HorizontalNavLayout } from '@layouts'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
+
+// Get user role from localStorage
+const userRole = computed(() => {
+  const userData = localStorage.getItem('userData')
+  if (userData) {
+    try {
+      const parsed = JSON.parse(userData)
+      return parsed.role?.toLowerCase() || 'user'
+    } catch {
+      return 'user'
+    }
+  }
+  return 'user'
+})
 </script>
 
 <template>
@@ -35,7 +49,7 @@ import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
       />
 
       <NavbarThemeSwitcher />
-      <NavbarShortcuts />
+      <NavbarShortcuts v-if="userRole !== 'client'" />
       <!-- <NavBarNotifications class="me-2" /> -->
       <!-- <UserProfile /> -->
     </template>

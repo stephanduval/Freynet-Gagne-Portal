@@ -269,6 +269,7 @@
       "project": "Projet",
       "property": "Propriété",
       "client": "Client",
+      "company": "Entreprise",
       "serviceType": "Type de service",
       "deadline": "Date limite",
       "status": "Statut",
