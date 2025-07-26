@@ -5,11 +5,12 @@ import { abilitiesPlugin } from '@casl/vue'
 import type { Rule } from './ability'
 
 export default function (app: App) {
-  // 1. Reads the rules from the cookie
-  const userAbilityRules = useCookie<Rule[]>('userAbilityRules')
+  // 1. Reads the rules from localStorage
+  const abilityRulesStr = localStorage.getItem('abilityRules')
+  const userAbilityRules = abilityRulesStr ? JSON.parse(abilityRulesStr) : []
 
-  // 2. Creates an ability instance with the rules found in the cookie (or empty if no cookie)
-  const initialAbility = createMongoAbility(userAbilityRules.value ?? [])
+  // 2. Creates an ability instance with the rules found in localStorage (or empty if none)
+  const initialAbility = createMongoAbility(userAbilityRules ?? [])
 
   // 3. Registers the CASL plugin with Vue, providing the loaded abilities
   app.use(abilitiesPlugin, initialAbility, {

@@ -14,7 +14,8 @@ export const redirects: RouteRecordRaw[] = [
     redirect: to => {
       // TODO: Get type from backend
       // Use explicit typing for the `userData` cookie
-      const userData = useCookie<{ role?: string }>('userData').value
+      const userDataStr = localStorage.getItem('userData')
+      const userData = userDataStr ? JSON.parse(userDataStr) : null
 
       const userRole = userData?.role?.toLowerCase() // Normalize role to lowercase
 
@@ -33,7 +34,7 @@ export const redirects: RouteRecordRaw[] = [
       }
 
       // Fallback logic - update default target
-      const isLoggedIn = !!(useCookie('userData').value && useCookie('accessToken').value)
+      const isLoggedIn = !!(localStorage.getItem('userData') && localStorage.getItem('accessToken'))
       if(!isLoggedIn) {
          return { name: 'login' }; 
       } else {
