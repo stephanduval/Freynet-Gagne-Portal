@@ -184,7 +184,7 @@ class MessageController extends Controller
         
         $rules = [
             'company_id' => 'required|exists:companies,id',
-            'subject' => 'required|string|max:255',
+            'subject' => 'nullable|string|max:255',
             'due_date' => 'nullable|date_format:Y-m-d', // Validate due_date
             'project_data' => 'nullable|array', // Add validation for project_data
         ];

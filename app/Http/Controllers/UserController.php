@@ -304,7 +304,6 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'Reset code generated successfully',
                 'reset_code' => $resetCode,
-                'expires_at' => now()->addMinutes(60)->toIso8601String(),
             ]);
         } catch (\Exception $e) {
             \Log::error('Error generating reset code:', [

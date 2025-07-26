@@ -250,10 +250,6 @@ class AuthController extends Controller
                 return response()->json(['message' => 'Invalid reset code.'], 400);
             }
 
-            // Check if the reset code has expired (60 minutes)
-            if (now()->diffInMinutes($resetRecord->created_at) > 60) {
-                return response()->json(['message' => 'Reset code has expired. Please request a new one.'], 400);
-            }
 
             // Find the user
             $user = User::where('email', $request->email)->first();

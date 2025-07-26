@@ -376,9 +376,7 @@ const resetPasswordUrl = computed(() => {
 const copyInstructions = () => {
   const instructions = `Your password for Freynet-Gagne has been reset. Please visit the link below to enter a new password.
 
-${resetPasswordUrl.value}
-
-The reset code will expire in 60 minutes`
+${resetPasswordUrl.value}`
   
   copyToClipboard(instructions)
 }
@@ -680,7 +678,6 @@ The reset code will expire in 60 minutes`
                     </VBtn>
                   </div>
                 </li>
-                <li class="mt-2">The reset code will expire in 60 minutes</li>
               </ol>
             </VAlert>
           </div>

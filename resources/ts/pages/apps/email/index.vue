@@ -485,7 +485,7 @@ const sendReply = async () => {
     return
   }
 
-  let replySubject = openedMessage.value.subject || '(No Subject)'
+  let replySubject = '(No Subject)'
   if (!replySubject.toLowerCase().startsWith('re:')) {
     replySubject = `Re: ${replySubject}`
   }
@@ -578,7 +578,7 @@ const { t } = useI18n();
 
 // Headers
 const headers = [
-  { title: t('headers.emails.projectSubject'), key: 'subject' },
+  { title: t('headers.emails.project'), key: 'project' },
   { title: t('headers.emails.from'), key: 'from' },
   { title: t('headers.emails.date'), key: 'date' },
   { title: t('headers.emails.status'), key: 'status' },
@@ -781,7 +781,7 @@ const closeEmailView = () => {
               From/<span class="font-weight-bold">To</span>
             </span>
             
-            <!-- Project-Subject column (250px) -->
+            <!-- Project column (250px) -->
             <span class="font-weight-semibold flex-shrink-0 ws-no-wrap text-truncate" style="inline-size: 250px; min-inline-size: 250px;">
               {{ t('headers.emails.project') }}
             </span>
@@ -869,13 +869,12 @@ const closeEmailView = () => {
         </div>
         
         <!-- Project Column -->
-        <div class="project-subject-column d-flex flex-column">
+        <div class="project-column d-flex flex-column">
           <div class="text-subtitle-2 font-weight-bold text-primary text-truncate">
             {{ message.project?.title }}
           </div>
           <div class="text-body-2 text-truncate">
-            {{ message.subject }}
-            <VIcon v-if="message.attachments?.length" icon="bx-paperclip" size="18" class="ms-1 text-disabled" />
+            <VIcon v-if="message.attachments?.length" icon="bx-paperclip" size="18" class="text-disabled" />
           </div>
         </div>
         
@@ -903,9 +902,6 @@ const closeEmailView = () => {
         </IconBtn>
 
               <div class="d-flex align-center flex-wrap flex-grow-1 overflow-hidden gap-2">
-                <div class="text-body-1 text-high-emphasis text-truncate">
-                  {{ openedMessage.subject || 'No Subject' }}
-        </div>
 
                 <div v-if="openedMessage.labels && openedMessage.labels.length" class="d-flex flex-wrap gap-2">
                   <VChip
@@ -1288,7 +1284,7 @@ const closeEmailView = () => {
       min-inline-size: 200px;
     }
 
-    .project-subject-column {
+    .project-column {
       inline-size: 250px;
       min-inline-size: 250px;
     }

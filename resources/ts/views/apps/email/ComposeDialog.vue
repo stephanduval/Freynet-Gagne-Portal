@@ -22,7 +22,6 @@ const { createMessage, sendMessageNotification } = useEmail();
 
 const content = ref('')
 const to = ref('')
-const subject = ref('')
 const message = ref('')
 const dueDate = ref<string | null>(null);
 const latestCompletionDate = ref<string | null>(null);
@@ -32,7 +31,6 @@ const projectTitle = ref('')
 const property = ref('')
 const timePreference = ref('anytime')
 const serviceType = ref('')
-const serviceDescription = ref('')
 
 // Admin recipient ID (info@freynet-gagne.com)
 const ADMIN_EMAIL = 'info@freynet-gagne.com';
@@ -170,7 +168,6 @@ interface ProjectData {
   property: string | null
   time_preference: string
   service_type: string | null
-  service_description: string | null
   deadline: string | null
   latest_completion_date: string | null
 }
@@ -179,7 +176,7 @@ interface ProjectData {
 interface MessagePayload {
   receiver_id: number | null
   company_id: number
-  subject: string
+  subject: string | null
   message: string
   due_date?: string | null
   attachments: File[]
@@ -188,7 +185,6 @@ interface MessagePayload {
     property: string | null
     time_preference: string
     service_type: string | null
-    service_description: string | null
     deadline: string | null
     latest_completion_date: string | null
   }
@@ -311,8 +307,8 @@ const sendMessage = async () => {
   console.log("ComposeDialog: sendMessage called");
   
   // Basic validation
-  if (!subject.value || !content.value) {
-    console.error('Subject and Message fields are required');
+  if (!content.value) {
+    console.error('Message field is required');
     return;
   }
 
@@ -336,20 +332,19 @@ const sendMessage = async () => {
   const payload: MessagePayload = {
     receiver_id: receiverId,
     company_id: 1,
-    subject: subject.value,
+    subject: null,
     message: content.value,
     due_date: dueDate.value,
     attachments: attachmentsRef.value
   };
   
   // Add project data if any project fields are filled out
-  if (projectTitle.value || property.value || serviceType.value || timePreference.value || serviceDescription.value || dueDate.value || latestCompletionDate.value) {
+  if (projectTitle.value || property.value || serviceType.value || timePreference.value || dueDate.value || latestCompletionDate.value) {
     payload.project_data = {
       title: projectTitle.value || '',
       property: property.value || '',
       time_preference: timePreference.value || 'anytime',
       service_type: serviceType.value || '',
-      service_description: serviceDescription.value || null,
       deadline: dueDate.value || null,
       latest_completion_date: latestCompletionDate.value || null
     };
@@ -383,7 +378,6 @@ const sendMessage = async () => {
 
 // Update resetValues
 const resetValues = () => {
-  subject.value = '';
   content.value = '';
   selectedUser.value = null;
   dueDate.value = null;
@@ -396,16 +390,15 @@ const resetValues = () => {
   property.value = '';
   timePreference.value = 'anytime';
   serviceType.value = '';
-  serviceDescription.value = '';
 }
 
 const isFormValid = computed(() => {
   // For client users, check all required fields
   if (isClient.value) {
-    return !!(projectTitle.value && property.value && serviceType.value && dueDate.value && subject.value && content.value && selectedUser.value)
+    return !!(projectTitle.value && property.value && serviceType.value && dueDate.value && content.value && selectedUser.value)
   }
   // For admin users, only check basic message fields
-  return !!(subject.value && content.value && selectedUser.value)
+  return !!(content.value && selectedUser.value)
 })
 </script>
 
@@ -584,25 +577,6 @@ const isFormValid = computed(() => {
       <VDivider />
 
       <div class="px-1 pe-6 py-1">
-        <VTextarea
-          v-model="serviceDescription"
-          density="compact"
-          :label="t('emails.compose.project.serviceDescription')"
-          :placeholder="t('emails.compose.project.descriptionPlaceholder')"
-          rows="2"
-          auto-grow
-        >
-          <template #prepend-inner>
-            <div class="text-base font-weight-medium text-disabled prepend-label pt-2">
-              {{ t('emails.compose.project.serviceDescription') }}:
-            </div>
-          </template>
-        </VTextarea>
-      </div>
-
-      <VDivider />
-
-      <div class="px-1 pe-6 py-1">
         <VSelect
           v-model="timePreference"
           density="compact"
@@ -673,20 +647,6 @@ const isFormValid = computed(() => {
       <VDivider />
     </div>
 
-    <div class="px-1 pe-6 py-1">
-      <VTextField
-        v-model="subject"
-        density="compact"
-      >
-        <template #prepend-inner>
-          <div class="text-base font-weight-medium text-disabled prepend-label">
-            {{ t('emails.compose.subject') }}:
-          </div>
-        </template>
-      </VTextField>
-    </div>
-
-    <VDivider />
 
     <!-- 👉 Tiptap Editor  -->
     <TiptapEditor

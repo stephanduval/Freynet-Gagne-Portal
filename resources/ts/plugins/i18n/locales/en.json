@@ -266,7 +266,7 @@
     "projects": {
       "title": "Projects",
       "project": "Project",
-      "property": "Property",
+      "property": "Word Count",
       "client": "Client",
       "company": "Company",
       "serviceType": "Service Type",
@@ -330,7 +330,7 @@
       "status": "Status",
       "description": "Description",
       "noDescription": "No description provided",
-      "property": "Property",
+      "property": "Word Count",
       "timePreference": "Time Preference",
       "latestCompletionDate": "Latest Completion Date",
       "contactEmail": "Contact Email",
@@ -426,10 +426,10 @@
       "attachments": "Attachments",
       "selectFiles": "Select your files",
       "project": {
-        "title": "Project Title",
-        "titlePlaceholder": "Enter project title",
-        "property": "Property",
-        "propertyPlaceholder": "Enter property details",
+        "title": "Document Title",
+        "titlePlaceholder": "Enter document title",
+        "property": "Word Count",
+        "propertyPlaceholder": "Enter word count",
         "serviceType": "Service Type",
         "serviceDescription": "Service Description",
         "descriptionPlaceholder": "Describe the service you need",
@@ -438,8 +438,8 @@
         "latestCompletionDate": "Latest Project Completion Date",
         "datePlaceholder": "YYYY-MM-DD",
         "validation": {
-          "titleRequired": "Project title is required",
-          "propertyRequired": "Property is required",
+          "titleRequired": "Document title is required",
+          "propertyRequired": "Word count is required",
           "serviceTypeRequired": "Service type is required",
           "dueDateRequired": "Due date is required",
           "dueDateFuture": "Due date must be today or later",
@@ -463,7 +463,7 @@
       "cancel": "Cancel",
       "validation": {
         "allFieldsRequired": "All fields must be filled before sending",
-        "titleRequired": "Project title is required"
+        "titleRequired": "Document title is required"
       }
     },
     "labels": {
