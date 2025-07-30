@@ -151,7 +151,7 @@ Route::get('/send-message-notification', function () {
         // Send email using the template with the message data
         Mail::mailer('mailgun')
             ->send('emails.new-message-alert', ['msg' => $message], function($mail) use ($message) {
-                $mail->to('stephan.duval@gmail.com')
+                $mail->to('sophie@freynet-gagne.com')
                      ->subject('Freynet-Gagné Portal - New Message: ' . $message->subject);
             });
 
