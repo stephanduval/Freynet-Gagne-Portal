@@ -57,7 +57,7 @@ const chartOptions = computed(() => {
             fontSize: '14px',
             color: MediumEmphasisTextColor,
             fontWeight: 400,
-            fontFamily: 'Public Sans',
+            fontFamily: 'DejaVu Serif',
           },
           value: {
             offsetY: -25,
@@ -65,7 +65,7 @@ const chartOptions = computed(() => {
             fontSize: '24px',
             formatter: (value: unknown) => `${value}`,
             color: HighEmphasisTextColor,
-            fontFamily: 'Public Sans',
+            fontFamily: 'DejaVu Serif',
           },
         },
       },

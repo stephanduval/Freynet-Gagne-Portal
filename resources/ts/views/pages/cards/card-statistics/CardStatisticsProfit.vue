@@ -61,7 +61,7 @@ const chartOptions = computed(() => {
           fontSize: '11px',
           lineHeight: '14px',
           colors: disabledText,
-          fontFamily: 'Public Sans',
+          fontFamily: 'DejaVu Serif',
         },
       },
     },

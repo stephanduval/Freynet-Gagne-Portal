@@ -46,7 +46,7 @@ const chartOptions = computed(() => {
             name: {
               offsetY: 22,
               color: secondaryTextColor,
-              fontFamily: 'Public Sans',
+              fontFamily: 'DejaVu Serif',
             },
             value: {
               offsetY: -17,
@@ -54,14 +54,14 @@ const chartOptions = computed(() => {
               fontSize: '24px',
               formatter: (val: unknown) => `${val}%`,
               color: primaryTextColor,
-              fontFamily: 'Public Sans',
+              fontFamily: 'DejaVu Serif',
             },
             total: {
               show: true,
               label: 'Average',
               fontSize: '15px',
               color: secondaryTextColor,
-              fontFamily: 'Public Sans',
+              fontFamily: 'DejaVu Serif',
               formatter: () => `${series.reduce((a, b) => a + b, 0) / series.length}%`,
             },
           },

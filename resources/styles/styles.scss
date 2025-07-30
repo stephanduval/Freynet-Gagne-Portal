@@ -1,1 +1,77 @@
-// Write your overrides
+// Font-face declarations for custom fonts
+@font-face {
+  font-family: 'DejaVu Serif';
+  src: url('https://cdn.jsdelivr.net/fontsource/fonts/dejavu-serif@latest/latin-400-normal.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/fontsource/fonts/dejavu-serif@latest/latin-400-normal.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DejaVu Serif';
+  src: url('https://cdn.jsdelivr.net/fontsource/fonts/dejavu-serif@latest/latin-700-normal.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/fontsource/fonts/dejavu-serif@latest/latin-700-normal.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Georgia Pro';
+  src: local('Georgia Pro'), local('Georgia-Pro'),
+       local('Georgia'), local('Georgia Regular');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+// Base font family
+body {
+  font-family: "DejaVu Serif", serif, Georgia, "Times New Roman", Times, serif;
+}
+
+// Georgia Pro for Freynet-Gagné branding/logo
+.company-logo,
+.brand-name,
+h1.brand,
+.navbar-brand,
+.app-logo-title,
+[class*="freynet"],
+[class*="Freynet"] {
+  font-family: "Georgia Pro", Georgia, serif !important;
+}
+
+// Keep sans-serif fonts for message dialogs and database listings
+.v-dialog,
+.compose-dialog,
+.email-compose-dialog,
+.message-list,
+.data-table,
+.v-data-table,
+[class*="message"],
+[class*="Message"],
+[class*="email"],
+[class*="Email"] {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  
+  // But still use Georgia Pro for any branding within these elements
+  .company-logo,
+  .brand-name,
+  [class*="freynet"],
+  [class*="Freynet"] {
+    font-family: "Georgia Pro", Georgia, serif !important;
+  }
+}
+
+// Update color variables for CSS custom properties
+:root {
+  --v-theme-primary: #{red(#5fa4bf)}, #{green(#5fa4bf)}, #{blue(#5fa4bf)};
+  --v-theme-secondary: #{red(#bf7a5f)}, #{green(#bf7a5f)}, #{blue(#bf7a5f)};
+}
+
+// Additional overrides if needed
+.v-application {
+  // Ensure proper inheritance
+  font-family: inherit;
+}

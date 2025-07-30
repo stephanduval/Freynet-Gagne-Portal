@@ -43,7 +43,7 @@ const chartOptions = computed(() => {
         offsetX: -2,
       },
       itemMargin: { horizontal: 15 },
-      fontFamily: 'Public Sans',
+      fontFamily: 'DejaVu Serif',
       labels: { colors: secondaryTextColor },
     },
     plotOptions: {
@@ -66,7 +66,7 @@ const chartOptions = computed(() => {
       labels: {
         style: {
           fontSize: '13px',
-          fontFamily: 'Public Sans',
+          fontFamily: 'DejaVu Serif',
           colors: [
             disabledTextColor,
             disabledTextColor,

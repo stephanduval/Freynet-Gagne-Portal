@@ -79,7 +79,7 @@ const chartOptions = computed(() => {
         style: {
           fontSize: '15px',
           colors: disabledTextColor,
-          fontFamily: 'Public Sans',
+          fontFamily: 'DejaVu Serif',
         },
       },
     },

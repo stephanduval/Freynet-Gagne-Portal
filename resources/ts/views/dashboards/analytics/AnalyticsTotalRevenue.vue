@@ -40,7 +40,7 @@ const chartOptions = computed(() => {
         position: 'top',
         fontSize: '13px',
         horizontalAlign: 'left',
-        fontFamily: 'Public Sans',
+        fontFamily: 'DejaVu Serif',
         labels: {
           colors: currentTheme.secondary,
         },
@@ -87,7 +87,7 @@ const chartOptions = computed(() => {
           style: {
             fontSize: '13px',
             colors: disabledTextColor,
-            fontFamily: 'Public Sans',
+            fontFamily: 'DejaVu Serif',
           },
         },
       },
@@ -96,7 +96,7 @@ const chartOptions = computed(() => {
           style: {
             fontSize: '13px',
             colors: disabledTextColor,
-            fontFamily: 'Public Sans',
+            fontFamily: 'DejaVu Serif',
           },
         },
       },
@@ -198,14 +198,14 @@ const chartOptions = computed(() => {
               fontWeight: 500,
               fontSize: '15px',
               color: secondaryTextColor,
-              fontFamily: 'Public Sans',
+              fontFamily: 'DejaVu Serif',
             },
             value: {
               offsetY: -15,
               fontWeight: 500,
               fontSize: '24px',
               color: primaryTextColor,
-              fontFamily: 'Public Sans',
+              fontFamily: 'DejaVu Serif',
             },
           },
         },

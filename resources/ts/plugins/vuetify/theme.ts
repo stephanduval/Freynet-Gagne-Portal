@@ -1,7 +1,7 @@
 import type { ThemeDefinition } from 'vuetify'
 
-export const staticPrimaryColor = '#696CFF'
-export const staticPrimaryDarkenColor = '#5E61E6'
+export const staticPrimaryColor = '#5fa4bf'
+export const staticPrimaryDarkenColor = '#4f8aa3'
 
 export const themes: Record<string, ThemeDefinition> = {
   light: {
@@ -10,11 +10,11 @@ export const themes: Record<string, ThemeDefinition> = {
       'primary': staticPrimaryColor,
       'on-primary': '#fff',
       'primary-darken-1': staticPrimaryDarkenColor,
-      'primary-light': '#8789FF',
-      'secondary': '#8592A3',
+      'primary-light': '#7fb4cb',
+      'secondary': '#bf7a5f',
       'on-secondary': '#fff',
-      'secondary-darken-1': '#788393',
-      'secondary-light': '#9DA8B5',
+      'secondary-darken-1': '#a66954',
+      'secondary-light': '#d49880',
       'success': '#71DD37',
       'on-success': '#fff',
       'success-darken-1': '#66C732',
@@ -31,10 +31,10 @@ export const themes: Record<string, ThemeDefinition> = {
       'on-error': '#fff',
       'error-darken-1': '#E6381A',
       'error-light': '#FF654A',
-      'background': '#f5f5f9',
-      'on-background': '#22303E',
-      'surface': '#fff',
-      'on-surface': '#22303E',
+      'background': '#ffffff',
+      'on-background': '#000000',
+      'surface': '#ffffff',
+      'on-surface': '#000000',
       'grey-50': '#FAFAFA',
       'grey-100': '#F5F5F5',
       'grey-200': '#EEEEEE',
@@ -91,11 +91,11 @@ export const themes: Record<string, ThemeDefinition> = {
       'primary': staticPrimaryColor,
       'on-primary': '#fff',
       'primary-darken-1': staticPrimaryDarkenColor,
-      'primary-light': '#8789FF',
-      'secondary': '#8592A3',
+      'primary-light': '#7fb4cb',
+      'secondary': '#bf7a5f',
       'on-secondary': '#fff',
-      'secondary-darken-1': '#788393',
-      'secondary-light': '#9DA8B5',
+      'secondary-darken-1': '#a66954',
+      'secondary-light': '#d49880',
       'success': '#71DD37',
       'on-success': '#fff',
       'success-darken-1': '#66C732',

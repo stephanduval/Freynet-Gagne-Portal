@@ -128,7 +128,7 @@ const chartConfig = computed(() => {
         style: {
           fontSize: '14px',
           colors: disabledTextColor,
-          fontFamily: 'Public Sans',
+          fontFamily: 'DejaVu Serif',
         },
       },
     },

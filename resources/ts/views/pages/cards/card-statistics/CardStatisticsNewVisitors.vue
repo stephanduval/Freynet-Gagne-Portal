@@ -59,7 +59,7 @@ const chartOptions = computed(() => {
           style: {
             fontSize: '13px',
             colors: disabledText,
-            fontFamily: 'Public Sans',
+            fontFamily: 'DejaVu Serif',
           },
         },
       },
@@ -131,7 +131,7 @@ const chartOptions = computed(() => {
           style: {
             fontSize: '13px',
             colors: disabledText,
-            fontFamily: 'Public Sans',
+            fontFamily: 'DejaVu Serif',
           },
         },
       },
