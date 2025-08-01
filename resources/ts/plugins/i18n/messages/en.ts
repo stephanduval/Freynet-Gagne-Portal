@@ -7,8 +7,8 @@ export default {
     loading: 'Loading',
     carousel: {
       ariaLabel: {
-        delimiter: 'delimiter'
-      }
+        delimiter: 'delimiter',
+      },
     },
     dataFooter: {
       itemsPerPageText: 'Items per page:',
@@ -17,7 +17,7 @@ export default {
       firstPage: 'First Page',
       prevPage: 'Previous Page',
       nextPage: 'Next Page',
-      lastPage: 'Last Page'
+      lastPage: 'Last Page',
     },
     pagination: {
       ariaLabel: {
@@ -27,24 +27,25 @@ export default {
         last: 'Last',
         next: 'Next',
         currentPage: 'Current Page',
-        page: 'Page'
-      }
+        page: 'Page',
+      },
     },
     input: {
       clear: 'Clear',
       appendAction: 'Append Action',
       prependAction: 'Prepend Action',
       counterSize: 'Counter Size',
-      otp: 'OTP'
+      otp: 'OTP',
     },
     fileInput: {
-      counterSize: 'Counter Size'
+      counterSize: 'Counter Size',
     },
     rating: {
       ariaLabel: {
-        item: 'Item'
-      }
-    }
+        item: 'Item',
+      },
+    },
   },
+
   // ... existing translations ...
-} 
+}

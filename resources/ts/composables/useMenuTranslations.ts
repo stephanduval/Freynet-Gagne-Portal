@@ -14,7 +14,7 @@ export function useMenuTranslations() {
     {
       title: t('menu.companyList'),
       icon: { icon: 'bx-briefcase' },
-      to: 'apps-companies-list'
+      to: 'apps-companies-list',
     },
     {
       title: t('menu.projects'),
@@ -29,6 +29,6 @@ export function useMenuTranslations() {
   ])
 
   return {
-    menuItems
+    menuItems,
   }
-} 
+}

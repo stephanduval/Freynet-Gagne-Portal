@@ -5,6 +5,7 @@ import type { UserProperties } from '@db/apps/users/types'
 // 👉 Store
 const searchQuery = ref('')
 const selectedRole = ref()
+
 // const selectedPlan = ref() // Removed
 // const selectedStatus = ref() // Removed
 
@@ -61,10 +62,9 @@ const { data: usersData, execute: fetchUsers } = useApi<UserResponse>(() => {
 })
 
 // Add error handling
-watch(usersData, (newData) => {
-  if (!newData) {
+watch(usersData, newData => {
+  if (!newData)
     console.error('Error fetching users: No data received')
-  }
 }, { immediate: true })
 
 // Derive users from the 'data' property of the response
@@ -76,15 +76,16 @@ const totalUsers = computed(() => usersData.value?.total || 0)
 // For a complete list, ideally fetch all roles from a dedicated API endpoint.
 const availableRoles = computed(() => {
   if (!usersData.value?.all_roles) { // Check if backend provides a dedicated list first
-     // Fallback: derive from fetched user data
-     const rolesFromUsers = users.value.map(user => user.role).filter(role => role && role !== 'N/A');
-     const uniqueRoles = [...new Set(rolesFromUsers)];
-     return uniqueRoles.map(role => ({ title: role, value: role }));
-  }
-  // If backend provides `all_roles` (e.g., ['Admin', 'Manager', ...])
-  return usersData.value.all_roles.map((role: string) => ({ title: role, value: role }));
-})
+    // Fallback: derive from fetched user data
+    const rolesFromUsers = users.value.map(user => user.role).filter(role => role && role !== 'N/A')
+    const uniqueRoles = [...new Set(rolesFromUsers)]
 
+    return uniqueRoles.map(role => ({ title: role, value: role }))
+  }
+
+  // If backend provides `all_roles` (e.g., ['Admin', 'Manager', ...])
+  return usersData.value.all_roles.map((role: string) => ({ title: role, value: role }))
+})
 
 // 👉 search filters for roles (Static list removed, using availableRoles now)
 // const roles = [ ... ] // Removed
@@ -93,8 +94,8 @@ const availableRoles = computed(() => {
 // const plans = [ ... ] // Removed
 
 const resolveUserRoleVariant = (role: string) => {
-  const roleString = String(role || '');
-  const roleLowerCase = roleString.toLowerCase();
+  const roleString = String(role || '')
+  const roleLowerCase = roleString.toLowerCase()
 
   if (roleLowerCase === 'subscriber')
     return { color: 'success', icon: 'bx-user' }
@@ -111,7 +112,7 @@ const resolveUserRoleVariant = (role: string) => {
   if (roleLowerCase === 'user')
     return { color: 'light', icon: 'bx-user-circle' }
   if (roleLowerCase === 'auth')
-    return { color: 'dark', icon: 'bx-shield-quarter'}
+    return { color: 'dark', icon: 'bx-shield-quarter' }
 
   return { color: 'grey', icon: 'bx-help-circle' }
 }
@@ -196,17 +197,17 @@ const deleteUser = async (id: number) => {
 
           <!-- 👉 Select Plan (Removed) -->
           <!--
-          <div style="inline-size: 9.375rem;">
+            <div style="inline-size: 9.375rem;">
             <AppSelect
-              v-model="selectedPlan"
-              placeholder="Select Plan"
-              :items="plans"
-              clearable
-              clear-icon="bx-x"
+            v-model="selectedPlan"
+            placeholder="Select Plan"
+            :items="plans"
+            clearable
+            clear-icon="bx-x"
             />
-          </div>
-           -->
-           <!-- Select Status filter was likely implicit via the API param, no UI element to remove unless added previously -->
+            </div>
+          -->
+          <!-- Select Status filter was likely implicit via the API param, no UI element to remove unless added previously -->
         </div>
       </VCardText>
 
@@ -283,15 +284,11 @@ const deleteUser = async (id: number) => {
         <!-- 👉 Actions -->
         <template #item.actions="{ item }">
           <div class="d-flex gap-1">
-            <IconBtn
-              :to="{ name: 'apps-user-view-id', params: { id: item.id } }"
-            >
+            <IconBtn :to="{ name: 'apps-user-view-id', params: { id: item.id } }">
               <VIcon icon="bx-show" />
             </IconBtn>
 
-            <IconBtn
-              @click="deleteUser(item.id)"
-            >
+            <IconBtn @click="deleteUser(item.id)">
               <VIcon icon="bx-trash" />
             </IconBtn>
           </div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import AddNewUserDrawer from '@/views/apps/user/list/AddNewUserDrawer.vue'
 import EditUserDrawer from '@/views/apps/user/list/EditUserDrawer.vue'
-import { useI18n } from 'vue-i18n'
 
 import type { UserProperties } from '@db/apps/users/types'
 
@@ -19,6 +19,7 @@ interface UserApiResponse {
 
 // 👉 Store
 const searchQuery = ref('')
+
 // Removing filter variables
 // const selectedRole = ref()
 // const selectedPlan = ref()
@@ -71,9 +72,7 @@ const headers = computed(() => [
   { title: t('headers.users.actions'), key: 'actions', sortable: false },
 ])
 
-
 //   GPT FETCH USERCODE START
-
 
 // GPT CODE END
 
@@ -81,12 +80,14 @@ const headers = computed(() => [
 
 const { data: usersData, execute: fetchUsers } = useApi<UserApiResponse>(() => {
   const params = new URLSearchParams()
+
   params.append('page', String(page.value))
   params.append('itemsPerPage', itemsPerPage.value === -1 ? 'all' : String(itemsPerPage.value))
   if (searchQuery.value)
     params.append('q', searchQuery.value)
 
   const token = localStorage.getItem('accessToken')
+
   // console.log('Fetching users with params:', {
   //   page: page.value,
   //   itemsPerPage: itemsPerPage.value === -1 ? 'all' : itemsPerPage.value,
@@ -110,7 +111,8 @@ const paginationMeta = ref({
 
 // Watch for changes in usersData to update pagination
 watch(usersData, (data: UserApiResponse | null) => {
-  if (!data) return
+  if (!data)
+    return
 
   paginationMeta.value = {
     currentPage: data.current_page,
@@ -127,6 +129,7 @@ onMounted(async () => {
   // console.log('Component mounted, fetching users...')
   try {
     await fetchUsers()
+
     // console.log('Initial users fetch complete:', usersData.value)
   }
   catch (error) {
@@ -237,7 +240,8 @@ const addNewUser = async (response: { success: boolean; message?: string; error?
 
 // 👉 Delete user
 const confirmDelete = async () => {
-  if (!selectedUserForDelete.value) return
+  if (!selectedUserForDelete.value)
+    return
 
   try {
     const response = await fetch(`/api/users/${selectedUserForDelete.value.id}`, {
@@ -324,7 +328,7 @@ const generateResetCode = async (userId: number) => {
   try {
     isGeneratingReset.value = true
     resetError.value = ''
-    
+
     const response = await fetch(`/api/users/${userId}/generate-reset-code`, {
       method: 'POST',
       headers: {
@@ -339,10 +343,12 @@ const generateResetCode = async (userId: number) => {
       throw new Error(data.message || 'Failed to generate reset code')
 
     resetCode.value = data.reset_code
-  } catch (err) {
+  }
+  catch (err) {
     // console.error('Error generating reset code:', err)
     resetError.value = err instanceof Error ? err.message : 'Failed to generate reset code'
-  } finally {
+  }
+  finally {
     isGeneratingReset.value = false
   }
 }
@@ -361,15 +367,19 @@ const openResetPasswordModal = (user: any) => {
 const copyToClipboard = async (text: string) => {
   try {
     await navigator.clipboard.writeText(text)
+
     // You could add a toast notification here
-  } catch (err) {
+  }
+  catch (err) {
     // console.error('Failed to copy:', err)
   }
 }
 
 const resetPasswordUrl = computed(() => {
-  if (!resetCode.value || !selectedUserForReset.value?.email) return ''
+  if (!resetCode.value || !selectedUserForReset.value?.email)
+    return ''
   const baseUrl = import.meta.env.VITE_FRONTEND_URL || window.location.origin
+
   return `${baseUrl}/reset-password?code=${resetCode.value}&email=${encodeURIComponent(selectedUserForReset.value.email)}`
 })
 
@@ -377,7 +387,7 @@ const copyInstructions = () => {
   const instructions = `Your password for Freynet-Gagne has been reset. Please visit the link below to enter a new password.
 
 ${resetPasswordUrl.value}`
-  
+
   copyToClipboard(instructions)
 }
 </script>
@@ -385,57 +395,59 @@ ${resetPasswordUrl.value}`
 <template>
   <section>
     <!-- 👉 Widgets -->
-      <!-- <div class="d-flex mb-6">
-        <VRow>
-          <template
-            v-for="(data, id) in widgetData"
-            :key="id"
-          >
-            <VCol
-              cols="12"
-              md="3"
-              sm="6"
-            >
-              <VCard>
-                <VCardText>
-                  <div class="d-flex justify-space-between">
-                    <div class="d-flex flex-column gap-y-1">
-                      <div class="text-body-1 text-high-emphasis">
-                        {{ data.title }}
-                      </div>
-                      <div class="d-flex gap-x-2 align-center">
-                        <h4 class="text-h4">
-                          {{ data.value }}
-                        </h4>
-                        <div
-                          class="text-base"
-                          :class="data.change > 0 ? 'text-success' : 'text-error'"
-                        >
-                          ({{ prefixWithPlus(data.change) }}%)
-                        </div>
-                      </div>
-                      <div class="text-sm">
-                        {{ data.desc }}
-                      </div>
-                    </div>
-                    <VAvatar
-                      :color="data.iconColor"
-                      variant="tonal"
-                      rounded
-                      size="40"
-                    >
-                      <VIcon
-                        :icon="data.icon"
-                        size="24"
-                      />
-                    </VAvatar>
-                  </div>
-                </VCardText>
-              </VCard>
-            </VCol>
-          </template>
-        </VRow>
-      </div> -->
+    <!--
+      <div class="d-flex mb-6">
+      <VRow>
+      <template
+      v-for="(data, id) in widgetData"
+      :key="id"
+      >
+      <VCol
+      cols="12"
+      md="3"
+      sm="6"
+      >
+      <VCard>
+      <VCardText>
+      <div class="d-flex justify-space-between">
+      <div class="d-flex flex-column gap-y-1">
+      <div class="text-body-1 text-high-emphasis">
+      {{ data.title }}
+      </div>
+      <div class="d-flex gap-x-2 align-center">
+      <h4 class="text-h4">
+      {{ data.value }}
+      </h4>
+      <div
+      class="text-base"
+      :class="data.change > 0 ? 'text-success' : 'text-error'"
+      >
+      ({{ prefixWithPlus(data.change) }}%)
+      </div>
+      </div>
+      <div class="text-sm">
+      {{ data.desc }}
+      </div>
+      </div>
+      <VAvatar
+      :color="data.iconColor"
+      variant="tonal"
+      rounded
+      size="40"
+      >
+      <VIcon
+      :icon="data.icon"
+      size="24"
+      />
+      </VAvatar>
+      </div>
+      </VCardText>
+      </VCard>
+      </VCol>
+      </template>
+      </VRow>
+      </div>
+    -->
 
     <VCard class="mb-6">
       <!-- Removing the Filter title and filter options -->
@@ -466,14 +478,16 @@ ${resetPasswordUrl.value}`
             />
           </div>
 
-          <!-- 👉 Export button
-          <VBtn
+          <!--
+            👉 Export button
+            <VBtn
             variant="tonal"
             color="secondary"
             prepend-icon="bx-export"
-          >
+            >
             Export
-          </VBtn> -->
+            </VBtn>
+          -->
 
           <!-- 👉 Add user button -->
           <VBtn
@@ -647,7 +661,10 @@ ${resetPasswordUrl.value}`
             This will generate a new reset code that can be used to set a new password. The user will need to use this code to reset their password.
           </p>
 
-          <div v-if="resetCode" class="mb-4">
+          <div
+            v-if="resetCode"
+            class="mb-4"
+          >
             <VAlert
               color="info"
               variant="tonal"
@@ -656,7 +673,9 @@ ${resetPasswordUrl.value}`
               <template #prepend>
                 <VIcon icon="bx-info-circle" />
               </template>
-              <p class="mb-2">Instructions for the user:</p>
+              <p class="mb-2">
+                Instructions for the user:
+              </p>
               <ol class="mb-0">
                 <li class="mt-2">
                   <div class="d-flex align-center gap-2">
@@ -671,8 +690,8 @@ ${resetPasswordUrl.value}`
                     <VBtn
                       icon
                       variant="tonal"
-                      @click="copyInstructions"
                       title="Copy complete instructions"
+                      @click="copyInstructions"
                     >
                       <VIcon icon="bx-copy" />
                     </VBtn>

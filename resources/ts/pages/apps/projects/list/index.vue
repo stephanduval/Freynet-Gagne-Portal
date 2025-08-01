@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import axios from '@/../js/axios'
-import TablePagination from '@core/components/TablePagination.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import TablePagination from '@core/components/TablePagination.vue'
+import axios from '@/../js/axios'
 
 interface Project {
   id: number
@@ -60,7 +60,8 @@ const paginationMeta = ref({
 
 // Watch for changes in projectsData to update pagination
 watch(projectsData, (data: ApiResponse | null) => {
-  if (!data) return
+  if (!data)
+    return
 
   paginationMeta.value = {
     currentPage: data.current_page,
@@ -75,6 +76,7 @@ watch(projectsData, (data: ApiResponse | null) => {
 // Add user role check
 const userRole = computed(() => {
   const userData = JSON.parse(localStorage.getItem('userData') || '{}')
+
   return userData.role?.toLowerCase() || 'user'
 })
 
@@ -120,37 +122,49 @@ const serviceTypeOptions = computed(() => [
 // Methods
 const fetchProjects = async () => {
   isLoading.value = true
-  
+
   try {
     const params = new URLSearchParams()
-    
-    if (searchQuery.value) params.append('search', searchQuery.value)
-    if (selectedStatus.value) params.append('status', selectedStatus.value)
-    if (selectedServiceType.value) params.append('service_type', selectedServiceType.value)
-    
+
+    if (searchQuery.value)
+      params.append('search', searchQuery.value)
+    if (selectedStatus.value)
+      params.append('status', selectedStatus.value)
+    if (selectedServiceType.value)
+      params.append('service_type', selectedServiceType.value)
+
     params.append('page', page.value.toString())
     params.append('per_page', itemsPerPage.value.toString())
     params.append('sort_by', sortBy.value || 'created_at')
     params.append('sort_desc', orderBy.value === 'desc' ? '1' : '0')
-    
+
     const response = await axios.get('/projects', { params })
+
     projectsData.value = response.data
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Error fetching projects:', error)
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
 
 const formatDate = (date: string) => {
-  if (!date) return 'N/A'
+  if (!date)
+    return 'N/A'
+
   return new Date(date).toLocaleDateString()
 }
 
 const resolveStatusVariant = (status: string) => {
-  if (status === 'received') return 'warning'
-  if (status === 'in_progress') return 'info'
-  if (status === 'delivered') return 'success'
+  if (status === 'received')
+    return 'warning'
+  if (status === 'in_progress')
+    return 'info'
+  if (status === 'delivered')
+    return 'success'
+
   return 'secondary'
 }
 
@@ -179,13 +193,15 @@ const viewProject = (id: number) => {
 const deleteProject = async (id: number) => {
   if (!isAdmin.value) {
     console.error('Only admins can delete projects')
+
     return
   }
-  
+
   try {
     await axios.delete(`/projects/${id}`)
     fetchProjects()
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Error deleting project:', error)
   }
 }
@@ -196,26 +212,27 @@ const isSingleDeleteConfirmModalVisible = ref(false)
 const selectedProjectForDelete = ref<number | null>(null)
 
 const bulkDeleteProjects = async () => {
-  if (selectedRows.value.length === 0) return
+  if (selectedRows.value.length === 0)
+    return
 
   try {
     await axios.delete('/projects/bulk-delete', {
-      data: { ids: selectedRows.value }
+      data: { ids: selectedRows.value },
     })
 
     // Clear selected rows and refetch projects
     selectedRows.value = []
     fetchProjects()
     isDeleteConfirmModalVisible.value = false
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Error deleting projects:', error)
   }
 }
 
 const showDeleteConfirmModal = () => {
-  if (selectedRows.value.length > 0) {
+  if (selectedRows.value.length > 0)
     isDeleteConfirmModalVisible.value = true
-  }
 }
 
 const showSingleDeleteConfirmModal = (id: number) => {
@@ -235,16 +252,19 @@ const confirmSingleDelete = async () => {
 const updateProjectStatus = async (projectId: number, newStatus: string) => {
   if (!isAdmin.value) {
     console.error('Only admins can update project status')
+
     return
   }
 
   try {
     await axios.put(`/projects/${projectId}`, {
-      status: newStatus
+      status: newStatus,
     })
+
     // Refresh the projects list after successful update
     await fetchProjects()
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Error updating project status:', error)
   }
 }
@@ -336,7 +356,10 @@ onMounted(() => {
         <VDivider />
 
         <!-- 👉 Bulk Delete Confirmation Modal -->
-        <VDialog v-model="isDeleteConfirmModalVisible" max-width="500">
+        <VDialog
+          v-model="isDeleteConfirmModalVisible"
+          max-width="500"
+        >
           <VCard>
             <VCardTitle class="text-h5">
               {{ t('projects.confirmDelete') }}
@@ -365,7 +388,10 @@ onMounted(() => {
         </VDialog>
 
         <!-- 👉 Single Delete Confirmation Modal -->
-        <VDialog v-model="isSingleDeleteConfirmModalVisible" max-width="500">
+        <VDialog
+          v-model="isSingleDeleteConfirmModalVisible"
+          max-width="500"
+        >
           <VCard>
             <VCardTitle class="text-h5">
               {{ t('projects.confirmDelete') }}
@@ -409,10 +435,13 @@ onMounted(() => {
           <!-- Project -->
           <template #item.project="{ item }">
             <div class="d-flex align-center">
-              <div class="d-flex flex-column text-truncate" style="max-inline-size: 250px;">
+              <div
+                class="d-flex flex-column text-truncate"
+                style="max-inline-size: 250px;"
+              >
                 <h6 class="text-base">
                   <RouterLink
-                    :to="{ name: 'apps-projects-view-id', params: { id: item.id }}"
+                    :to="{ name: 'apps-projects-view-id', params: { id: item.id } }"
                     class="font-weight-medium text-link text-truncate"
                   >
                     {{ item.title }}
@@ -425,7 +454,10 @@ onMounted(() => {
           <!-- Company -->
           <template #item.company="{ item }">
             <div class="d-flex align-center">
-              <div class="d-flex flex-column text-truncate" style="max-inline-size: 200px;">
+              <div
+                class="d-flex flex-column text-truncate"
+                style="max-inline-size: 200px;"
+              >
                 <h6 class="text-base text-truncate">
                   {{ item.client?.companies?.[0]?.name || 'N/A' }}
                 </h6>
@@ -436,7 +468,10 @@ onMounted(() => {
           <!-- Client -->
           <template #item.client="{ item }">
             <div class="d-flex align-center">
-              <div class="d-flex flex-column text-truncate" style="max-inline-size: 200px;">
+              <div
+                class="d-flex flex-column text-truncate"
+                style="max-inline-size: 200px;"
+              >
                 <h6 class="text-base text-truncate">
                   {{ item.client?.name || 'N/A' }}
                 </h6>
@@ -449,14 +484,20 @@ onMounted(() => {
 
           <!-- Service Type -->
           <template #item.service_type="{ item }">
-            <div class="text-capitalize text-truncate" style="max-inline-size: 120px;">
+            <div
+              class="text-capitalize text-truncate"
+              style="max-inline-size: 120px;"
+            >
               {{ item.service_type || 'N/A' }}
             </div>
           </template>
 
           <!-- Deadline -->
           <template #item.deadline="{ item }">
-            <div class="text-truncate" style="max-inline-size: 100px;">
+            <div
+              class="text-truncate"
+              style="max-inline-size: 100px;"
+            >
               {{ formatDate(item.deadline) }}
             </div>
           </template>
@@ -506,9 +547,9 @@ onMounted(() => {
           <!-- Actions -->
           <template #item.actions="{ item }">
             <RouterLink
-              :to="{ name: 'apps-projects-view-id', params: { id: item.id }}"
-              custom
               v-slot="{ navigate }"
+              :to="{ name: 'apps-projects-view-id', params: { id: item.id } }"
+              custom
             >
               <IconBtn @click="navigate">
                 <VIcon icon="bx-show" />
@@ -572,4 +613,4 @@ onMounted(() => {
 .status-select {
   min-inline-size: 120px;
 }
-</style> 
+</style>

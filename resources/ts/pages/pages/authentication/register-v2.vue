@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import { VNodeRenderer } from '@/@layouts/components/VNodeRenderer'
 import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
-import { themeConfig } from '@themeConfig'
-
-import authV2RegisterIllustration from '@images/pages/auth-v2-register-illustration.png'
 
 definePage({
   meta: {
@@ -33,97 +29,97 @@ const isPasswordVisible = ref(false)
         <h4 class="text-h4 mb-6 text-center">
           Adventure starts here 🚀
         </h4>
-          <VForm @submit.prevent="() => {}">
-            <VRow>
-              <!-- Username -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="form.username"
-                  autofocus
-                  label="Username"
-                  placeholder="Johndoe"
+        <VForm @submit.prevent="() => {}">
+          <VRow>
+            <!-- Username -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="form.username"
+                autofocus
+                label="Username"
+                placeholder="Johndoe"
+              />
+            </VCol>
+
+            <!-- email -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="form.email"
+                label="Email"
+                type="email"
+                placeholder="johndoe@email.com"
+              />
+            </VCol>
+
+            <!-- password -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="form.password"
+                label="Password"
+                placeholder="············"
+                :type="isPasswordVisible ? 'text' : 'password'"
+                :append-inner-icon="isPasswordVisible ? 'bx-hide' : 'bx-show'"
+                @click:append-inner="isPasswordVisible = !isPasswordVisible"
+              />
+
+              <div class="d-flex align-center my-6">
+                <VCheckbox
+                  id="privacy-policy"
+                  v-model="form.privacyPolicies"
+                  inline
                 />
-              </VCol>
-
-              <!-- email -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="form.email"
-                  label="Email"
-                  type="email"
-                  placeholder="johndoe@email.com"
-                />
-              </VCol>
-
-              <!-- password -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="form.password"
-                  label="Password"
-                  placeholder="············"
-                  :type="isPasswordVisible ? 'text' : 'password'"
-                  :append-inner-icon="isPasswordVisible ? 'bx-hide' : 'bx-show'"
-                  @click:append-inner="isPasswordVisible = !isPasswordVisible"
-                />
-
-                <div class="d-flex align-center my-6">
-                  <VCheckbox
-                    id="privacy-policy"
-                    v-model="form.privacyPolicies"
-                    inline
-                  />
-                  <VLabel
-                    for="privacy-policy"
-                    style="opacity: 1;"
-                  >
-                    <span class="me-1 text-high-emphasis">I agree to</span>
-                    <a
-                      href="javascript:void(0)"
-                      class="text-primary"
-                    >privacy policy & terms</a>
-                  </VLabel>
-                </div>
-
-                <VBtn
-                  block
-                  type="submit"
+                <VLabel
+                  for="privacy-policy"
+                  style="opacity: 1;"
                 >
-                  Sign up
-                </VBtn>
-              </VCol>
+                  <span class="me-1 text-high-emphasis">I agree to</span>
+                  <a
+                    href="javascript:void(0)"
+                    class="text-primary"
+                  >privacy policy & terms</a>
+                </VLabel>
+              </div>
 
-              <!-- create account -->
-              <VCol
-                cols="12"
-                class="text-center text-base"
+              <VBtn
+                block
+                type="submit"
               >
-                <span class="d-inline-block">Already have an account?</span>
-                <RouterLink
-                  class="text-primary ms-1 d-inline-block"
-                  :to="{ name: 'login' }"
-                >
-                  Sign in instead
-                </RouterLink>
-              </VCol>
+                Sign up
+              </VBtn>
+            </VCol>
 
-              <VCol
-                cols="12"
-                class="d-flex align-center"
+            <!-- create account -->
+            <VCol
+              cols="12"
+              class="text-center text-base"
+            >
+              <span class="d-inline-block">Already have an account?</span>
+              <RouterLink
+                class="text-primary ms-1 d-inline-block"
+                :to="{ name: 'login' }"
               >
-                <VDivider />
-                <span class="mx-4">or</span>
-                <VDivider />
-              </VCol>
+                Sign in instead
+              </RouterLink>
+            </VCol>
 
-              <!-- auth providers -->
-              <VCol
-                cols="12"
-                class="text-center"
-              >
-                <AuthProvider />
-              </VCol>
-            </VRow>
-          </VForm>
+            <VCol
+              cols="12"
+              class="d-flex align-center"
+            >
+              <VDivider />
+              <span class="mx-4">or</span>
+              <VDivider />
+            </VCol>
+
+            <!-- auth providers -->
+            <VCol
+              cols="12"
+              class="text-center"
+            >
+              <AuthProvider />
+            </VCol>
+          </VRow>
+        </VForm>
       </VCardText>
     </VCard>
   </div>

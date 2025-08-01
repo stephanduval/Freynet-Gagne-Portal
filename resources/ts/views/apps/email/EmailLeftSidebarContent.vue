@@ -1,19 +1,26 @@
 <script setup lang="ts">
-import { computed, defineEmits, defineProps, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
-import type { RouteLocationRaw } from 'vue-router';
-import { PerfectScrollbar } from 'vue3-perfect-scrollbar';
+import { computed, defineEmits, defineProps, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import type { RouteLocationRaw } from 'vue-router'
+import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 
 defineOptions({
   inheritAttrs: false,
 })
 
+const props = defineProps<Props>()
+
+defineEmits<{
+  (e: 'toggleComposeDialogVisibility'): void
+  (e: 'folderSelected'): void
+}>()
+
 // console.log ("WTF sidebar");
 
 interface EmailLabelData {
-  id: number;
-  title: string;
-  color: string;
+  id: number
+  title: string
+  color: string
 }
 
 interface EmailsMeta {
@@ -25,20 +32,13 @@ interface EmailsMeta {
 }
 
 interface Props {
-  messagesMeta: EmailsMeta,
-  userLabels: Array<{ id: number; title: string; color: string }>,
-  fetchUserLabels: () => Promise<void>,
-  addLabel: (data: { label_name: string; colour: string }) => Promise<boolean>,
-  resolveLabelColor: (labelTitle: string) => string,
-  deleteLabel: (id: number) => Promise<boolean>,
+  messagesMeta: EmailsMeta
+  userLabels: Array<{ id: number; title: string; color: string }>
+  fetchUserLabels: () => Promise<void>
+  addLabel: (data: { label_name: string; colour: string }) => Promise<boolean>
+  resolveLabelColor: (labelTitle: string) => string
+  deleteLabel: (id: number) => Promise<boolean>
 }
-
-const props = defineProps<Props>()
-
-defineEmits<{ 
-  (e: 'toggleComposeDialogVisibility'): void
-  (e: 'folderSelected'): void 
-}>()
 
 const { t } = useI18n()
 
@@ -101,13 +101,14 @@ const folders = computed(() => [
 // Local state for the add label form
 const showAddLabelForm = ref(false)
 const newLabelName = ref('')
+
 const labelColours = [
   { name: 'blue', value: '#2196F3' },
   { name: 'green', value: '#4CAF50' },
   { name: 'red', value: '#F44336' },
   { name: 'orange', value: '#FF9800' },
   { name: 'purple', value: '#9C27B0' },
-  { name: 'teal', value: '#009688' }
+  { name: 'teal', value: '#009688' },
 ]
 
 // Update the selectedColour ref to use the color value
@@ -133,32 +134,34 @@ const handleAddLabel = async () => {
 }
 
 // --- Label Deletion State & Logic ---
-const isDeleteDialogOpen = ref(false);
-const labelToDelete = ref<EmailLabelData | null>(null);
+const isDeleteDialogOpen = ref(false)
+const labelToDelete = ref<EmailLabelData | null>(null)
 
 const initiateLabelDelete = (label: EmailLabelData) => {
   // console.log("Initiating delete for label:", label);
-  labelToDelete.value = label;
-  isDeleteDialogOpen.value = true;
-};
+  labelToDelete.value = label
+  isDeleteDialogOpen.value = true
+}
 
 const confirmLabelDelete = async () => {
-  if (!labelToDelete.value) return;
+  if (!labelToDelete.value)
+    return
 
   // console.log("Confirming delete for label ID:", labelToDelete.value.id);
-  const success = await props.deleteLabel(labelToDelete.value.id);
+  const success = await props.deleteLabel(labelToDelete.value.id)
 
   if (success) {
     // console.log("Label deleted successfully.");
     // The useEmail composable's deleteLabel already refreshes the list
-  } else {
+  }
+  else {
     // console.error("Failed to delete label.");
     // Optional: Show error feedback to user
   }
 
-  isDeleteDialogOpen.value = false;
-  labelToDelete.value = null;
-};
+  isDeleteDialogOpen.value = false
+  labelToDelete.value = null
+}
 </script>
 
 <template>
@@ -206,14 +209,20 @@ const confirmLabelDelete = async () => {
       <!-- Always show LABELS header and Add button -->
       <div class="text-caption text-disabled d-flex align-center justify-space-between px-6">
         <span>{{ t('emails.labels.title') }}</span>
-        <IconBtn size="small" @click="showAddLabelForm = !showAddLabelForm">
+        <IconBtn
+          size="small"
+          @click="showAddLabelForm = !showAddLabelForm"
+        >
           <VIcon :icon="showAddLabelForm ? 'bx-chevron-up' : 'bx-plus'" />
         </IconBtn>
       </div>
 
       <!-- Conditionally show Add Label Form -->
       <VExpandTransition>
-        <div v-show="showAddLabelForm" class="px-6 pb-4">
+        <div
+          v-show="showAddLabelForm"
+          class="px-6 pb-4"
+        >
           <VTextField
             v-model="newLabelName"
             :label="t('emails.labels.name')"
@@ -229,18 +238,27 @@ const confirmLabelDelete = async () => {
               :style="{ backgroundColor: colour.value, border: selectedColour === colour.value ? '2px solid grey' : 'none' }"
               size="small"
               :value="colour.value"
-              @click="selectedColour = colour.value"
               class="cursor-pointer"
+              @click="selectedColour = colour.value"
             >
               &nbsp;
             </VChip>
           </div>
-          <VBtn size="small" block @click="handleAddLabel">{{ t('emails.labels.add') }}</VBtn>
+          <VBtn
+            size="small"
+            block
+            @click="handleAddLabel"
+          >
+            {{ t('emails.labels.add') }}
+          </VBtn>
         </div>
       </VExpandTransition>
 
       <!-- Conditionally show Label List -->
-      <ul class="email-labels mt-4" v-if="props.userLabels.length > 0">
+      <ul
+        v-if="props.userLabels.length > 0"
+        class="email-labels mt-4"
+      >
         <li
           v-for="label in props.userLabels"
           :key="label.id"
@@ -271,17 +289,22 @@ const confirmLabelDelete = async () => {
                 class="delete-label-btn"
                 @click.stop="initiateLabelDelete(label)"
               >
-                <VIcon icon="bx-trash" size="25"/>
+                <VIcon
+                  icon="bx-trash"
+                  size="25"
+                />
               </IconBtn>
             </div>
           </RouterLink>
         </li>
       </ul>
-
     </PerfectScrollbar>
 
     <!-- Delete Confirmation Dialog -->
-    <VDialog v-model="isDeleteDialogOpen" max-width="500px">
+    <VDialog
+      v-model="isDeleteDialogOpen"
+      max-width="500px"
+    >
       <VCard>
         <VCardTitle>{{ t('emails.labels.deleteConfirm.title') }}</VCardTitle>
         <VCardText>
@@ -289,8 +312,18 @@ const confirmLabelDelete = async () => {
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn color="secondary" @click="isDeleteDialogOpen = false">{{ t('emails.labels.deleteConfirm.cancel') }}</VBtn>
-          <VBtn color="error" @click="confirmLabelDelete">{{ t('emails.labels.deleteConfirm.confirm') }}</VBtn>
+          <VBtn
+            color="secondary"
+            @click="isDeleteDialogOpen = false"
+          >
+            {{ t('emails.labels.deleteConfirm.cancel') }}
+          </VBtn>
+          <VBtn
+            color="error"
+            @click="confirmLabelDelete"
+          >
+            {{ t('emails.labels.deleteConfirm.confirm') }}
+          </VBtn>
         </VCardActions>
       </VCard>
     </VDialog>

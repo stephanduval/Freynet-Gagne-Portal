@@ -1,6 +1,6 @@
 export default [
   { heading: 'menu.heading' },
-  
+
   {
     title: 'menu.userManagement',
     icon: { icon: 'bx-user' },

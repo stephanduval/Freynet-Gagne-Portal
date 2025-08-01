@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { useEmail } from '@/views/apps/email/useEmail';
-import { useDebounceFn } from '@vueuse/core';
-import { computed, onMounted, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { useDebounceFn } from '@vueuse/core'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useEmail } from '@/views/apps/email/useEmail'
 
 // Add interfaces at the top of the script
 interface Props {
@@ -18,13 +18,13 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emit>()
 const { t } = useI18n()
 
-const { createMessage, sendMessageNotification } = useEmail();
+const { createMessage, sendMessageNotification } = useEmail()
 
 const content = ref('')
 const to = ref('')
 const message = ref('')
-const dueDate = ref<string | null>(null);
-const latestCompletionDate = ref<string | null>(null);
+const dueDate = ref<string | null>(null)
+const latestCompletionDate = ref<string | null>(null)
 
 // Project information fields
 const projectTitle = ref('')
@@ -33,9 +33,9 @@ const timePreference = ref('anytime')
 const serviceType = ref('')
 
 // Admin recipient ID (info@freynet-gagne.com)
-const ADMIN_EMAIL = 'info@freynet-gagne.com';
-const ADMIN_NAME = 'Administrator';
-const ADMIN_USER_ID = 1;
+const ADMIN_EMAIL = 'info@freynet-gagne.com'
+const ADMIN_NAME = 'Administrator'
+const ADMIN_USER_ID = 1
 
 // Simplified user selection state
 const selectedUser = ref<string | null>(null)
@@ -64,10 +64,12 @@ const users = ref<UserData[]>([])
 
 // Add function to fetch users with pagination
 const fetchUsers = async (search = '') => {
-  if (!isAdmin.value) return // Only fetch for admin users
-  
+  if (!isAdmin.value)
+    return // Only fetch for admin users
+
   try {
     isLoadingUsers.value = true
+
     const params = new URLSearchParams({
       page: String(userPage.value),
       itemsPerPage: 'all', // Always use 'all' for admin dropdown
@@ -76,7 +78,7 @@ const fetchUsers = async (search = '') => {
 
     // Use $api instead of fetch to handle base URL and authentication properly
     const data = await $api(`/users?${params.toString()}`)
-    
+
     // Update the users list with the new data
     users.value = data.data.map((user: any) => ({
       id: user.id,
@@ -84,7 +86,7 @@ const fetchUsers = async (search = '') => {
       email: user.email,
       role: user.role,
     }))
-    
+
     // Update pagination metadata
     userTotal.value = data.total
     userPage.value = data.current_page
@@ -94,19 +96,21 @@ const fetchUsers = async (search = '') => {
       total: data.total,
       currentPage: data.current_page,
       perPage: data.per_page,
-      users: users.value
+      users: users.value,
     })
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Error fetching users:', error)
+
     // Show user-friendly error message
-    if (error?.response?.status === 404) {
+    if (error?.response?.status === 404)
       console.error('Users endpoint not found. Please check API configuration.')
-    } else if (error?.response?.status === 401) {
+    else if (error?.response?.status === 401)
       console.error('Authentication failed. Please log in again.')
-    } else {
+    else
       console.error('Failed to fetch users. Please try again later.')
-    }
-  } finally {
+  }
+  finally {
     isLoadingUsers.value = false
   }
 }
@@ -122,35 +126,45 @@ const debouncedSearch = useDebounceFn((value: string) => {
 const userData = computed(() => {
   try {
     const data = localStorage.getItem('userData') ? JSON.parse(localStorage.getItem('userData') || '{}') : {}
+
     console.log('UserData from localStorage:', data) // Debug log
+
     return data
-  } catch (e) {
+  }
+  catch (e) {
     console.error('Error parsing userData from localStorage:', e)
+
     return {}
   }
 })
 
 const userRole = computed(() => {
   const role = userData.value?.role || ''
+
   console.log('Detected user role:', role) // Debug log
+
   return role.toLowerCase() // Convert to lowercase for consistent comparison
 })
 
 const isAdmin = computed(() => {
   const admin = userRole.value === 'admin' // Compare with lowercase
+
   console.log('Is admin?', admin) // Debug log
+
   return admin
 })
 
 const isClient = computed(() => {
   const client = userRole.value === 'client' // Compare with lowercase
+
   console.log('Is client?', client) // Debug log
+
   return client
 })
 
 // Ref for attachments
-const attachmentsRef = ref<File[]>([]); // Use VFileInput's multiple capability
-const attachmentErrors = ref<string[]>([]); // To store validation errors
+const attachmentsRef = ref<File[]>([]) // Use VFileInput's multiple capability
+const attachmentErrors = ref<string[]>([]) // To store validation errors
 
 const cc = ref('')
 const bcc = ref('')
@@ -158,9 +172,9 @@ const isEmailCc = ref(false)
 const isEmailBcc = ref(false)
 
 // For filtered users in dropdown
-const filteredToUsers = ref<Array<{ id: number, fullName: string, email: string }>>([])
-const filteredCcUsers = ref<Array<{ id: number, fullName: string, email: string }>>([])
-const filteredBccUsers = ref<Array<{ id: number, fullName: string, email: string }>>([])
+const filteredToUsers = ref<Array<{ id: number; fullName: string; email: string }>>([])
+const filteredCcUsers = ref<Array<{ id: number; fullName: string; email: string }>>([])
+const filteredBccUsers = ref<Array<{ id: number; fullName: string; email: string }>>([])
 
 // Define project data interface
 interface ProjectData {
@@ -195,10 +209,11 @@ onMounted(async () => {
   try {
     loading.value = true
     console.log('Component mounted, user role:', userRole.value)
-    
+
     if (isAdmin.value) {
       await fetchUsers() // Initial fetch
-    } else {
+    }
+    else {
       // For client users, set the admin as the only option
       users.value = [{
         id: ADMIN_USER_ID,
@@ -208,28 +223,35 @@ onMounted(async () => {
       }]
       selectedUser.value = ADMIN_EMAIL
     }
-    
+
     // Initialize project form with defaults
-    if (!projectTitle.value) projectTitle.value = ''
-    if (!property.value) property.value = ''
-    if (!timePreference.value) timePreference.value = 'anytime'
-    if (!serviceType.value) serviceType.value = ''
-    
+    if (!projectTitle.value)
+      projectTitle.value = ''
+    if (!property.value)
+      property.value = ''
+    if (!timePreference.value)
+      timePreference.value = 'anytime'
+    if (!serviceType.value)
+      serviceType.value = ''
+
     // Set default dates
     if (!dueDate.value) {
       const defaultDueDate = new Date()
+
       defaultDueDate.setDate(defaultDueDate.getDate() + 14)
       dueDate.value = defaultDueDate.toISOString().split('T')[0]
     }
 
     if (!latestCompletionDate.value) {
       const defaultLatestCompletion = new Date()
+
       defaultLatestCompletion.setDate(defaultLatestCompletion.getDate() + 21)
       latestCompletionDate.value = defaultLatestCompletion.toISOString().split('T')[0]
     }
-    
+
     loading.value = false
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Error in onMounted:', error)
     loading.value = false
   }
@@ -241,37 +263,36 @@ const onInputChange = (value: string, field: 'to' | 'cc' | 'bcc') => {
 }
 
 // --- Attachment Handling & Validation ---
-const MAX_FILE_SIZE_MB = 25;
-const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+const MAX_FILE_SIZE_MB = 25
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 
 // NEW: Manual file handling instead of v-model
 const handleFileChange = (event: Event) => {
-  const target = event.target as HTMLInputElement;
+  const target = event.target as HTMLInputElement
   if (target && target.files) {
     // Append new files to the existing array
-    for (let i = 0; i < target.files.length; i++) {
-      attachmentsRef.value.push(target.files[i]);
-    }
+    for (let i = 0; i < target.files.length; i++)
+      attachmentsRef.value.push(target.files[i])
+
     // Trigger validation watch manually if needed (it should still trigger)
     // console.log('Appended files:', attachmentsRef.value);
   }
-};
+}
 
 // NEW: Function to remove attachment by index
 const removeAttachment = (index: number) => {
-  attachmentsRef.value.splice(index, 1);
-};
+  attachmentsRef.value.splice(index, 1)
+}
 
-watch(attachmentsRef, (newFiles) => {
-  attachmentErrors.value = []; // Clear previous errors
-  let totalSize = 0;
+watch(attachmentsRef, newFiles => {
+  attachmentErrors.value = [] // Clear previous errors
+  let totalSize = 0
 
   newFiles.forEach((file, index) => {
-    totalSize += file.size;
-    if (file.size > MAX_FILE_SIZE_BYTES) {
-      attachmentErrors.value.push(`File "${file.name}" (${(file.size / 1024 / 1024).toFixed(2)} MB) exceeds the ${MAX_FILE_SIZE_MB} MB limit.`);
-    }
-  });
+    totalSize += file.size
+    if (file.size > MAX_FILE_SIZE_BYTES)
+      attachmentErrors.value.push(`File "${file.name}" (${(file.size / 1024 / 1024).toFixed(2)} MB) exceeds the ${MAX_FILE_SIZE_MB} MB limit.`)
+  })
 
   // Optional: Check total size limit if needed
   // const MAX_TOTAL_SIZE_MB = 100;
@@ -279,57 +300,65 @@ watch(attachmentsRef, (newFiles) => {
   // if (totalSize > MAX_TOTAL_SIZE_BYTES) {
   //   attachmentErrors.value.push(`Total attachment size (${(totalSize / 1024 / 1024).toFixed(2)} MB) exceeds the ${MAX_TOTAL_SIZE_MB} MB limit.`);
   // }
-}, { deep: true });
+}, { deep: true })
 
 // Add date validation computed properties
 const isDeadlineValid = computed(() => {
-  if (!dueDate.value) return true
+  if (!dueDate.value)
+    return true
+
   // Get today's date in YYYY-MM-DD format to avoid timezone issues
   const today = new Date()
-  const todayString = today.getFullYear() + '-' + 
-    String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-    String(today.getDate()).padStart(2, '0')
+
+  const todayString = `${today.getFullYear()}-${
+    String(today.getMonth() + 1).padStart(2, '0')}-${
+    String(today.getDate()).padStart(2, '0')}`
+
   return dueDate.value >= todayString
 })
 
 const isLatestCompletionDateValid = computed(() => {
-  if (!latestCompletionDate.value || !dueDate.value) return true
+  if (!latestCompletionDate.value || !dueDate.value)
+    return true
   const deadlineDate = new Date(dueDate.value)
   const completionDate = new Date(latestCompletionDate.value)
+
   return completionDate >= deadlineDate
 })
 
 // Update sendMessage to use selected user ID
 const sendMessage = async () => {
   // Prevent multiple submissions
-  if (isSending.value) {
-    return;
-  }
-  
-  console.log("ComposeDialog: sendMessage called");
-  
+  if (isSending.value)
+    return
+
+  console.log('ComposeDialog: sendMessage called')
+
   // Basic validation
   if (!content.value) {
-    console.error('Message field is required');
-    return;
+    console.error('Message field is required')
+
+    return
   }
 
   // Validate user selection
   if (!selectedUser.value) {
-    console.error('Please select a recipient');
-    return;
+    console.error('Please select a recipient')
+
+    return
   }
-  
+
   // Get receiver ID from selected user
   const receiverId = users.value.find(u => u.email === selectedUser.value)?.id
-  
+
   if (!receiverId) {
-    console.error('Invalid receiver selected');
-    return;
+    console.error('Invalid receiver selected')
+
+    return
   }
-  
-  isSending.value = true;
-  
+
+  isSending.value = true
+
   // Prepare payload
   const payload: MessagePayload = {
     receiver_id: receiverId,
@@ -337,9 +366,9 @@ const sendMessage = async () => {
     subject: null,
     message: content.value,
     due_date: dueDate.value,
-    attachments: attachmentsRef.value
-  };
-  
+    attachments: attachmentsRef.value,
+  }
+
   // Add project data if any project fields are filled out
   if (projectTitle.value || property.value || serviceType.value || timePreference.value || dueDate.value || latestCompletionDate.value) {
     payload.project_data = {
@@ -348,57 +377,63 @@ const sendMessage = async () => {
       time_preference: timePreference.value || 'anytime',
       service_type: serviceType.value || '',
       deadline: dueDate.value || null,
-      latest_completion_date: latestCompletionDate.value || null
-    };
+      latest_completion_date: latestCompletionDate.value || null,
+    }
   }
 
-  console.log("ComposeDialog: Sending payload:", payload);
+  console.log('ComposeDialog: Sending payload:', payload)
 
   try {
-    const result = await createMessage(payload);
-    console.log('ComposeDialog: API response:', result);
+    const result = await createMessage(payload)
+
+    console.log('ComposeDialog: API response:', result)
 
     if (result && result.message === 'Message sent successfully') {
-      console.log('ComposeDialog: Message sent successfully');
+      console.log('ComposeDialog: Message sent successfully')
+
       // Send notification using the new function
-      await sendMessageNotification();
-      resetValues();
-      content.value = '';
-      emit('close');
-      emit('refresh');
-    } else {
-      console.error('ComposeDialog: Failed to send message, API returned:', result);
-      throw new Error('Failed to send message');
+      await sendMessageNotification()
+      resetValues()
+      content.value = ''
+      emit('close')
+      emit('refresh')
     }
-  } catch (error) {
-    console.error('ComposeDialog: Error sending message:', error);
+    else {
+      console.error('ComposeDialog: Failed to send message, API returned:', result)
+      throw new Error('Failed to send message')
+    }
+  }
+  catch (error) {
+    console.error('ComposeDialog: Error sending message:', error)
+
     // You might want to show this error to the user
-  } finally {
-    isSending.value = false;
+  }
+  finally {
+    isSending.value = false
   }
 }
 
 // Update resetValues
 const resetValues = () => {
-  content.value = '';
-  selectedUser.value = null;
-  dueDate.value = null;
-  latestCompletionDate.value = null;
-  attachmentsRef.value = [];
-  attachmentErrors.value = [];
-  
+  content.value = ''
+  selectedUser.value = null
+  dueDate.value = null
+  latestCompletionDate.value = null
+  attachmentsRef.value = []
+  attachmentErrors.value = []
+
   // Reset project fields
-  projectTitle.value = '';
-  property.value = '';
-  timePreference.value = 'anytime';
-  serviceType.value = '';
+  projectTitle.value = ''
+  property.value = ''
+  timePreference.value = 'anytime'
+  serviceType.value = ''
 }
 
 const isFormValid = computed(() => {
   // For client users, check all required fields
-  if (isClient.value) {
+  if (isClient.value)
     return !!(projectTitle.value && property.value && serviceType.value && dueDate.value && content.value && selectedUser.value)
-  }
+
   // For admin users, only check basic message fields
   return !!(content.value && selectedUser.value)
 })
@@ -472,9 +507,12 @@ const isFormValid = computed(() => {
           </VCol>
         </VRow>
       </VCardText>
-      
+
       <VExpandTransition>
-        <div v-if="isEmailCc && !isClient" class="position-relative">
+        <div
+          v-if="isEmailCc && !isClient"
+          class="position-relative"
+        >
           <VDivider />
 
           <div class="px-1 pe-6 py-1">
@@ -493,7 +531,10 @@ const isFormValid = computed(() => {
       </VExpandTransition>
 
       <VExpandTransition>
-        <div v-if="isEmailBcc && !isClient" class="position-relative">
+        <div
+          v-if="isEmailBcc && !isClient"
+          class="position-relative"
+        >
           <VDivider />
 
           <div class="px-1 pe-6 py-1">
@@ -565,7 +606,7 @@ const isFormValid = computed(() => {
             { title: t('emails.compose.serviceTypes.modifications'), value: 'modifications' },
             { title: t('emails.compose.serviceTypes.transcription'), value: 'transcription' },
             { title: t('emails.compose.serviceTypes.voiceOver'), value: 'voice_over' },
-            { title: t('emails.compose.serviceTypes.other'), value: 'other' }
+            { title: t('emails.compose.serviceTypes.other'), value: 'other' },
           ]"
         >
           <template #prepend-inner>
@@ -587,7 +628,7 @@ const isFormValid = computed(() => {
           :items="[
             { title: t('emails.compose.timePreferences.beforeNoon'), value: 'before_noon' },
             { title: t('emails.compose.timePreferences.before4pm'), value: 'before_4pm' },
-            { title: t('emails.compose.timePreferences.anytime'), value: 'anytime' }
+            { title: t('emails.compose.timePreferences.anytime'), value: 'anytime' },
           ]"
         >
           <template #prepend-inner>
@@ -601,18 +642,18 @@ const isFormValid = computed(() => {
       <VDivider />
 
       <div class="px-1 pe-6 py-1">
-        <VTextField 
-          v-model="dueDate" 
-          density="compact" 
-          type="date"  
+        <VTextField
+          v-model="dueDate"
+          density="compact"
+          type="date"
           :placeholder="t('emails.compose.project.datePlaceholder')"
           :rules="[
             (v: string | null) => !!v || t('emails.compose.project.validation.dueDateRequired'),
-            (v: string | null) => isDeadlineValid || t('emails.compose.project.validation.dueDateFuture')
+            (v: string | null) => isDeadlineValid || t('emails.compose.project.validation.dueDateFuture'),
           ]"
           :error-messages="!isDeadlineValid ? [t('emails.compose.project.validation.dueDateFuture')] : []"
           :required="isClient"
-          clearable 
+          clearable
         >
           <template #prepend-inner>
             <div class="text-base font-weight-medium text-disabled prepend-label">
@@ -625,18 +666,18 @@ const isFormValid = computed(() => {
       <VDivider />
 
       <div class="px-1 pe-6 py-1">
-        <VTextField 
-          v-model="latestCompletionDate" 
-          density="compact" 
-          type="date"  
+        <VTextField
+          v-model="latestCompletionDate"
+          density="compact"
+          type="date"
           :placeholder="t('emails.compose.project.datePlaceholder')"
           :rules="[
             (v: string | null) => !!v || t('emails.compose.project.validation.completionDateRequired'),
-            (v: string | null) => isLatestCompletionDateValid || t('emails.compose.project.validation.completionDateAfterDue')
+            (v: string | null) => isLatestCompletionDateValid || t('emails.compose.project.validation.completionDateAfterDue'),
           ]"
           :error-messages="!isLatestCompletionDateValid ? [t('emails.compose.project.validation.completionDateAfterDue')] : []"
           :required="isClient"
-          clearable 
+          clearable
         >
           <template #prepend-inner>
             <div class="text-base font-weight-medium text-disabled prepend-label">
@@ -648,7 +689,6 @@ const isFormValid = computed(() => {
 
       <VDivider />
     </div>
-
 
     <!-- 👉 Tiptap Editor  -->
     <TiptapEditor
@@ -676,10 +716,13 @@ const isFormValid = computed(() => {
       </VFileInput>
 
       <!-- NEW: Manual Chip Display Area -->
-      <div v-if="attachmentsRef.length > 0" class="mt-2 d-flex flex-wrap gap-2">
+      <div
+        v-if="attachmentsRef.length > 0"
+        class="mt-2 d-flex flex-wrap gap-2"
+      >
         <VChip
           v-for="(file, index) in attachmentsRef"
-          :key="index + '-' + file.name" 
+          :key="`${index}-${file.name}`"
           label
           closable
           size="small"

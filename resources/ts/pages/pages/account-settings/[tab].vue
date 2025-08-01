@@ -15,6 +15,7 @@ const activeTab = computed({
 // tabs
 const tabs = [
   { title: 'Account', icon: 'bx-user', tab: 'account' },
+
   // { title: 'Security', icon: 'bx-lock-alt', tab: 'security' },
   // { title: 'Billing & Plans', icon: 'bx-detail', tab: 'billing-plans' },
   // { title: 'Notifications', icon: 'bx-bell', tab: 'notification' },

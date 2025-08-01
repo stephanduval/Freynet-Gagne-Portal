@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import SharedEmailView from '@/components/SharedEmailView.vue'
-import { useEmail } from '@/views/apps/email/useEmail'
 import axios from 'axios'
 import { format } from 'date-fns'
 import { computed, onMounted, ref } from 'vue'
@@ -8,6 +6,8 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { VForm } from 'vuetify/components/VForm'
 import { VSelect } from 'vuetify/components/VSelect'
+import { useEmail } from '@/views/apps/email/useEmail'
+import SharedEmailView from '@/components/SharedEmailView.vue'
 
 // Configure axios
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api'
@@ -25,16 +25,16 @@ const axiosInstance = axios.create({
 
 // Add request interceptor to include token
 axiosInstance.interceptors.request.use(
-  (config) => {
+  config => {
     const token = getAuthToken()
-    if (token) {
+    if (token)
       config.headers.Authorization = `Bearer ${token}`
-    }
+
     return config
   },
-  (error) => {
+  error => {
     return Promise.reject(error)
-  }
+  },
 )
 
 const route = useRoute()
@@ -47,6 +47,7 @@ const messages = ref<any[]>([])
 
 // Add email viewing state
 const selectedEmail = ref<any>(null)
+
 const emailMeta = ref({
   hasPreviousEmail: false,
   hasNextEmail: false,
@@ -62,12 +63,12 @@ const editedUser = ref({
   email: '',
   role: '',
   company: '',
-  department: ''
+  department: '',
 })
 
 // Add company and role data management
-const companies = ref<Array<{ id: number, name: string }>>([])
-const roles = ref<Array<{ id: number, name: string }>>([])
+const companies = ref<Array<{ id: number; name: string }>>([])
+const roles = ref<Array<{ id: number; name: string }>>([])
 
 // Add computed properties for dropdowns
 const companyNames = computed(() => companies.value.map(c => c.name))
@@ -93,38 +94,41 @@ interface User {
 const fetchUser = async () => {
   isLoading.value = true
   error.value = null
-  
+
   try {
     // console.log('Fetching user with ID:', userId)
     const response = await axiosInstance.get(`/users/${userId}`)
+
     // console.log('API Response:', response.data)
-    
-    if (!response.data) {
+
+    if (!response.data)
       throw new Error('No data received from API')
-    }
-    
+
     user.value = response.data
 
     // Fetch messages for this user using the authenticated instance
-    const messagesResponse = await axiosInstance.get(`/messages`, {
+    const messagesResponse = await axiosInstance.get('/messages', {
       params: {
         user_id: userId,
       },
     })
+
     // console.log('Messages Response:', messagesResponse.data)
     messages.value = messagesResponse.data.data || []
-  } catch (err: any) {
+  }
+  catch (err: any) {
     // console.error('Error fetching user details:', err)
     // console.error('Error response:', err.response)
     error.value = err.response?.data?.message || 'Failed to load user details'
-    
+
     // Handle authentication errors
-    if (err.response?.status === 401) {
+    if (err.response?.status === 401)
       error.value = 'Your session has expired. Please log in again.'
-      // Optionally redirect to login page
-      // router.push('/login')
-    }
-  } finally {
+
+    // Optionally redirect to login page
+    // router.push('/login')
+  }
+  finally {
     isLoading.value = false
   }
 }
@@ -134,7 +138,9 @@ const navigateBack = () => {
 }
 
 const formattedDate = (date: string | undefined) => {
-  if (!date) return 'N/A'
+  if (!date)
+    return 'N/A'
+
   return format(new Date(date), 'MMM dd, yyyy')
 }
 
@@ -157,10 +163,12 @@ const handleEmailRefresh = async () => {
 }
 
 const handleEmailNavigate = (direction: 'previous' | 'next') => {
-  if (!selectedEmail.value) return
+  if (!selectedEmail.value)
+    return
 
   const currentIndex = messages.value.findIndex(email => email.id === selectedEmail.value?.id)
-  if (currentIndex === -1) return
+  if (currentIndex === -1)
+    return
 
   if (direction === 'previous' && currentIndex > 0) {
     selectedEmail.value = messages.value[currentIndex - 1]
@@ -168,7 +176,8 @@ const handleEmailNavigate = (direction: 'previous' | 'next') => {
       hasPreviousEmail: currentIndex > 1,
       hasNextEmail: true,
     }
-  } else if (direction === 'next' && currentIndex < messages.value.length - 1) {
+  }
+  else if (direction === 'next' && currentIndex < messages.value.length - 1) {
     selectedEmail.value = messages.value[currentIndex + 1]
     emailMeta.value = {
       hasPreviousEmail: true,
@@ -179,8 +188,9 @@ const handleEmailNavigate = (direction: 'previous' | 'next') => {
 
 const emailComposable = useEmail()
 
-const handleSendReply = async (data: { message: string, attachments: File[] }) => {
-  if (!selectedEmail.value) return
+const handleSendReply = async (data: { message: string; attachments: File[] }) => {
+  if (!selectedEmail.value)
+    return
 
   try {
     const response = await emailComposable.sendReplyMessage({
@@ -196,7 +206,8 @@ const handleSendReply = async (data: { message: string, attachments: File[] }) =
       await handleEmailRefresh()
       handleEmailClose()
     }
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Error sending reply:', error)
   }
 }
@@ -217,7 +228,8 @@ const fetchDropdownData = async () => {
       id: r.id,
       name: r.name,
     }))
-  } catch (error) {
+  }
+  catch (error) {
     // console.error('Error fetching dropdown data:', error)
   }
 }
@@ -229,7 +241,7 @@ const startEditing = () => {
     email: user.value?.email || '',
     role: user.value?.role || '',
     company: user.value?.company?.company_name || '',
-    department: user.value?.department || ''
+    department: user.value?.department || '',
   }
   isEditing.value = true
 }
@@ -242,7 +254,7 @@ const cancelEditing = () => {
     email: '',
     role: '',
     company: '',
-    department: ''
+    department: '',
   }
 }
 
@@ -254,7 +266,7 @@ const saveChanges = async () => {
       email: editedUser.value.email,
       role_id: roles.value.find(r => r.name === editedUser.value.role)?.id,
       company_id: companies.value.find(c => c.name === editedUser.value.company)?.id,
-      department: editedUser.value.department
+      department: editedUser.value.department,
     })
 
     if (response.data) {
@@ -262,7 +274,8 @@ const saveChanges = async () => {
       isEditing.value = false
       await fetchUser() // Refresh user data
     }
-  } catch (err: any) {
+  }
+  catch (err: any) {
     // console.error('Error saving user:', err)
     error.value = err.response?.data?.message || 'Failed to save changes'
   }
@@ -272,10 +285,10 @@ const saveChanges = async () => {
 const fetchMessages = async () => {
   try {
     const response = await axiosInstance.get(`/messages?user_id=${userId}`)
-    if (response.data && Array.isArray(response.data)) {
+    if (response.data && Array.isArray(response.data))
       messages.value = response.data
-    }
-  } catch (error) {
+  }
+  catch (error) {
     // console.error('Error fetching messages:', error)
   }
 }
@@ -309,7 +322,7 @@ onMounted(async () => {
           />
         </VBtn>
       </template>
-      
+
       <VCardTitle class="text-h5">
         {{ t('users.view.title') }}
       </VCardTitle>
@@ -362,8 +375,8 @@ onMounted(async () => {
               </VBtn>
               <VBtn
                 color="success"
-                @click="saveChanges"
                 :loading="isLoading"
+                @click="saveChanges"
               >
                 {{ t('users.view.saveChanges') }}
               </VBtn>
@@ -409,7 +422,7 @@ onMounted(async () => {
                   </template>
                 </VListItemSubtitle>
               </VListItem>
-              
+
               <VListItem>
                 <template #prepend>
                   <VIcon
@@ -433,7 +446,7 @@ onMounted(async () => {
                   </template>
                 </VListItemSubtitle>
               </VListItem>
-              
+
               <VListItem>
                 <template #prepend>
                   <VIcon
@@ -457,7 +470,7 @@ onMounted(async () => {
                   </template>
                 </VListItemSubtitle>
               </VListItem>
-              
+
               <VListItem>
                 <template #prepend>
                   <VIcon
@@ -481,7 +494,7 @@ onMounted(async () => {
                   </template>
                 </VListItemSubtitle>
               </VListItem>
-              
+
               <VListItem>
                 <template #prepend>
                   <VIcon
@@ -505,7 +518,7 @@ onMounted(async () => {
                   </template>
                 </VListItemSubtitle>
               </VListItem>
-              
+
               <VListItem>
                 <template #prepend>
                   <VIcon
@@ -545,9 +558,9 @@ onMounted(async () => {
         <VCardItem>
           <VCardTitle>{{ t('users.view.messages') }}</VCardTitle>
         </VCardItem>
-        
+
         <VDivider />
-        
+
         <VCardText v-if="!messages.length">
           <VAlert
             color="info"
@@ -556,7 +569,7 @@ onMounted(async () => {
             {{ t('users.view.noMessages') }}
           </VAlert>
         </VCardText>
-        
+
         <VList v-else>
           <VListItem
             v-for="message in messages"
@@ -571,12 +584,12 @@ onMounted(async () => {
                 <VIcon icon="mdi-email" />
               </VAvatar>
             </template>
-            
+
             <VListItemTitle>{{ message.subject }}</VListItemTitle>
             <VListItemSubtitle>
               {{ t('users.view.from') }}: {{ message.from?.name || message.from?.email || 'Unknown' }}
             </VListItemSubtitle>
-            
+
             <template #append>
               <div class="d-flex flex-column align-end">
                 <span class="text-xs text-disabled">{{ formattedDate(message.created_at) }}</span>

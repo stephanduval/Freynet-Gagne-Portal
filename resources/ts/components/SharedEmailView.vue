@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { format } from 'date-fns';
-import { ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { PerfectScrollbar } from 'vue3-perfect-scrollbar';
+import { format } from 'date-fns'
+import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 
 const props = defineProps<{
   email: any
@@ -17,7 +17,7 @@ const emit = defineEmits<{
   (e: 'close'): void
   (e: 'refresh'): void
   (e: 'navigated', direction: 'previous' | 'next'): void
-  (e: 'sendReply', data: { message: string, attachments: File[] }): void
+  (e: 'sendReply', data: { message: string; attachments: File[] }): void
 }>()
 
 const { t } = useI18n()
@@ -32,26 +32,33 @@ const MAX_FILE_SIZE_MB = 25
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 
 const formattedDate = (date: string | undefined) => {
-  if (!date) return 'N/A'
+  if (!date)
+    return 'N/A'
+
   return format(new Date(date), 'MMM dd, yyyy')
 }
 
 const stripHtml = (html: string) => {
   const tmp = document.createElement('DIV')
+
   tmp.innerHTML = html
+
   return tmp.textContent || tmp.innerText || ''
 }
 
 const downloadAttachments = async (attachments: any[]) => {
-  if (!attachments || attachments.length === 0) return
+  if (!attachments || attachments.length === 0)
+    return
 
   // If downloadAttachment prop is provided, use it for each attachment
   if (props.downloadAttachment) {
     for (const attachment of attachments) {
       props.downloadAttachment(attachment)
+
       // Add a small delay between downloads to prevent browser blocking
       await new Promise(resolve => setTimeout(resolve, 500))
     }
+
     return
   }
 
@@ -60,25 +67,25 @@ const downloadAttachments = async (attachments: any[]) => {
     for (const attachment of attachments) {
       if (attachment?.download_url) {
         window.open(attachment.download_url, '_blank')
+
         // Add a small delay between downloads to prevent browser blocking
         await new Promise(resolve => setTimeout(resolve, 500))
       }
     }
+
     return
   }
 
   // For single attachment, download directly
-  if (attachments[0]?.download_url) {
+  if (attachments[0]?.download_url)
     window.open(attachments[0].download_url, '_blank')
-  }
 }
 
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   if (target && target.files) {
-    for (let i = 0; i < target.files.length; i++) {
+    for (let i = 0; i < target.files.length; i++)
       attachmentsRef.value.push(target.files[i])
-    }
   }
 }
 
@@ -86,19 +93,18 @@ const removeAttachment = (index: number) => {
   attachmentsRef.value.splice(index, 1)
 }
 
-watch(attachmentsRef, (newFiles) => {
+watch(attachmentsRef, newFiles => {
   attachmentErrors.value = []
   let totalSize = 0
 
-  newFiles.forEach((file) => {
+  newFiles.forEach(file => {
     totalSize += file.size
-    if (file.size > MAX_FILE_SIZE_BYTES) {
+    if (file.size > MAX_FILE_SIZE_BYTES)
       attachmentErrors.value.push(`File "${file.name}" (${(file.size / 1024 / 1024).toFixed(2)} MB) exceeds the ${MAX_FILE_SIZE_MB} MB limit.`)
-    }
   })
 }, { deep: true })
 
-watch(() => props.email, (newEmail) => {
+watch(() => props.email, newEmail => {
   // console.log('Email attachments:', newEmail.attachments)
 }, { immediate: true })
 </script>
@@ -184,8 +190,8 @@ watch(() => props.email, (newEmail) => {
                   {{ formattedDate(props.email.time) }}
                 </div>
                 <div>
-                  <IconBtn 
-                    v-if="props.email.attachments?.length" 
+                  <IconBtn
+                    v-if="props.email.attachments?.length"
                     @click.stop="downloadAttachments(props.email.attachments)"
                   >
                     <VIcon
@@ -239,8 +245,8 @@ watch(() => props.email, (newEmail) => {
                   variant="text"
                   color="primary"
                   size="small"
-                  @click.stop="props.downloadAttachment?.(attachment)"
                   :disabled="!attachment?.download_url || !props.downloadAttachment"
+                  @click.stop="props.downloadAttachment?.(attachment)"
                 >
                   <VIcon
                     icon="bx-download"
@@ -286,7 +292,7 @@ watch(() => props.email, (newEmail) => {
               :placeholder="t('emails.compose.message')"
               :is-divider="false"
             />
-            
+
             <!-- Attachment Section -->
             <div class="mt-4">
               <VFileInput
@@ -302,14 +308,21 @@ watch(() => props.email, (newEmail) => {
               />
 
               <!-- Project-style Attachment List -->
-              <div v-if="attachmentsRef.length > 0" class="mt-2 d-flex flex-column gap-2">
+              <div
+                v-if="attachmentsRef.length > 0"
+                class="mt-2 d-flex flex-column gap-2"
+              >
                 <div
                   v-for="(file, index) in attachmentsRef"
-                  :key="index + '-' + file.name"
+                  :key="`${index}-${file.name}`"
                   class="d-flex align-center justify-space-between"
                 >
                   <div class="d-flex align-center gap-2">
-                    <VIcon icon="bx-file" size="20" color="primary" />
+                    <VIcon
+                      icon="bx-file"
+                      size="20"
+                      color="primary"
+                    />
                     <span>{{ file.name }}</span>
                     <span class="text-caption text-disabled ms-2">({{ (file.size / 1024 / 1024).toFixed(2) }} MB)</span>
                   </div>
@@ -320,7 +333,10 @@ watch(() => props.email, (newEmail) => {
                     size="small"
                     @click="removeAttachment(index)"
                   >
-                    <VIcon icon="bx-trash" size="20" />
+                    <VIcon
+                      icon="bx-trash"
+                      size="20"
+                    />
                   </VBtn>
                 </div>
               </div>
@@ -383,4 +399,4 @@ watch(() => props.email, (newEmail) => {
 .mail-content-container {
   background-color: rgb(var(--v-theme-on-surface), var(--v-hover-opacity));
 }
-</style> 
+</style>

@@ -132,7 +132,7 @@ const fetchDropdownData = async () => {
 }
 
 // Watchers
-watch(() => props.isDrawerOpen, async (isOpen) => {
+watch(() => props.isDrawerOpen, async isOpen => {
   if (isOpen && props.userId) {
     await fetchDropdownData() // Ensure dropdowns are loaded first
     await fetchUserDetails() // Then fetch user details
@@ -140,7 +140,7 @@ watch(() => props.isDrawerOpen, async (isOpen) => {
 })
 
 // Also keep the userId watcher as a backup
-watch(() => props.userId, async (newUserId) => {
+watch(() => props.userId, async newUserId => {
   if (newUserId && props.isDrawerOpen) {
     await fetchDropdownData() // Ensure dropdowns are loaded first
     await fetchUserDetails() // Then fetch user details

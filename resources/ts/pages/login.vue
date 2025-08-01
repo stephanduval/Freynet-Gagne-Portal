@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import type { RouteLocationRaw } from 'vue-router'
+import { useRouter } from 'vue-router'
+import { VForm } from 'vuetify/components/VForm'
 import { $api, clearAuthData, setAuthData } from '@/utils/api'
 import { layoutConfig } from '@layouts'
-import { RouteLocationRaw, useRouter } from 'vue-router'
-import { VForm } from 'vuetify/components/VForm'
 
 definePage({
   meta: {
@@ -31,6 +32,7 @@ const form = ref({
 
 const isAuthenticated = () => {
   const accessToken = document.cookie.split('; ').find(row => row.startsWith('accessToken='))
+
   return !!accessToken
 }
 
@@ -55,21 +57,20 @@ const login = async () => {
     //   abilityRules: abilityRules ? `${abilityRules.length} rules received` : 'No rules',
     // })
 
-    if (!accessToken || !userData || !abilityRules) {
+    if (!accessToken || !userData || !abilityRules)
       throw new Error('Invalid login response - missing required data')
-    }
 
     // Update ability with debugging
     const mappedRules = abilityRules.map((rule: { action: string; subject: string }) => {
-      const mappedRule = {
+      // console.log('Mapping rule:', { original: rule, mapped: mappedRule })
+      return {
         action: rule.action.toLowerCase(),
         subject: rule.subject.toLowerCase(),
       }
-      // console.log('Mapping rule:', { original: rule, mapped: mappedRule })
-      return mappedRule
     })
+
     // console.log('Mapped Ability Rules:', mappedRules)
-    
+
     ability.update(mappedRules)
 
     // Verify ability was updated
@@ -78,39 +79,47 @@ const login = async () => {
     // Use the enhanced setAuthData utility
     try {
       setAuthData({ accessToken, userData, abilityRules })
+
       // console.log('Auth data stored successfully')
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Failed to store auth data:', error)
       throw new Error('Failed to store authentication data')
     }
 
     // --- Direct Role-Based Redirect ---
-    const userRole = userData.role?.toLowerCase() || 'User';
-    let targetRoute: RouteLocationRaw;
+    const userRole = userData.role?.toLowerCase() || 'User'
+    let targetRoute: RouteLocationRaw
 
     // console.log(`[DEBUG] Determining redirect target for role: ${userRole}`);
 
     if (userRole === 'admin' || userRole === 'auth') {
-        targetRoute = { name: 'dashboards-analytics' };
-        // console.log(`[DEBUG] Target set for admin/auth:`, targetRoute);
-    } else if (userRole === 'client') {
-        targetRoute = { name: 'apps-email' };
-        // console.log(`[DEBUG] Target set for client:`, targetRoute);
-    } else if (userRole === 'manager' || userRole === 'user') {
-        targetRoute = { path: '/messages/list' };
-        // console.log(`[DEBUG] Target set for manager/user:`, targetRoute);
-    } else {
-        // console.warn(`[DEBUG] Unexpected role "${userRole}", defaulting to dashboards-analytics`);
-        targetRoute = { name: 'dashboards-analytics' };
+      targetRoute = { name: 'dashboards-analytics' }
+
+      // console.log(`[DEBUG] Target set for admin/auth:`, targetRoute);
+    }
+    else if (userRole === 'client') {
+      targetRoute = { name: 'apps-email' }
+
+      // console.log(`[DEBUG] Target set for client:`, targetRoute);
+    }
+    else if (userRole === 'manager' || userRole === 'user') {
+      targetRoute = { path: '/messages/list' }
+
+      // console.log(`[DEBUG] Target set for manager/user:`, targetRoute);
+    }
+    else {
+      // console.warn(`[DEBUG] Unexpected role "${userRole}", defaulting to dashboards-analytics`);
+      targetRoute = { name: 'dashboards-analytics' }
     }
 
     // console.log(`[DEBUG] Attempting router.replace with:`, targetRoute);
-    await router.replace(targetRoute);
-
-  } catch (err: any) {
+    await router.replace(targetRoute)
+  }
+  catch (err: any) {
     console.error('Login error:', err)
     errors.value.general = err.data?.message || err.message || 'An error occurred during login. Please try again.'
-    
+
     // Clear any partial auth data on error
     clearAuthData()
   }
@@ -136,8 +145,11 @@ const onSubmit = () => {
         <h4 class="text-h4 mb-6 text-center">
           Welcome to <span class="text-capitalize">{{ layoutConfig.app.title }}</span>!
         </h4>
-        
-        <VForm ref="refVForm" @submit.prevent="onSubmit">
+
+        <VForm
+          ref="refVForm"
+          @submit.prevent="onSubmit"
+        >
           <VRow>
             <!-- email -->
             <VCol cols="12">
@@ -159,8 +171,8 @@ const onSubmit = () => {
                 placeholder="············"
                 :type="isPasswordVisible ? 'text' : 'password'"
                 :append-inner-icon="isPasswordVisible ? 'bx-hide' : 'bx-show'"
-                @click:append-inner="isPasswordVisible = !isPasswordVisible"
                 :rules="[requiredValidator]"
+                @click:append-inner="isPasswordVisible = !isPasswordVisible"
               />
 
               <div class="d-flex align-center flex-wrap justify-space-between my-6">

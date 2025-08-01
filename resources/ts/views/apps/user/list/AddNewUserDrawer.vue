@@ -35,9 +35,12 @@ const refForm = ref<VForm | null>(null)
 // Add these new refs for the success modal
 const isSuccessModalVisible = ref(false)
 const newUserData = ref<{ email: string; name: string; resetCode?: string } | null>(null)
+
 const resetPasswordUrl = computed(() => {
-  if (!newUserData.value?.resetCode || !newUserData.value?.email) return ''
+  if (!newUserData.value?.resetCode || !newUserData.value?.email)
+    return ''
   const baseUrl = import.meta.env.VITE_FRONTEND_URL || window.location.origin
+
   return `${baseUrl}/reset-password?code=${newUserData.value.resetCode}&email=${encodeURIComponent(newUserData.value.email)}`
 })
 
@@ -122,8 +125,9 @@ const closeNavigationDrawer = () => {
 // Form submission
 const onSubmit = async () => {
   const { valid } = await refForm.value?.validate() || { valid: false }
-  
-  if (!valid) return
+
+  if (!valid)
+    return
 
   try {
     const userData = {
@@ -152,50 +156,52 @@ const onSubmit = async () => {
     }
 
     const result = await response.json()
+
     console.log('User creation response:', {
       success: true,
       hasResetCode: !!result.reset_code,
       userEmail: result.user?.email,
-      responseKeys: Object.keys(result)
+      responseKeys: Object.keys(result),
     })
-    
+
     // Store the new user data and show success modal
     newUserData.value = {
       email: result.user.email,
       name: result.user.name,
-      resetCode: result.reset_code
+      resetCode: result.reset_code,
     }
 
     console.log('New user data prepared for modal:', {
       email: newUserData.value.email,
       name: newUserData.value.name,
-      hasResetCode: !!newUserData.value.resetCode
+      hasResetCode: !!newUserData.value.resetCode,
     })
 
     isSuccessModalVisible.value = true
-    
+
     // Emit the success event with the created user data
-    emit('userData', { 
-      success: true, 
+    emit('userData', {
+      success: true,
       message: 'User created successfully!',
-      user: result.user 
+      user: result.user,
     })
-    
+
     // Close the drawer and reset form
     closeNavigationDrawer()
   }
   catch (error) {
     console.error('Error creating user:', error)
-    emit('userData', { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Failed to create user. Please try again.' 
+    emit('userData', {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to create user. Please try again.',
     })
   }
 }
 
 const copyWelcomeMessage = () => {
-  if (!newUserData.value) return
-  
+  if (!newUserData.value)
+    return
+
   const message = `Welcome to Freynet-Gagné Portal!
 
 Dear ${newUserData.value.name},
@@ -208,7 +214,7 @@ This link will expire in 60 minutes. If you need a new link, please contact your
 
 Best regards,
 Freynet-Gagné Team`
-  
+
   navigator.clipboard.writeText(message)
 }
 
@@ -358,7 +364,9 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
             <template #prepend>
               <VIcon icon="bx-info-circle" />
             </template>
-            <p class="mb-2">Welcome Message (click to copy):</p>
+            <p class="mb-2">
+              Welcome Message (click to copy):
+            </p>
             <div class="d-flex align-center gap-2">
               <VTextField
                 :model-value="resetPasswordUrl"
@@ -371,8 +379,8 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
               <VBtn
                 icon
                 variant="tonal"
-                @click="copyWelcomeMessage"
                 title="Copy welcome message"
+                @click="copyWelcomeMessage"
               >
                 <VIcon icon="bx-copy" />
               </VBtn>

@@ -2,7 +2,6 @@ import type { App } from 'vue'
 
 import { createMongoAbility } from '@casl/ability'
 import { abilitiesPlugin } from '@casl/vue'
-import type { Rule } from './ability'
 
 export default function (app: App) {
   // 1. Reads the rules from localStorage

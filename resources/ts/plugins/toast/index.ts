@@ -7,4 +7,4 @@ export default function (app: App) {
     position: 'top-right',
     duration: 5000,
   })
-} 
+}

@@ -1,5 +1,5 @@
-import { createFetch } from '@vueuse/core';
-import { destr } from 'destr';
+import { createFetch } from '@vueuse/core'
+import { destr } from 'destr'
 
 export const useApi = createFetch({
   baseUrl: import.meta.env.VITE_API_BASE_URL || '/api',
@@ -14,7 +14,7 @@ export const useApi = createFetch({
     refetch: true,
     async beforeFetch({ options }) {
       // const accessToken = useCookie('accessToken').value
-      const accessToken = localStorage.getItem('accessToken');
+      const accessToken = localStorage.getItem('accessToken')
 
       if (accessToken) {
         options.headers = {

@@ -20,26 +20,22 @@ export const redirects: RouteRecordRaw[] = [
       const userRole = userData?.role?.toLowerCase() // Normalize role to lowercase
 
       // Change target for admin/auth
-      if (userRole === 'admin' || userRole === 'auth') { 
-         return { name: 'dashboards-analytics' }; // <<< CHANGE HERE
-      }
-      
-      // Targets for other roles remain the same
-      if (userRole === 'client') {
-          return { name: 'apps-email' }; 
-      }
+      if (userRole === 'admin' || userRole === 'auth')
+        return { name: 'dashboards-analytics' } // <<< CHANGE HERE
 
-      if (userRole === 'manager' || userRole === 'user') {
-          return { path: '/messages/list' }; 
-      }
+      // Targets for other roles remain the same
+      if (userRole === 'client')
+        return { name: 'apps-email' }
+
+      if (userRole === 'manager' || userRole === 'user')
+        return { path: '/messages/list' }
 
       // Fallback logic - update default target
       const isLoggedIn = !!(localStorage.getItem('userData') && localStorage.getItem('accessToken'))
-      if(!isLoggedIn) {
-         return { name: 'login' }; 
-      } else {
-         return { name: 'dashboards-analytics' }; // <<< CHANGE HERE
-      }
+      if (!isLoggedIn)
+        return { name: 'login' }
+      else
+        return { name: 'dashboards-analytics' } // <<< CHANGE HERE
     },
   },
   {
@@ -65,6 +61,7 @@ export const routes: RouteRecordRaw[] = [
       public: true,
     },
   },
+
   // Project routes
   {
     path: '/apps/projects/list',
@@ -88,7 +85,7 @@ export const routes: RouteRecordRaw[] = [
       requiresAuth: true,
     },
   },
-  
+
   // Email filter - Revert Subject
   {
     path: '/apps/email/filter/:filter',
@@ -97,9 +94,9 @@ export const routes: RouteRecordRaw[] = [
     meta: {
       navActiveLink: 'apps-email',
       layoutWrapperClasses: 'layout-content-height-fixed',
-      action: 'read',        
-      subject: 'client',   // <<< Revert subject back to 'client'
-      requiresAuth: true, 
+      action: 'read',
+      subject: 'client', // <<< Revert subject back to 'client'
+      requiresAuth: true,
     },
   },
 
@@ -111,25 +108,26 @@ export const routes: RouteRecordRaw[] = [
     meta: {
       navActiveLink: 'apps-email',
       layoutWrapperClasses: 'layout-content-height-fixed',
-      action: 'read',        
-      subject: 'client',   // <<< Revert subject back to 'client'
-      requiresAuth: true, 
+      action: 'read',
+      subject: 'client', // <<< Revert subject back to 'client'
+      requiresAuth: true,
     },
   },
 
   // RE-ADD Messages List Route for Manager/User
   {
-    path: '/messages/list', 
-    name: 'messages-list', 
+    path: '/messages/list',
+    name: 'messages-list',
     component: emailRouteComponent, // Points to the same email component
     meta: {
-      navActiveLink: 'apps-email', 
-      layoutWrapperClasses: 'layout-content-height-fixed', 
-      action: 'read',        
-      subject: 'user',       // Use 'user' subject (manager & user have this)
-      requiresAuth: true,    
+      navActiveLink: 'apps-email',
+      layoutWrapperClasses: 'layout-content-height-fixed',
+      action: 'read',
+      subject: 'user', // Use 'user' subject (manager & user have this)
+      requiresAuth: true,
     },
   },
+
   // END RE-ADD
 
   {

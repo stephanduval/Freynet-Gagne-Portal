@@ -21,7 +21,7 @@ const switchLanguage = (langCode: string) => {
   <VBtn
     variant="text"
     class="language-switcher"
-    :class="{ 'active': isOpen }"
+    :class="{ active: isOpen }"
     @click="isOpen = !isOpen"
   >
     <VIcon
@@ -61,4 +61,4 @@ const switchLanguage = (langCode: string) => {
 .language-switcher.active {
   background-color: rgb(var(--v-theme-surface-variant));
 }
-</style> 
+</style>

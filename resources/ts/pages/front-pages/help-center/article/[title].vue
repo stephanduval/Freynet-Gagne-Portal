@@ -33,7 +33,8 @@ setTimeout(async () => {
   const { data, error } = await useApi<any>('/pages/help-center/article')
   if (error.value) {
     // console.log(error.value)
-  } else {
+  }
+  else {
     articleData.value = data.value
   }
 }, 1000)

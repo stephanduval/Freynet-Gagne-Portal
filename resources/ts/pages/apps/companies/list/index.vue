@@ -1,44 +1,45 @@
 <script setup lang="ts">
-import AddNewCompanyDrawer from '@/views/apps/companies/list/AddNewCompanyDrawer.vue';
-import EditCompanyDrawer from '@/views/apps/companies/list/EditCompanyDrawer.vue';
-import TablePagination from '@core/components/TablePagination.vue';
-import { computed, onMounted, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import AddNewCompanyDrawer from '@/views/apps/companies/list/AddNewCompanyDrawer.vue'
+import EditCompanyDrawer from '@/views/apps/companies/list/EditCompanyDrawer.vue'
+import TablePagination from '@core/components/TablePagination.vue'
 
-const { t } = useI18n();
+const { t } = useI18n()
 
 // 👉 Store
-const searchQuery = ref('');
+const searchQuery = ref('')
+
 // Removing filter variables
 // const selectedRole = ref();
 // const selectedPlan = ref();
 // const selectedStatus = ref();
 
 // Data table options
-const itemsPerPage = ref(10);
-const page = ref(1);
-const sortBy = ref();
-const orderBy = ref();
-const selectedRows = ref([]);
+const itemsPerPage = ref(10)
+const page = ref(1)
+const sortBy = ref()
+const orderBy = ref()
+const selectedRows = ref([])
 
-const isEditCompanyDrawerVisible = ref(false);
-const selectedCompanyId = ref<number | null>(null);
+const isEditCompanyDrawerVisible = ref(false)
+const selectedCompanyId = ref<number | null>(null)
 
 // Drawers visibility state
-const isAddNewCompanyDrawerVisible = ref(false);
+const isAddNewCompanyDrawerVisible = ref(false)
 
 // Headers
 const headers = computed(() => [
   { title: t('headers.companies.name'), key: 'companyName' },
   { title: t('headers.companies.status'), key: 'status' },
   { title: t('headers.companies.actions'), key: 'actions', sortable: false, align: 'end' },
-]);
+])
 
 // 👉 Open edit drawer
 const openEditCompanyDrawer = (companyId: number) => {
-  selectedCompanyId.value = companyId;
-  isEditCompanyDrawerVisible.value = true;
-};
+  selectedCompanyId.value = companyId
+  isEditCompanyDrawerVisible.value = true
+}
 
 // Add interface for API response
 interface CompanyApiResponse {
@@ -57,12 +58,14 @@ interface CompanyApiResponse {
 // 👉 Fetching companies
 const { data: companiesData, execute: fetchCompanies } = useApi<CompanyApiResponse>(() => {
   const params = new URLSearchParams()
+
   params.append('page', String(page.value))
   params.append('itemsPerPage', itemsPerPage.value === -1 ? 'all' : String(itemsPerPage.value))
   if (searchQuery.value)
     params.append('q', searchQuery.value)
 
   const token = localStorage.getItem('accessToken')
+
   // console.log('Fetching companies with params:', {
   //   page: page.value,
   //   itemsPerPage: itemsPerPage.value === -1 ? 'all' : itemsPerPage.value,
@@ -74,8 +77,8 @@ const { data: companiesData, execute: fetchCompanies } = useApi<CompanyApiRespon
   return `/paginatedCompanies?${params.toString()}`
 })
 
-const companies = computed(() => companiesData.value?.data || []);
-const totalCompanies = computed(() => companiesData.value?.total || 0);
+const companies = computed(() => companiesData.value?.data || [])
+const totalCompanies = computed(() => companiesData.value?.total || 0)
 
 // Add pagination metadata ref
 const paginationMeta = ref({
@@ -89,7 +92,8 @@ const paginationMeta = ref({
 
 // Watch for changes in companiesData to update pagination
 watch(companiesData, (data: CompanyApiResponse | null) => {
-  if (!data) return
+  if (!data)
+    return
 
   paginationMeta.value = {
     currentPage: data.current_page,
@@ -129,16 +133,17 @@ const handleCompanyData = async (response: { success: boolean; message?: string;
 
 // Add handleCompanyUpdated function to fix linter error
 const handleCompanyUpdated = () => {
-  fetchCompanies();
+  fetchCompanies()
 }
 
 onMounted(async () => {
   try {
-    await fetchCompanies();
-  } catch (error) {
+    await fetchCompanies()
+  }
+  catch (error) {
     // console.error('Error fetching companies:', error);
   }
-});
+})
 
 // Update the watch for search/filter changes
 watch(
@@ -192,11 +197,13 @@ const deleteCompany = async (id: number) => {
       },
     })
 
-    if (!response.ok) throw new Error('Failed to delete company.')
+    if (!response.ok)
+      throw new Error('Failed to delete company.')
 
     // Refetch companies after deletion
     fetchCompanies()
-  } catch (error) {
+  }
+  catch (error) {
     // console.error('Error deleting company:', error)
   }
 }
@@ -207,7 +214,8 @@ const isSingleDeleteConfirmModalVisible = ref(false)
 const selectedCompanyForDelete = ref<number | null>(null)
 
 const bulkDeleteCompanies = async () => {
-  if (selectedRows.value.length === 0) return
+  if (selectedRows.value.length === 0)
+    return
 
   try {
     const response = await fetch('/api/companies/bulk-delete', {
@@ -216,24 +224,25 @@ const bulkDeleteCompanies = async () => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
       },
-      body: JSON.stringify({ ids: selectedRows.value })
+      body: JSON.stringify({ ids: selectedRows.value }),
     })
 
-    if (!response.ok) throw new Error('Failed to delete companies.')
+    if (!response.ok)
+      throw new Error('Failed to delete companies.')
 
     // Clear selected rows and refetch companies
     selectedRows.value = []
     fetchCompanies()
     isDeleteConfirmModalVisible.value = false
-  } catch (error) {
+  }
+  catch (error) {
     // console.error('Error deleting companies:', error)
   }
 }
 
 const showDeleteConfirmModal = () => {
-  if (selectedRows.value.length > 0) {
+  if (selectedRows.value.length > 0)
     isDeleteConfirmModalVisible.value = true
-  }
 }
 
 const showSingleDeleteConfirmModal = (id: number) => {
@@ -304,7 +313,7 @@ const confirmSingleDelete = async () => {
       </VCard>
 
       <!-- 👉 Add New Company Drawer -->
-      <AddNewCompanyDrawer 
+      <AddNewCompanyDrawer
         v-model:isDrawerOpen="isAddNewCompanyDrawerVisible"
         @company-data="handleCompanyData"
       />
@@ -317,7 +326,10 @@ const confirmSingleDelete = async () => {
       />
 
       <!-- 👉 Bulk Delete Confirmation Modal -->
-      <VDialog v-model="isDeleteConfirmModalVisible" max-width="500">
+      <VDialog
+        v-model="isDeleteConfirmModalVisible"
+        max-width="500"
+      >
         <VCard>
           <VCardTitle class="text-h5">
             {{ t('companies.confirmDelete') }}
@@ -346,7 +358,10 @@ const confirmSingleDelete = async () => {
       </VDialog>
 
       <!-- 👉 Single Delete Confirmation Modal -->
-      <VDialog v-model="isSingleDeleteConfirmModalVisible" max-width="500">
+      <VDialog
+        v-model="isSingleDeleteConfirmModalVisible"
+        max-width="500"
+      >
         <VCard>
           <VCardTitle class="text-h5">
             {{ t('companies.confirmDelete') }}
@@ -390,14 +405,21 @@ const confirmSingleDelete = async () => {
         >
           <!-- Company Name -->
           <template #item.companyName="{ item }">
-            <h6 class="text-base">{{ item.companyName }}</h6>
+            <h6 class="text-base">
+              {{ item.companyName }}
+            </h6>
           </template>
 
           <!-- Actions -->
           <template #item.actions="{ item }">
-            <VBtn icon variant="text" color="medium-emphasis" @click="openEditCompanyDrawer(item.id)">
-            <VIcon icon="bx-pencil" />
-          </VBtn>
+            <VBtn
+              icon
+              variant="text"
+              color="medium-emphasis"
+              @click="openEditCompanyDrawer(item.id)"
+            >
+              <VIcon icon="bx-pencil" />
+            </VBtn>
             <IconBtn @click="showSingleDeleteConfirmModal(item.id)">
               <VIcon icon="bx-trash" />
             </IconBtn>
@@ -418,82 +440,83 @@ const confirmSingleDelete = async () => {
   </div>
 </template>
 
+<!--
+  <script setup lang="ts">
+  import { computed, onMounted, ref } from 'vue';
 
-<!-- <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+  // 👉 Store
+  const searchQuery = ref('');
+  const selectedRole = ref();
+  const selectedPlan = ref();
+  const selectedStatus = ref();
 
-// 👉 Store
-const searchQuery = ref('');
-const selectedRole = ref();
-const selectedPlan = ref();
-const selectedStatus = ref();
+  // Data table options
+  const itemsPerPage = ref(10);
+  const page = ref(1);
+  const sortBy = ref();
+  const orderBy = ref();
+  const selectedRows = ref([]);
 
-// Data table options
-const itemsPerPage = ref(10);
-const page = ref(1);
-const sortBy = ref();
-const orderBy = ref();
-const selectedRows = ref([]);
+  // Drawer visibility
+  const isAddNewCompanyDrawerVisible = ref(false); // Controls the drawer visibility
 
-// Drawer visibility
-const isAddNewCompanyDrawerVisible = ref(false); // Controls the drawer visibility
-
-// Fetching companies logic remains the same
-const { data: companiesData, execute: fetchCompanies } = useApi(() => {
+  // Fetching companies logic remains the same
+  const { data: companiesData, execute: fetchCompanies } = useApi(() => {
   const params = new URLSearchParams({
-    page: String(page.value),
-    itemsPerPage: String(itemsPerPage.value),
+  page: String(page.value),
+  itemsPerPage: String(itemsPerPage.value),
   }).toString();
 
   const token = localStorage.getItem('accessToken');
 
   return `/paginatedCompanies?${params}`;
-}, {
+  }, {
   method: 'GET',
   headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+  'Content-Type': 'application/json',
+  'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
   },
   credentials: 'include',
-});
+  });
 
-const companies = computed(() => companiesData.value?.data || []);
-const totalCompanies = computed(() => companiesData.value?.total || 0);
+  const companies = computed(() => companiesData.value?.data || []);
+  const totalCompanies = computed(() => companiesData.value?.total || 0);
 
-onMounted(async () => {
+  onMounted(async () => {
   try {
-    await fetchCompanies();
+  await fetchCompanies();
   } catch (error) {
-    console.error('Error fetching companies:', error);
+  console.error('Error fetching companies:', error);
   }
-});
+  });
 
-// Handle table actions
-const deleteCompany = async (id: number) => {
+  // Handle table actions
+  const deleteCompany = async (id: number) => {
   await $api(`/companies/${id}`, {
-    method: 'DELETE',
+  method: 'DELETE',
   });
 
   fetchCompanies();
-};
-</script>
-<template>
+  };
+  </script>
+  <template>
   <section>
-  -->
-    <!-- Add New Company Button -->
-   <!-- <VBtn
-    prepend-icon="bx-plus"
-    @click="isAddNewCompanyDrawerVisible = true"
-  >
-    Add New Company
-  </VBtn>
-
-  <VCard class="mb-6">
-    <VDivider />
 -->
+    <!-- Add New Company Button -->
+   <!--
+     <VBtn
+     prepend-icon="bx-plus"
+     @click="isAddNewCompanyDrawerVisible = true"
+     >
+     Add New Company
+     </VBtn>
+
+     <VCard class="mb-6">
+     <VDivider />
+   -->
     <!-- Data Table -->
     <!--
-    <VDataTableServer
+      <VDataTableServer
       v-model:items-per-page="itemsPerPage"
       v-model:model-value="selectedRows"
       v-model:page="page"
@@ -501,35 +524,35 @@ const deleteCompany = async (id: number) => {
       item-value="id"
       :items-length="totalCompanies"
       :headers="[
-        { title: 'Company Name', key: 'companyName' },
-        { title: 'Status', key: 'status' },
-        { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
+      { title: 'Company Name', key: 'companyName' },
+      { title: 'Status', key: 'status' },
+      { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
       ]"
       class="text-no-wrap"
       show-select
-    >
+      >
       <template #item.companyName="{ item }">
-        <h6 class="text-base">{{ item.companyName }}</h6>
+      <h6 class="text-base">{{ item.companyName }}</h6>
       </template>
 
       <template #item.actions="{ item }">
-        <VBtn
-          icon
-          variant="text"
-          color="medium-emphasis"
-          @click="deleteCompany(item.id)"
-        >
-          <VIcon icon="bx-trash" />
-        </VBtn>
+      <VBtn
+      icon
+      variant="text"
+      color="medium-emphasis"
+      @click="deleteCompany(item.id)"
+      >
+      <VIcon icon="bx-trash" />
+      </VBtn>
       </template>
-    </VDataTableServer>
-  </VCard>
--->
+      </VDataTableServer>
+      </VCard>
+    -->
   <!-- Add New Company Drawer -->
    <!--
-  <AddNewCompanyDrawer
-    v-model:isDrawerOpen="isAddNewCompanyDrawerVisible"
-  />
-</section>
-</template>
--->
+     <AddNewCompanyDrawer
+     v-model:isDrawerOpen="isAddNewCompanyDrawerVisible"
+     />
+     </section>
+     </template>
+   -->

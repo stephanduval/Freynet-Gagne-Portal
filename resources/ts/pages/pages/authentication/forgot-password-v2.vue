@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import authV2ForgotPasswordIllustration from '@images/pages/auth-v2-forgot-password-illustration.png'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
-import { useRouter } from 'vue-router'
 
 definePage({
   meta: {
@@ -35,17 +35,21 @@ const handleSubmit = async () => {
 
     if (response.ok) {
       success.value = data.message
+
       // Optionally redirect after a delay
       setTimeout(() => {
         router.push({ name: 'login' })
       }, 3000)
-    } else {
+    }
+    else {
       error.value = data.message || 'An error occurred. Please try again.'
     }
-  } catch (err) {
+  }
+  catch (err) {
     error.value = 'An error occurred. Please try again.'
     console.error('Password reset request error:', err)
-  } finally {
+  }
+  finally {
     loading.value = false
   }
 }
@@ -103,7 +107,10 @@ const handleSubmit = async () => {
           <VForm @submit.prevent="handleSubmit">
             <VRow>
               <!-- Success Alert -->
-              <VCol v-if="success" cols="12">
+              <VCol
+                v-if="success"
+                cols="12"
+              >
                 <VAlert
                   color="success"
                   variant="tonal"
@@ -114,7 +121,10 @@ const handleSubmit = async () => {
               </VCol>
 
               <!-- Error Alert -->
-              <VCol v-if="error" cols="12">
+              <VCol
+                v-if="error"
+                cols="12"
+              >
                 <VAlert
                   color="error"
                   variant="tonal"

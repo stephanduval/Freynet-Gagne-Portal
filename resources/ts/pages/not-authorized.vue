@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import notAuthorizedIllustration from '@images/pages/auth-v2-register-illustration.png';
+import notAuthorizedIllustration from '@images/pages/auth-v2-register-illustration.png'
 
 definePage({
   alias: '/pages/misc/not-authorized',

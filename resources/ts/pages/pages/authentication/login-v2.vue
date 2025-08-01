@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
-import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
-
-import authV2LoginIllustration from '@images/pages/auth-v2-login-illustration.png'
 
 definePage({
   meta: {
@@ -32,85 +29,85 @@ const isPasswordVisible = ref(false)
         <h4 class="text-h4 mb-6 text-center">
           Welcome to <span class="text-capitalize">{{ themeConfig.app.title }}</span>!
         </h4>
-          <VForm @submit.prevent="() => {}">
-            <VRow>
-              <!-- email -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="form.email"
-                  autofocus
-                  label="Email or Username"
-                  type="email"
-                  placeholder="johndoe@email.com"
+        <VForm @submit.prevent="() => {}">
+          <VRow>
+            <!-- email -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="form.email"
+                autofocus
+                label="Email or Username"
+                type="email"
+                placeholder="johndoe@email.com"
+              />
+            </VCol>
+
+            <!-- password -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="form.password"
+                label="Password"
+                placeholder="············"
+                :type="isPasswordVisible ? 'text' : 'password'"
+                :append-inner-icon="isPasswordVisible ? 'bx-hide' : 'bx-show'"
+                @click:append-inner="isPasswordVisible = !isPasswordVisible"
+              />
+
+              <div class="d-flex align-center flex-wrap justify-space-between my-6">
+                <VCheckbox
+                  v-model="form.remember"
+                  label="Remember me"
                 />
-              </VCol>
-
-              <!-- password -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="form.password"
-                  label="Password"
-                  placeholder="············"
-                  :type="isPasswordVisible ? 'text' : 'password'"
-                  :append-inner-icon="isPasswordVisible ? 'bx-hide' : 'bx-show'"
-                  @click:append-inner="isPasswordVisible = !isPasswordVisible"
-                />
-
-                <div class="d-flex align-center flex-wrap justify-space-between my-6">
-                  <VCheckbox
-                    v-model="form.remember"
-                    label="Remember me"
-                  />
-                  <RouterLink
-                    class="text-primary"
-                    :to="{ name: 'pages-authentication-forgot-password-v2' }"
-                  >
-                    Forgot Password?
-                  </RouterLink>
-                </div>
-
-                <VBtn
-                  block
-                  type="submit"
-                >
-                  Login
-                </VBtn>
-              </VCol>
-
-              <!-- create account -->
-              <VCol
-                cols="12"
-                class="text-body-1 text-center"
-              >
-                <span class="d-inline-block">
-                  New on our platform?
-                </span>
                 <RouterLink
-                  class="text-primary ms-1 d-inline-block text-body-1"
-                  :to="{ name: 'pages-authentication-register-v2' }"
+                  class="text-primary"
+                  :to="{ name: 'pages-authentication-forgot-password-v2' }"
                 >
-                  Create an account
+                  Forgot Password?
                 </RouterLink>
-              </VCol>
+              </div>
 
-              <VCol
-                cols="12"
-                class="d-flex align-center"
+              <VBtn
+                block
+                type="submit"
               >
-                <VDivider />
-                <span class="mx-4">or</span>
-                <VDivider />
-              </VCol>
+                Login
+              </VBtn>
+            </VCol>
 
-              <!-- auth providers -->
-              <VCol
-                cols="12"
-                class="text-center"
+            <!-- create account -->
+            <VCol
+              cols="12"
+              class="text-body-1 text-center"
+            >
+              <span class="d-inline-block">
+                New on our platform?
+              </span>
+              <RouterLink
+                class="text-primary ms-1 d-inline-block text-body-1"
+                :to="{ name: 'pages-authentication-register-v2' }"
               >
-                <AuthProvider />
-              </VCol>
-            </VRow>
-          </VForm>
+                Create an account
+              </RouterLink>
+            </VCol>
+
+            <VCol
+              cols="12"
+              class="d-flex align-center"
+            >
+              <VDivider />
+              <span class="mx-4">or</span>
+              <VDivider />
+            </VCol>
+
+            <!-- auth providers -->
+            <VCol
+              cols="12"
+              class="text-center"
+            >
+              <AuthProvider />
+            </VCol>
+          </VRow>
+        </VForm>
       </VCardText>
     </VCard>
   </div>

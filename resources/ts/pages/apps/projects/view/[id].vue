@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import SharedEmailView from '@/components/SharedEmailView.vue'
-import { useEmail } from '@/views/apps/email/useEmail'
 import axios from 'axios'
 import { format } from 'date-fns'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
+import { useEmail } from '@/views/apps/email/useEmail'
+import SharedEmailView from '@/components/SharedEmailView.vue'
 
 // Configure axios
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api'
@@ -30,27 +30,28 @@ const axiosInstance = axios.create({
 
 // Add request interceptor to include token
 axiosInstance.interceptors.request.use(
-  (config) => {
+  config => {
     const token = localStorage.getItem('accessToken')
+
     // console.log('Making request to:', config.url, {
     //   hasToken: !!token,
     //   method: config.method,
     //   headers: config.headers
     // })
-    if (token) {
+    if (token)
       config.headers.Authorization = `Bearer ${token}`
-    }
+
     return config
   },
-  (error) => {
+  error => {
     // console.error('Request interceptor error:', error)
     return Promise.reject(error)
-  }
+  },
 )
 
 // Add response interceptor to handle auth errors
 axiosInstance.interceptors.response.use(
-  (response) => {
+  response => {
     // console.log('Response received:', {
     //   url: response.config.url,
     //   status: response.status,
@@ -58,14 +59,14 @@ axiosInstance.interceptors.response.use(
     // })
     return response
   },
-  (error) => {
+  error => {
     // console.error('Response error:', {
     //   url: error.config?.url,
     //   status: error.response?.status,
     //   statusText: error.response?.statusText,
     //   data: error.response?.data
     // })
-    
+
     if (error.response?.status === 401 || error.response?.status === 403) {
       // console.log('Auth error detected, clearing storage and redirecting to login')
       debugAuthState()
@@ -74,8 +75,9 @@ axiosInstance.interceptors.response.use(
       localStorage.removeItem('abilityRules')
       router.push('/login')
     }
+
     return Promise.reject(error)
-  }
+  },
 )
 
 const route = useRoute()
@@ -88,10 +90,12 @@ const error = ref<string | null>(null)
 const isEditing = ref(false)
 const editedProject = ref<Partial<Project>>({})
 const selectedEmail = ref<any>(null)
+
 const emailMeta = ref({
   hasPreviousEmail: false,
   hasNextEmail: false,
 })
+
 const isEditDrawerOpen = ref(false)
 
 const { t } = useI18n()
@@ -100,7 +104,8 @@ const { t } = useI18n()
 const userData = computed(() => {
   try {
     return JSON.parse(localStorage.getItem('userData') || '{}')
-  } catch (e) {
+  }
+  catch (e) {
     // console.error('Error parsing userData:', e)
     return {}
   }
@@ -149,7 +154,9 @@ const statusColorMap: Record<string, string> = {
 }
 
 const formattedDate = (date: string | undefined) => {
-  if (!date) return 'N/A'
+  if (!date)
+    return 'N/A'
+
   return format(new Date(date), 'MMM dd, yyyy')
 }
 
@@ -180,7 +187,9 @@ const serviceTypeOptions = [
 // Add function to strip HTML tags
 const stripHtml = (html: string) => {
   const tmp = document.createElement('DIV')
+
   tmp.innerHTML = html
+
   return tmp.textContent || tmp.innerText || ''
 }
 
@@ -191,18 +200,18 @@ const fetchProject = async () => {
   debugAuthState()
   isLoading.value = true
   error.value = null
-  
+
   try {
     const response = await axiosInstance.get(`/projects/${projectId}`)
+
     // console.log('Project fetch response:', {
     //   status: response.status,
     //   hasData: !!response.data
     // })
-    
-    if (!response.data) {
+
+    if (!response.data)
       throw new Error('No data received from API')
-    }
-    
+
     // Add detailed logging of the project data
     // console.log('Project Resource Data Structure:', {
     //   fullResponse: response.data,
@@ -228,9 +237,9 @@ const fetchProject = async () => {
       //   created_at: attachment.created_at
       // })))
     }
-    
+
     project.value = response.data.data
-    
+
     // Fetch messages related to this project
     // console.log('Fetching project messages')
     const messagesResponse = await axiosInstance.get('/messages', {
@@ -238,11 +247,12 @@ const fetchProject = async () => {
         project_id: projectId,
       },
     })
+
     // console.log('Messages fetch response:', {
     //   status: messagesResponse.status,
     //   messageCount: messagesResponse.data.data?.length || 0
     // })
-    
+
     messages.value = messagesResponse.data.data || []
 
     // Add debug logging after data is set
@@ -254,7 +264,8 @@ const fetchProject = async () => {
     //   firstMessageAttachments: messages.value[0]?.attachments,
     //   firstProjectAttachment: project.value?.attachments?.[0]
     // })
-  } catch (err: any) {
+  }
+  catch (err: any) {
     // console.error('Error in fetchProject:', {
     //   error: err,
     //   response: err.response,
@@ -262,18 +273,19 @@ const fetchProject = async () => {
     //   data: err.response?.data
     // })
     error.value = err.response?.data?.message || 'Failed to load project details'
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
 
 // Add a watch to log when project data changes
-watch(project, (newVal) => {
+watch(project, newVal => {
   // console.log('Project data updated:', newVal)
 }, { deep: true })
 
 // Add a watch to log when messages data changes
-watch(messages, (newVal) => {
+watch(messages, newVal => {
   // console.log('Messages data updated:', newVal)
 }, { deep: true })
 
@@ -284,15 +296,15 @@ const navigateBack = () => {
 const composeMessage = () => {
   // Get the latest message if available
   const latestMessage = messages.value.length > 0 ? messages.value[0] : null
-  
-  router.push({ 
-    name: 'apps-email-compose', 
-    query: { 
+
+  router.push({
+    name: 'apps-email-compose',
+    query: {
       project_id: projectId,
       reply_to_id: latestMessage?.id,
       subject: latestMessage ? `Re: ${latestMessage.subject}` : undefined,
-      receiver_id: latestMessage?.from?.id
-    } 
+      receiver_id: latestMessage?.from?.id,
+    },
   })
 }
 
@@ -316,13 +328,17 @@ const cancelEditing = () => {
 const saveProject = async () => {
   try {
     isLoading.value = true
+
     const response = await axiosInstance.put(`/projects/${projectId}`, editedProject.value)
+
     project.value = response.data.data
     isEditing.value = false
     editedProject.value = {}
-  } catch (err: any) {
+  }
+  catch (err: any) {
     error.value = err.response?.data?.message || 'Failed to update project'
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
@@ -345,7 +361,7 @@ const handleProjectUpdated = () => {
 
 const downloadAttachment = (attachment: any) => {
   // console.log('Download attachment called with:', attachment)
-  
+
   if (!attachment || typeof attachment !== 'object') {
     // console.error('Invalid attachment object:', attachment)
     return
@@ -360,17 +376,20 @@ const downloadAttachment = (attachment: any) => {
 
   try {
     const link = document.createElement('a')
+
     link.href = attachment.download_url
     link.target = '_blank'
     link.rel = 'noopener noreferrer'
     link.click()
-  } catch (error) {
+  }
+  catch (error) {
     // console.error('Error downloading attachment:', error)
   }
 }
 
 const downloadAttachments = async (attachments: any[]) => {
-  if (!attachments || attachments.length === 0) return
+  if (!attachments || attachments.length === 0)
+    return
 
   if (attachments.length > 1) {
     for (const attachment of attachments) {
@@ -379,29 +398,31 @@ const downloadAttachments = async (attachments: any[]) => {
         await new Promise(resolve => setTimeout(resolve, 500))
       }
     }
+
     return
   }
 
-  if (attachments[0]?.download_url) {
+  if (attachments[0]?.download_url)
     window.open(attachments[0].download_url, '_blank')
-  }
 }
 
 const handleEmailNavigate = (direction: 'previous' | 'next') => {
-  if (!selectedEmail.value) return
+  if (!selectedEmail.value)
+    return
 
   const currentIndex = messages.value.findIndex(email => email.id === selectedEmail.value?.id)
-  if (currentIndex === -1) return
+  if (currentIndex === -1)
+    return
 
-  if (direction === 'previous' && currentIndex > 0) {
+  if (direction === 'previous' && currentIndex > 0)
     selectedEmail.value = messages.value[currentIndex - 1]
-  } else if (direction === 'next' && currentIndex < messages.value.length - 1) {
+  else if (direction === 'next' && currentIndex < messages.value.length - 1)
     selectedEmail.value = messages.value[currentIndex + 1]
-  }
 }
 
-const handleSendReply = async (data: { message: string, attachments: File[] }) => {
-  if (!selectedEmail.value) return
+const handleSendReply = async (data: { message: string; attachments: File[] }) => {
+  if (!selectedEmail.value)
+    return
 
   try {
     const response = await emailComposable.sendReplyMessage({
@@ -417,7 +438,8 @@ const handleSendReply = async (data: { message: string, attachments: File[] }) =
       await fetchProject()
       handleEmailClose()
     }
-  } catch (error) {
+  }
+  catch (error) {
     // console.error('Error sending reply:', error)
   }
 }
@@ -433,8 +455,9 @@ onMounted(() => {
 })
 
 const getFileIcon = (mimeType: string) => {
-  if (!mimeType) return 'bx-file'
-  
+  if (!mimeType)
+    return 'bx-file'
+
   const type = mimeType.split('/')[0]
   switch (type) {
     case 'image':
@@ -444,11 +467,16 @@ const getFileIcon = (mimeType: string) => {
     case 'audio':
       return 'bx-music'
     case 'application':
-      if (mimeType.includes('pdf')) return 'bx-file-pdf'
-      if (mimeType.includes('word')) return 'bx-file-doc'
-      if (mimeType.includes('excel') || mimeType.includes('sheet')) return 'bx-file-spreadsheet'
-      if (mimeType.includes('powerpoint') || mimeType.includes('presentation')) return 'bx-file-slides'
-      if (mimeType.includes('zip') || mimeType.includes('compressed')) return 'bx-file-archive'
+      if (mimeType.includes('pdf'))
+      return 'bx-file-pdf'
+      if (mimeType.includes('word'))
+      return 'bx-file-doc'
+      if (mimeType.includes('excel') || mimeType.includes('sheet'))
+      return 'bx-file-spreadsheet'
+      if (mimeType.includes('powerpoint') || mimeType.includes('presentation'))
+      return 'bx-file-slides'
+      if (mimeType.includes('zip') || mimeType.includes('compressed'))
+      return 'bx-file-archive'
       return 'bx-file'
     default:
       return 'bx-file'
@@ -456,24 +484,27 @@ const getFileIcon = (mimeType: string) => {
 }
 
 const formatFileSize = (bytes: number) => {
-  if (!bytes) return '0 B'
-  
+  if (!bytes)
+    return '0 B'
+
   const units = ['B', 'KB', 'MB', 'GB']
   let size = bytes
   let unitIndex = 0
-  
+
   while (size >= 1024 && unitIndex < units.length - 1) {
     size /= 1024
     unitIndex++
   }
-  
+
   return `${Math.round(size * 100) / 100} ${units[unitIndex]}`
 }
 </script>
 
 <template>
   <div>
-    <h1 class="text-h4 mb-4">{{ t('projects.details.title') }}</h1>
+    <h1 class="text-h4 mb-4">
+      {{ t('projects.details.title') }}
+    </h1>
 
     <VCard class="mb-6">
       <VCardItem>
@@ -491,7 +522,7 @@ const formatFileSize = (bytes: number) => {
             />
           </VBtn>
         </template>
-        
+
         <VCardTitle class="text-h5">
           {{ t('projects.details.information') }}
         </VCardTitle>
@@ -546,8 +577,8 @@ const formatFileSize = (bytes: number) => {
                 </VBtn>
                 <VBtn
                   color="success"
-                  @click="saveProject"
                   :loading="isLoading"
+                  @click="saveProject"
                 >
                   {{ t('projects.details.saveChanges') }}
                 </VBtn>
@@ -589,7 +620,7 @@ const formatFileSize = (bytes: number) => {
                   </template>
                 </VListItemSubtitle>
               </VListItem>
-              
+
               <VListItem>
                 <template #prepend>
                   <VIcon
@@ -613,7 +644,7 @@ const formatFileSize = (bytes: number) => {
                   </template>
                 </VListItemSubtitle>
               </VListItem>
-              
+
               <VListItem>
                 <template #prepend>
                   <VIcon
@@ -638,7 +669,7 @@ const formatFileSize = (bytes: number) => {
                   </template>
                 </VListItemSubtitle>
               </VListItem>
-              
+
               <VListItem>
                 <template #prepend>
                   <VIcon
@@ -663,7 +694,7 @@ const formatFileSize = (bytes: number) => {
                   </template>
                 </VListItemSubtitle>
               </VListItem>
-              
+
               <VListItem>
                 <template #prepend>
                   <VIcon
@@ -713,7 +744,7 @@ const formatFileSize = (bytes: number) => {
                   </template>
                 </VListItemSubtitle>
               </VListItem>
-              
+
               <VListItem>
                 <template #prepend>
                   <VIcon
@@ -744,7 +775,7 @@ const formatFileSize = (bytes: number) => {
                   </template>
                 </VListItemSubtitle>
               </VListItem>
-              
+
               <VListItem v-if="project?.client">
                 <template #prepend>
                   <VIcon
@@ -758,7 +789,7 @@ const formatFileSize = (bytes: number) => {
                 </VListItemTitle>
                 <VListItemSubtitle>{{ project.client.name }}</VListItemSubtitle>
               </VListItem>
-              
+
               <VListItem>
                 <template #prepend>
                   <VIcon
@@ -782,7 +813,7 @@ const formatFileSize = (bytes: number) => {
                   </template>
                 </VListItemSubtitle>
               </VListItem>
-              
+
               <VListItem>
                 <template #prepend>
                   <VIcon
@@ -796,7 +827,7 @@ const formatFileSize = (bytes: number) => {
                 </VListItemTitle>
                 <VListItemSubtitle>{{ formattedDate(project?.date_requested) }}</VListItemSubtitle>
               </VListItem>
-              
+
               <VListItem v-if="project?.client?.companies && project.client.companies.length > 0">
                 <template #prepend>
                   <VIcon
@@ -810,7 +841,7 @@ const formatFileSize = (bytes: number) => {
                 </VListItemTitle>
                 <VListItemSubtitle>{{ project.client.companies[0].name }}</VListItemSubtitle>
               </VListItem>
-              
+
               <VListItem>
                 <template #prepend>
                   <VIcon
@@ -868,7 +899,7 @@ const formatFileSize = (bytes: number) => {
           </VCardText>
         </VCard>
       </VCol>
-      
+
       <!-- Project Messages -->
       <VCol
         cols="12"
@@ -881,9 +912,9 @@ const formatFileSize = (bytes: number) => {
               {{ t('projects.details.messages') }}
             </VCardTitle>
           </VCardItem>
-          
+
           <VDivider />
-          
+
           <VCardText v-if="!messages.length">
             <VAlert
               color="info"
@@ -892,7 +923,7 @@ const formatFileSize = (bytes: number) => {
               {{ t('projects.details.noMessagesFound') }}
             </VAlert>
           </VCardText>
-          
+
           <VList v-else>
             <VListItem
               v-for="message in messages"
@@ -907,14 +938,17 @@ const formatFileSize = (bytes: number) => {
                   <VIcon icon="mdi-email" />
                 </VAvatar>
               </template>
-              
+
               <VListItemTitle>{{ message.subject }}</VListItemTitle>
               <VListItemSubtitle class="d-flex flex-column">
                 <span>{{ t('projects.details.from') }}: {{ message.from?.fullName || message.from?.email || t('projects.details.unknown') }}</span>
                 <!-- Add message preview with truncation and HTML stripping -->
-                <span class="text-truncate" style="max-inline-size: 300px;">{{ stripHtml(message.body || '') }}</span>
+                <span
+                  class="text-truncate"
+                  style="max-inline-size: 300px;"
+                >{{ stripHtml(message.body || '') }}</span>
               </VListItemSubtitle>
-              
+
               <template #append>
                 <div class="d-flex flex-column align-end gap-2">
                   <div class="d-flex align-center gap-2">
@@ -957,7 +991,10 @@ const formatFileSize = (bytes: number) => {
           <VDivider />
 
           <VCardText>
-            <div v-if="!project?.attachments?.length" class="text-center py-8">
+            <div
+              v-if="!project?.attachments?.length"
+              class="text-center py-8"
+            >
               <VIcon
                 icon="bx-file"
                 size="48"
@@ -968,7 +1005,10 @@ const formatFileSize = (bytes: number) => {
                 {{ t('projects.details.noAttachments') }}
               </div>
             </div>
-            <div v-else class="attachment-grid">
+            <div
+              v-else
+              class="attachment-grid"
+            >
               <VCard
                 v-for="attachment in project.attachments"
                 :key="attachment.id"
@@ -990,7 +1030,10 @@ const formatFileSize = (bytes: number) => {
                     <!-- File Details -->
                     <div class="flex-grow-1 min-width-0">
                       <div class="d-flex align-center justify-space-between mb-2">
-                        <h6 class="text-h6 text-truncate me-2" style="max-width: 200px;">
+                        <h6
+                          class="text-h6 text-truncate me-2"
+                          style="max-width: 200px;"
+                        >
                           {{ attachment.filename }}
                         </h6>
                         <VChip
@@ -1005,15 +1048,30 @@ const formatFileSize = (bytes: number) => {
                       <!-- File Metadata -->
                       <div class="mb-3">
                         <div class="text-caption text-medium-emphasis mb-1">
-                          <VIcon icon="bx-message" size="14" class="me-1" />
+                          <VIcon
+                            icon="bx-message"
+                            size="14"
+                            class="me-1"
+                          />
                           {{ t('projects.details.fromMessage') }}: {{ attachment.message_subject }}
                         </div>
                         <div class="text-caption text-medium-emphasis">
-                          <VIcon icon="bx-calendar" size="14" class="me-1" />
+                          <VIcon
+                            icon="bx-calendar"
+                            size="14"
+                            class="me-1"
+                          />
                           {{ formattedDate(attachment.message_date) }}
                         </div>
-                        <div v-if="attachment.mime_type" class="text-caption text-medium-emphasis">
-                          <VIcon icon="bx-info-circle" size="14" class="me-1" />
+                        <div
+                          v-if="attachment.mime_type"
+                          class="text-caption text-medium-emphasis"
+                        >
+                          <VIcon
+                            icon="bx-info-circle"
+                            size="14"
+                            class="me-1"
+                          />
                           {{ attachment.mime_type }}
                         </div>
                       </div>
@@ -1048,7 +1106,7 @@ const formatFileSize = (bytes: number) => {
       :email="selectedEmail"
       :email-meta="{
         hasPreviousEmail: selectedEmail && messages.findIndex(m => m.id === selectedEmail.id) > 0,
-        hasNextEmail: selectedEmail && messages.findIndex(m => m.id === selectedEmail.id) < messages.length - 1
+        hasNextEmail: selectedEmail && messages.findIndex(m => m.id === selectedEmail.id) < messages.length - 1,
       }"
       :download-attachment="downloadAttachment"
       @close="handleEmailClose"
@@ -1056,7 +1114,6 @@ const formatFileSize = (bytes: number) => {
       @navigated="handleEmailNavigate"
       @send-reply="handleSendReply"
     />
-
   </div>
 </template>
 
@@ -1107,4 +1164,4 @@ const formatFileSize = (bytes: number) => {
     gap: 16px;
   }
 }
-</style> 
+</style>

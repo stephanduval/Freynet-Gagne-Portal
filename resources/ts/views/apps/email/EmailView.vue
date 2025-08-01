@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import SharedEmailView from '@/components/SharedEmailView.vue';
-import { watch } from 'vue';
-import { useEmail } from './useEmail';
+import { watch } from 'vue'
+import { useEmail } from './useEmail'
+import SharedEmailView from '@/components/SharedEmailView.vue'
+
+const emit = defineEmits<{
+  (e: 'refresh'): void
+  (e: 'navigated', direction: 'previous' | 'next'): void
+  (e: 'close'): void
+}>()
 
 const {
   selectedEmail,
@@ -16,7 +22,7 @@ const {
 // Add downloadAttachment function
 const downloadAttachment = (attachment: any) => {
   // console.log('Download attachment called with:', attachment)
-  
+
   // Check if attachment exists and has required properties
   if (!attachment || typeof attachment !== 'object') {
     // console.error('Invalid attachment object:', attachment)
@@ -35,45 +41,43 @@ const downloadAttachment = (attachment: any) => {
   try {
     // Create a temporary anchor element to handle the download
     const link = document.createElement('a')
+
     link.href = attachment.download_url
     link.target = '_blank' // Open in new tab
     link.rel = 'noopener noreferrer' // Security best practice
     link.click() // Trigger the download
-  } catch (error) {
+  }
+  catch (error) {
     // console.error('Error downloading attachment:', error)
   }
 }
 
 // Add downloadAttachments function for multiple attachments
 const downloadAttachments = async (attachments: any[]) => {
-  if (!attachments || attachments.length === 0) return
+  if (!attachments || attachments.length === 0)
+    return
 
   // If there are multiple attachments, download them sequentially
   if (attachments.length > 1) {
     for (const attachment of attachments) {
       if (attachment?.download_url) {
         window.open(attachment.download_url, '_blank')
+
         // Add a small delay between downloads to prevent browser blocking
         await new Promise(resolve => setTimeout(resolve, 500))
       }
     }
+
     return
   }
 
   // For single attachment, download directly
-  if (attachments[0]?.download_url) {
+  if (attachments[0]?.download_url)
     window.open(attachments[0].download_url, '_blank')
-  }
 }
 
-const emit = defineEmits<{
-  (e: 'refresh'): void
-  (e: 'navigated', direction: 'previous' | 'next'): void
-  (e: 'close'): void
-}>()
-
 // Watch for changes in selectedEmail and update navigation state
-watch(() => selectedEmail.value, (newEmail) => {
+watch(() => selectedEmail.value, newEmail => {
   if (newEmail) {
     // console.log('Email attachments:', newEmail.attachments)
   }
@@ -85,13 +89,13 @@ watch(() => selectedEmail.value, (newEmail) => {
     :email="selectedEmail"
     :email-meta="{
       hasPreviousEmail: !!previousEmail,
-      hasNextEmail: !!nextEmail
+      hasNextEmail: !!nextEmail,
     }"
+    :download-attachment="downloadAttachment"
     @close="handleEmailClose"
     @refresh="handleEmailRefresh"
     @navigated="handleEmailNavigate"
     @send-reply="handleSendReply"
-    :download-attachment="downloadAttachment"
   />
 </template>
 

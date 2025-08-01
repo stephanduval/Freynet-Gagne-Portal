@@ -18,6 +18,7 @@ const shortcuts = [
     subtitle: 'Manage Users',
     to: { name: 'apps-user-list' },
   },
+
   // {
   //   icon: 'bx-group',
   //   title: 'Role Management',
@@ -30,6 +31,7 @@ const shortcuts = [
     subtitle: 'Dashboard Analytics',
     to: { name: 'dashboards-analytics' },
   },
+
   // {
   //   icon: 'bx-cog',
   //   title: 'Settings',

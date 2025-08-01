@@ -1,9 +1,9 @@
-import { paginateArray } from '@api-utils/paginateArray'
-import { db } from '@db/apps/users/db'
 import is from '@sindresorhus/is'
 import destr from 'destr'
 import type { PathParams } from 'msw'
 import { HttpResponse, http } from 'msw'
+import { db } from '@db/apps/users/db'
+import { paginateArray } from '@api-utils/paginateArray'
 
 export const handlerAppsUsers = [
   // Get Users Details

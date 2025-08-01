@@ -1,8 +1,8 @@
-import { cookieRef } from '@layouts/stores/config'
-import { themeConfig } from '@themeConfig'
 import type { App } from 'vue'
 import { createI18n } from 'vue-i18n'
 import vuetifyMessages from './messages/en'
+import { themeConfig } from '@themeConfig'
+import { cookieRef } from '@layouts/stores/config'
 
 const localeMessages = Object.fromEntries(
   Object.entries(

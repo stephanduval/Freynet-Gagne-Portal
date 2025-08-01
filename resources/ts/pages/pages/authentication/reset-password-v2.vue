@@ -1,20 +1,26 @@
 <script setup lang="ts">
+import { useRoute, useRouter } from 'vue-router'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
-import { useRoute, useRouter } from 'vue-router'
 
 import authV2ResetPasswordIllustration from '@images/pages/auth-v2-reset-password-illustration.png'
 
 // Password validation rules
 const passwordValidator = (v: string) => {
-  if (!v) return 'Password is required'
-  if (v.length < 8) return 'Password must be at least 8 characters'
+  if (!v)
+    return 'Password is required'
+  if (v.length < 8)
+    return 'Password must be at least 8 characters'
+
   return true
 }
 
 const passwordConfirmationValidator = (v: string) => {
-  if (!v) return 'Password confirmation is required'
-  if (v !== form.value.password) return 'Passwords must match'
+  if (!v)
+    return 'Password confirmation is required'
+  if (v !== form.value.password)
+    return 'Passwords must match'
+
   return true
 }
 
@@ -39,6 +45,7 @@ onMounted(async () => {
 
   if (!code || !email) {
     error.value = 'Invalid or missing reset code. Please contact your administrator for a new reset code.'
+
     return
   }
 
@@ -75,17 +82,21 @@ const handleSubmit = async () => {
 
     if (response.ok) {
       success.value = data.message || 'Password has been reset successfully. You can now login with your new password.'
+
       // Redirect to login after a delay
       setTimeout(() => {
         router.push({ name: 'login' })
       }, 3000)
-    } else {
+    }
+    else {
       error.value = data.message || 'An error occurred. Please try again.'
     }
-  } catch (err) {
+  }
+  catch (err) {
     error.value = 'An error occurred. Please try again.'
     console.error('Password reset error:', err)
-  } finally {
+  }
+  finally {
     loading.value = false
   }
 }
@@ -143,7 +154,10 @@ const handleSubmit = async () => {
           <VForm @submit.prevent="handleSubmit">
             <VRow>
               <!-- Code Validation Error -->
-              <VCol v-if="!isValidCode && error" cols="12">
+              <VCol
+                v-if="!isValidCode && error"
+                cols="12"
+              >
                 <VAlert
                   color="error"
                   variant="tonal"
@@ -154,7 +168,10 @@ const handleSubmit = async () => {
               </VCol>
 
               <!-- Success Alert -->
-              <VCol v-if="success" cols="12">
+              <VCol
+                v-if="success"
+                cols="12"
+              >
                 <VAlert
                   color="success"
                   variant="tonal"
@@ -165,7 +182,10 @@ const handleSubmit = async () => {
               </VCol>
 
               <!-- Error Alert -->
-              <VCol v-if="error" cols="12">
+              <VCol
+                v-if="error"
+                cols="12"
+              >
                 <VAlert
                   color="error"
                   variant="tonal"
@@ -206,9 +226,9 @@ const handleSubmit = async () => {
                     placeholder="············"
                     :type="isPasswordVisible ? 'text' : 'password'"
                     :append-inner-icon="isPasswordVisible ? 'bx-hide' : 'bx-show'"
-                    @click:append-inner="isPasswordVisible = !isPasswordVisible"
                     :disabled="loading"
                     :rules="[requiredValidator, passwordValidator]"
+                    @click:append-inner="isPasswordVisible = !isPasswordVisible"
                   />
                 </VCol>
 
@@ -220,9 +240,9 @@ const handleSubmit = async () => {
                     placeholder="············"
                     :type="isConfirmPasswordVisible ? 'text' : 'password'"
                     :append-inner-icon="isConfirmPasswordVisible ? 'bx-hide' : 'bx-show'"
-                    @click:append-inner="isConfirmPasswordVisible = !isConfirmPasswordVisible"
                     :disabled="loading"
                     :rules="[requiredValidator, passwordConfirmationValidator]"
+                    @click:append-inner="isConfirmPasswordVisible = !isConfirmPasswordVisible"
                   />
                 </VCol>
 

@@ -4,6 +4,7 @@ import { themeConfig } from '@themeConfig'
 
 // Components
 import Footer from '@/layouts/components/Footer.vue'
+
 // import NavSearchBar from '@/layouts/components/NavSearchBar.vue'
 import NavbarShortcuts from '@/layouts/components/NavbarShortcuts.vue'
 import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue'
@@ -25,11 +26,14 @@ const userRole = computed(() => {
   if (userData) {
     try {
       const parsed = JSON.parse(userData)
+
       return parsed.role?.toLowerCase() || 'user'
-    } catch {
+    }
+    catch {
       return 'user'
     }
   }
+
   return 'user'
 })
 

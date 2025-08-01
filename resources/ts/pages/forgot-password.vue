@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
-import { useRouter } from 'vue-router'
 
 import authV2ForgotPasswordIllustration from '@images/pages/auth-v2-forgot-password-illustration.png'
 
 const router = useRouter()
+
 // const email = ref('')
 // const loading = ref(false)
 // const error = ref('')

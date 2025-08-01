@@ -12,7 +12,7 @@ import '@styles/styles.scss'
 const app = createApp(App)
 
 // Suppress Suspense experimental warning
-app.config.warnHandler = (msg) => {
+app.config.warnHandler = msg => {
   if (msg.includes('Suspense') && msg.includes('experimental'))
     return
   console.warn(msg)

@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import InvoiceProductEdit from './InvoiceProductEdit.vue'
+import type { InvoiceData, PurchasedProduct } from './types'
 import type { Client } from '@db/apps/invoice/types'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
-import InvoiceProductEdit from './InvoiceProductEdit.vue'
-import type { InvoiceData, PurchasedProduct } from './types'
 
 interface Props {
   data: InvoiceData
@@ -30,7 +30,8 @@ const fetchClients = async () => {
 
   if (error.value) {
     // console.log(error.value)
-  } else {
+  }
+  else {
     clients.value = invoiceData.value
   }
 }

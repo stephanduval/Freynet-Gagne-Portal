@@ -8,4 +8,4 @@ const routes = [
   //   component: () => import('@/views/apps/calendar/Calendar.vue'),
   // },
   // ... other routes
-] 
+]
