@@ -427,7 +427,7 @@ onMounted(() => {
             <div class="d-flex align-center">
               <div class="d-flex flex-column text-truncate" style="max-inline-size: 200px;">
                 <h6 class="text-base text-truncate">
-                  {{ item.company?.name || 'N/A' }}
+                  {{ item.client?.companies?.[0]?.name || 'N/A' }}
                 </h6>
               </div>
             </div>
@@ -491,7 +491,7 @@ onMounted(() => {
                 size="small"
                 class="text-capitalize"
               >
-                {{ item.status }}
+                {{ t(`projects.status.${item.status}`) }}
               </VChip>
               <VIcon
                 v-if="item.has_attachments"

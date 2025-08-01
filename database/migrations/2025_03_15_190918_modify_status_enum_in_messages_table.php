@@ -10,11 +10,11 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up()
-{
-    Schema::table('messages', function (Blueprint $table) {
-        $table->enum('status', ['draft', 'archived', 'deleted', 'inbox'])->change();
-    });
-}
+    {
+        Schema::table('messages', function (Blueprint $table) {
+            $table->enum('status', ['draft', 'archived', 'deleted', 'inbox'])->change();
+        });
+    }
 
     /**
      * Reverse the migrations.

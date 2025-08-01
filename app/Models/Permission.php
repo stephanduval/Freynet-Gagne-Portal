@@ -9,20 +9,19 @@ class Permission extends Model
 {
     protected $fillable = [
         'name',
-        'subject'
+        'subject',
     ];
 
     /**
      * The roles that belong to the permission.
      */
     public function roles(): BelongsToMany
-{
-    return $this->belongsToMany(Role::class, 'role_permissions')
-                ->withTimestamps();
-}
+    {
+        return $this->belongsToMany(Role::class, 'role_permissions')
+            ->withTimestamps();
+    }
 
     /**
      * The actions associated with this permission through permission_role.
      */
-    
 }

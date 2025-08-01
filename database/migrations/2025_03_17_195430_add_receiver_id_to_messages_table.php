@@ -14,9 +14,9 @@ class AddReceiverIdToMessagesTable extends Migration
 
             // Add foreign key constraint
             $table->foreign('receiver_id')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('cascade');
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
         });
     }
 

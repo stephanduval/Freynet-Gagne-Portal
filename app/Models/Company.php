@@ -1,18 +1,19 @@
 <?php
-   // app/Models/Company.php
 
-   namespace App\Models;
+// app/Models/Company.php
 
-   use Illuminate\Database\Eloquent\Factories\HasFactory;
-   use Illuminate\Database\Eloquent\Model;
+namespace App\Models;
 
-   class Company extends Model
-   {
-       use HasFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-       // Specify the table if it's not the plural of the model name
-       protected $table = 'companies';
+class Company extends Model
+{
+    use HasFactory;
 
-       // Specify the attributes that are mass assignable
-       protected $fillable = ['company_name'];
-   }
+    // Specify the table if it's not the plural of the model name
+    protected $table = 'companies';
+
+    // Specify the attributes that are mass assignable
+    protected $fillable = ['company_name'];
+}

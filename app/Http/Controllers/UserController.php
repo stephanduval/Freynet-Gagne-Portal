@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Role;
-use App\Models\UserCompany;
-use App\Models\UserRole;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -39,9 +37,9 @@ class UserController extends Controller
         // Eager load companies and roles to optimize queries
         $query = User::with(['companies', 'roles'])
             ->when($searchQuery, function ($query, $search) {
-                $query->where(function($q) use ($search) {
+                $query->where(function ($q) use ($search) {
                     $q->where('users.name', 'like', "%{$search}%")
-                      ->orWhere('users.email', 'like', "%{$search}%");
+                        ->orWhere('users.email', 'like', "%{$search}%");
                 });
             })
             ->when($filterRole, function ($query, $roleName) {
@@ -174,7 +172,7 @@ class UserController extends Controller
 
             \Log::info('Sending response for new user creation', [
                 'user_id' => $user->id,
-                'has_reset_code' => !empty($resetCode),
+                'has_reset_code' => ! empty($resetCode),
                 'response_keys' => array_keys($response),
             ]);
 
@@ -202,6 +200,7 @@ class UserController extends Controller
             return response()->json(['message' => 'User deleted successfully.'], 200);
         } catch (\Exception $e) {
             \Log::error('Error deleting user: ', ['message' => $e->getMessage()]);
+
             return response()->json(['error' => 'Failed to delete user.'], 500);
         }
     }
@@ -219,7 +218,7 @@ class UserController extends Controller
                 'role' => $user->roles->first()?->name ?? 'N/A',
                 'company' => $user->companies->first() ? [
                     'id' => $user->companies->first()->id,
-                    'company_name' => $user->companies->first()->company_name
+                    'company_name' => $user->companies->first()->company_name,
                 ] : null,
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,
@@ -238,7 +237,7 @@ class UserController extends Controller
         try {
             $validated = $request->validate([
                 'name' => 'sometimes|required|string|max:255',
-                'email' => 'sometimes|required|string|email|unique:users,email,' . $id,
+                'email' => 'sometimes|required|string|email|unique:users,email,'.$id,
                 'company_id' => 'sometimes|required|exists:companies,id',
                 'role_id' => 'sometimes|required|exists:roles,id',
                 'department' => 'nullable|string|max:255',
@@ -274,7 +273,7 @@ class UserController extends Controller
     /**
      * Generate a reset code for a user
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function generateResetCode($id)

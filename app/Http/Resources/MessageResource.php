@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\User; // Import User model if not already imported
+use Illuminate\Http\Resources\Json\JsonResource; // Import User model if not already imported
 use Illuminate\Support\Facades\URL; // Add this import for URL facade
 
 class MessageResource extends JsonResource
@@ -28,43 +28,42 @@ class MessageResource extends JsonResource
         } elseif ($this->status === 'draft') { // Assuming sender perspective for draft/sent
             $folder = 'draft';
         } elseif ($this->status === 'sent') { // Assuming sender perspective for draft/sent
-             // Sent items usually appear in inbox for receiver, but maybe 'sent' folder for sender view?
-             // Let's keep it simple: if receiver sees it, it's inbox unless archived/deleted.
-             // If sender is viewing 'sent' filter, the controller handles that.
-             // So, resource doesn't need complex folder logic based on viewer.
+            // Sent items usually appear in inbox for receiver, but maybe 'sent' folder for sender view?
+            // Let's keep it simple: if receiver sees it, it's inbox unless archived/deleted.
+            // If sender is viewing 'sent' filter, the controller handles that.
+            // So, resource doesn't need complex folder logic based on viewer.
         }
-        
 
         return [
             'id' => $this->id,
             'from' => [
-                'id' => $this->whenLoaded('sender', fn() => $this->sender->id ?? null),
-                'fullName' => $this->whenLoaded('sender', fn() => $this->sender->name ?? 'Unknown Sender'),
-                'email' => $this->whenLoaded('sender', fn() => $this->sender->email ?? 'unknown@example.com'),
-                'avatar' => $this->whenLoaded('sender', fn() => $this->sender->avatar ?? '/images/avatars/avatar-1.png'), // Adjust default avatar path as needed
+                'id' => $this->whenLoaded('sender', fn () => $this->sender->id ?? null),
+                'fullName' => $this->whenLoaded('sender', fn () => $this->sender->name ?? 'Unknown Sender'),
+                'email' => $this->whenLoaded('sender', fn () => $this->sender->email ?? 'unknown@example.com'),
+                'avatar' => $this->whenLoaded('sender', fn () => $this->sender->avatar ?? '/images/avatars/avatar-1.png'), // Adjust default avatar path as needed
             ],
             'to' => $this->whenLoaded('receiver', function () {
-                 return $this->receiver ? [ // Check if receiver exists
+                return $this->receiver ? [ // Check if receiver exists
                     [
                         'fullName' => $this->receiver->name ?? 'Unknown Receiver',
                         'email' => $this->receiver->email ?? 'unknown@example.com',
-                    ]
-                 ] : []; // Return empty array if no receiver
+                    ],
+                ] : []; // Return empty array if no receiver
             }),
             'subject' => $this->subject,
             'message' => $this->body, // Map body to message
             'time' => $this->created_at->toISOString(), // Map created_at to time
             'requestedDate' => $this->created_at->toISOString(), // Add requestedDate mapping
             'dueDate' => $this->due_date?->toDateString(), // Format Y-m-d, handle null
-            'labels' => $this->whenLoaded('labels', fn() => $this->labels->pluck('label_name')->toArray() ?? []),
-            'attachments' => $this->whenLoaded('attachments', function() {
+            'labels' => $this->whenLoaded('labels', fn () => $this->labels->pluck('label_name')->toArray() ?? []),
+            'attachments' => $this->whenLoaded('attachments', function () {
                 return $this->attachments->map(function ($attachment) {
                     // Format file size in human-readable format
                     $sizeFormatted = $this->formatFileSize($attachment->size);
-                    
+
                     // Generate file icon based on mime type
                     $fileIcon = $this->getFileIcon($attachment->mime_type);
-                    
+
                     return [
                         'id' => $attachment->id,
                         'fileName' => $attachment->filename,
@@ -88,7 +87,7 @@ class MessageResource extends JsonResource
             'task_status' => $this->task_status, // New task status ('new'/'completed')
             'due_date' => $this->due_date?->toDateString(),
             'company_id' => $this->company_id,
-            'project' => $this->whenLoaded('project', function() {
+            'project' => $this->whenLoaded('project', function () {
                 return $this->project ? [
                     'id' => $this->project->id,
                     'title' => $this->project->title,
@@ -112,13 +111,13 @@ class MessageResource extends JsonResource
     private function formatFileSize($bytes)
     {
         if ($bytes >= 1073741824) {
-            return number_format($bytes / 1073741824, 2) . ' GB';
+            return number_format($bytes / 1073741824, 2).' GB';
         } elseif ($bytes >= 1048576) {
-            return number_format($bytes / 1048576, 2) . ' MB';
+            return number_format($bytes / 1048576, 2).' MB';
         } elseif ($bytes >= 1024) {
-            return number_format($bytes / 1024, 2) . ' KB';
+            return number_format($bytes / 1024, 2).' KB';
         } elseif ($bytes > 1) {
-            return $bytes . ' bytes';
+            return $bytes.' bytes';
         } elseif ($bytes == 1) {
             return '1 byte';
         } else {

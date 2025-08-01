@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Database\Eloquent\Builder;
-use App\Http\Resources\ProjectResource;
 
 class ProjectController extends Controller
 {
@@ -20,13 +20,13 @@ class ProjectController extends Controller
         Log::info('ProjectController::index - Fetching projects', [
             'per_page' => $request->input('per_page'),
             'page' => $request->input('page'),
-            'all_params' => $request->all()
+            'all_params' => $request->all(),
         ]);
-        
+
         $user = Auth::user();
         $userRole = $user->roles->first()?->name;
 
-        $query = Project::with(['client:id,name,email', 'messages.attachments']);
+        $query = Project::with(['client:id,name,email', 'client.companies', 'messages.attachments']);
 
         // Admin users can see all projects
         if ($userRole === 'admin') {
@@ -37,20 +37,20 @@ class ProjectController extends Controller
         } else {
             // Non-admin users see all projects from users in their company
             $userCompanyIds = $user->companies()->pluck('companies.id')->toArray();
-            
-            if (!empty($userCompanyIds)) {
+
+            if (! empty($userCompanyIds)) {
                 // Get all users who belong to the same company/companies
                 $companyUserIds = User::whereHas('companies', function ($q) use ($userCompanyIds) {
                     $q->whereIn('companies.id', $userCompanyIds);
                 })->pluck('id')->toArray();
-                
+
                 // Filter projects to those created by users in the same company
                 $query->whereIn('client_id', $companyUserIds);
-                
+
                 Log::info('Filtering projects by company', [
                     'user_id' => $user->id,
                     'user_companies' => $userCompanyIds,
-                    'company_users' => $companyUserIds
+                    'company_users' => $companyUserIds,
                 ]);
             } else {
                 // If user has no company, only show their own projects
@@ -81,8 +81,8 @@ class ProjectController extends Controller
             $search = $request->search;
             $query->where(function (Builder $q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('property', 'like', "%{$search}%")
-                  ->orWhere('service_description', 'like', "%{$search}%");
+                    ->orWhere('property', 'like', "%{$search}%")
+                    ->orWhere('service_description', 'like', "%{$search}%");
             });
         }
 
@@ -93,25 +93,25 @@ class ProjectController extends Controller
 
         // Paginate results
         $perPage = $request->input('per_page', 10);
-        
+
         Log::info('ProjectController::index - Before pagination', [
             'per_page' => $perPage,
             'query_sql' => $query->toSql(),
-            'query_bindings' => $query->getBindings()
+            'query_bindings' => $query->getBindings(),
         ]);
-        
+
         // Handle "All" option (per_page = -1)
         if ($perPage === -1) {
             $projects = $query->get();
             $totalProjects = $projects->count();
-            
+
             Log::info('ProjectController::index - Returning all projects', [
                 'total_projects' => $totalProjects,
                 'per_page' => $totalProjects,
                 'current_page' => 1,
-                'last_page' => 1
+                'last_page' => 1,
             ]);
-            
+
             return response()->json([
                 'data' => ProjectResource::collection($projects),
                 'total' => $totalProjects,
@@ -124,21 +124,21 @@ class ProjectController extends Controller
         }
 
         $projects = $query->paginate($perPage);
-        
+
         Log::info('ProjectController::index - Returning paginated projects', [
             'total' => $projects->total(),
             'per_page' => $projects->perPage(),
             'current_page' => $projects->currentPage(),
-            'last_page' => $projects->lastPage()
+            'last_page' => $projects->lastPage(),
         ]);
-        
+
         // Transform the paginated data using ProjectResource
         $transformedProjects = ProjectResource::collection($projects->getCollection());
-        
+
         // Create response with pagination metadata
         $response = $projects->toArray();
         $response['data'] = $transformedProjects->toArray($request);
-        
+
         return response()->json($response);
     }
 
@@ -156,7 +156,7 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
         Log::info('ProjectController::store - Creating new project');
-        
+
         // Validate request data
         $validated = $request->validate([
             'client_id' => 'required|exists:users,id',
@@ -173,7 +173,7 @@ class ProjectController extends Controller
         // Only admins can create projects for other clients
         $user = Auth::user();
         $userRole = $user->roles->first()?->name;
-        
+
         if ($userRole !== 'admin' && $validated['client_id'] !== $user->id) {
             return response()->json(['message' => 'Unauthorized to create project for another client'], 403);
         }
@@ -181,11 +181,11 @@ class ProjectController extends Controller
         // Set default values if not provided
         $validated['status'] = $validated['status'] ?? 'received';
         $validated['time_preference'] = $validated['time_preference'] ?? 'anytime';
-        
+
         // Create the project
         $project = Project::create($validated);
-        
-        return new ProjectResource($project->load(['client', 'messages.attachments']));
+
+        return new ProjectResource($project->load(['client', 'client.companies', 'messages.attachments']));
     }
 
     /**
@@ -193,55 +193,57 @@ class ProjectController extends Controller
      */
     public function show(string $id)
     {
-        Log::info("ProjectController::show - Starting request", [
+        Log::info('ProjectController::show - Starting request', [
             'project_id' => $id,
             'request_method' => request()->method(),
             'request_url' => request()->fullUrl(),
-            'request_headers' => request()->headers->all()
+            'request_headers' => request()->headers->all(),
         ]);
 
         // Log authentication state
-        Log::info("Auth state:", [
+        Log::info('Auth state:', [
             'is_authenticated' => auth()->check(),
             'user_id' => auth()->id(),
             'user_role' => auth()->user()?->roles->first()?->name,
-            'token' => request()->bearerToken() ? 'Present' : 'Missing'
+            'token' => request()->bearerToken() ? 'Present' : 'Missing',
         ]);
-        
+
         try {
-            $project = Project::with(['client:id,name,email', 'messages.attachments'])->findOrFail($id);
-            Log::info("Project found:", [
+            $project = Project::with(['client:id,name,email', 'client.companies', 'messages.attachments'])->findOrFail($id);
+            Log::info('Project found:', [
                 'project_id' => $project->id,
                 'client_id' => $project->client_id,
                 'auth_user_id' => auth()->id(),
-                'project_status' => $project->status
+                'project_status' => $project->status,
             ]);
-            
+
             // Use policy authorization
-            if (!auth()->user()->can('view', $project)) {
-                Log::warning("User not authorized to view project", [
+            if (! auth()->user()->can('view', $project)) {
+                Log::warning('User not authorized to view project', [
                     'user_id' => auth()->id(),
                     'user_role' => auth()->user()?->roles->first()?->name,
                     'project_id' => $id,
                     'project_client_id' => $project->client_id,
                 ]);
+
                 return response()->json(['message' => 'Unauthorized to view this project'], 403);
             }
-            
-            Log::info("Project access granted", [
+
+            Log::info('Project access granted', [
                 'user_id' => auth()->id(),
-                'project_id' => $id
+                'project_id' => $id,
             ]);
-            
+
             return new ProjectResource($project);
         } catch (\Exception $e) {
-            Log::error("Error in ProjectController::show", [
+            Log::error('Error in ProjectController::show', [
                 'exception' => $e,
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'user_id' => auth()->id(),
-                'project_id' => $id
+                'project_id' => $id,
             ]);
+
             return response()->json(['message' => 'Failed to fetch project'], 500);
         }
     }
@@ -260,19 +262,19 @@ class ProjectController extends Controller
     public function update(Request $request, string $id)
     {
         Log::info("ProjectController::update - Updating project {$id}");
-        
+
         try {
             $project = Project::findOrFail($id);
-            
+
             // Use policy authorization
-            if (!auth()->user()->can('update', $project)) {
+            if (! auth()->user()->can('update', $project)) {
                 return response()->json(['message' => 'Unauthorized to update this project'], 403);
             }
-            
+
             // Validate based on user role
             $user = auth()->user();
             $userRole = $user->roles->first()?->name;
-            
+
             if ($userRole === 'client') {
                 $validated = $request->validate([
                     'property' => 'nullable|string|max:255',
@@ -294,12 +296,13 @@ class ProjectController extends Controller
                     'latest_completion_date' => 'nullable|date|after:deadline',
                 ]);
             }
-            
+
             $project->update($validated);
-            
-            return new ProjectResource($project->load(['client', 'messages.attachments']));
+
+            return new ProjectResource($project->load(['client', 'client.companies', 'messages.attachments']));
         } catch (\Exception $e) {
-            Log::error("Error updating project: " . $e->getMessage());
+            Log::error('Error updating project: '.$e->getMessage());
+
             return response()->json(['message' => 'Failed to update project'], 500);
         }
     }
@@ -310,27 +313,28 @@ class ProjectController extends Controller
     public function destroy(string $id)
     {
         Log::info("ProjectController::destroy - Deleting project {$id}");
-        
+
         try {
             $project = Project::findOrFail($id);
-            
+
             // Use policy authorization
-            if (!auth()->user()->can('delete', $project)) {
+            if (! auth()->user()->can('delete', $project)) {
                 return response()->json(['message' => 'Unauthorized to delete projects'], 403);
             }
-            
+
             // Check if project has messages
             $messagesCount = $project->messages()->count();
             if ($messagesCount > 0) {
                 // Update messages to remove project association
                 $project->messages()->update(['project_id' => null]);
             }
-            
+
             $project->delete();
-            
+
             return response()->json(['message' => 'Project deleted successfully']);
         } catch (\Exception $e) {
-            Log::error("Error deleting project: " . $e->getMessage());
+            Log::error('Error deleting project: '.$e->getMessage());
+
             return response()->json(['message' => 'Failed to delete project'], 500);
         }
     }
@@ -340,8 +344,8 @@ class ProjectController extends Controller
      */
     public function bulkDestroy(Request $request)
     {
-        Log::info("ProjectController::bulkDestroy - Bulk deleting projects");
-        
+        Log::info('ProjectController::bulkDestroy - Bulk deleting projects');
+
         try {
             $validated = $request->validate([
                 'ids' => 'required|array|min:1',
@@ -350,14 +354,14 @@ class ProjectController extends Controller
 
             $ids = $validated['ids'];
             $projects = Project::whereIn('id', $ids)->get();
-            
+
             // Check authorization for each project
             foreach ($projects as $project) {
-                if (!auth()->user()->can('delete', $project)) {
+                if (! auth()->user()->can('delete', $project)) {
                     return response()->json(['message' => 'Unauthorized to delete one or more projects'], 403);
                 }
             }
-            
+
             // Use a transaction to ensure data integrity
             \DB::transaction(function () use ($projects) {
                 foreach ($projects as $project) {
@@ -367,7 +371,7 @@ class ProjectController extends Controller
                         // Update messages to remove project association
                         $project->messages()->update(['project_id' => null]);
                     }
-                    
+
                     $project->delete();
                 }
             });
@@ -377,40 +381,41 @@ class ProjectController extends Controller
 
             return response()->json([
                 'message' => "Successfully deleted {$deletedCount} projects.",
-                'deleted_count' => $deletedCount
+                'deleted_count' => $deletedCount,
             ], 200);
         } catch (\Exception $e) {
             Log::error('Error bulk deleting projects: ', [
                 'message' => $e->getMessage(),
-                'request_data' => $request->all()
+                'request_data' => $request->all(),
             ]);
+
             return response()->json(['message' => 'Failed to delete projects.'], 500);
         }
     }
-    
+
     /**
      * Get summary statistics for projects
      */
     public function summary()
     {
         Log::info('ProjectController::summary - Generating project summary');
-        
+
         $user = Auth::user();
         $userRole = $user->roles->first()?->name;
-        
+
         $query = Project::query();
-        
+
         // Admin users see all projects
         if ($userRole !== 'admin') {
             // Non-admin users see all projects from users in their company
             $userCompanyIds = $user->companies()->pluck('companies.id')->toArray();
-            
-            if (!empty($userCompanyIds)) {
+
+            if (! empty($userCompanyIds)) {
                 // Get all users who belong to the same company/companies
                 $companyUserIds = User::whereHas('companies', function ($q) use ($userCompanyIds) {
                     $q->whereIn('companies.id', $userCompanyIds);
                 })->pluck('id')->toArray();
-                
+
                 // Filter projects to those created by users in the same company
                 $query->whereIn('client_id', $companyUserIds);
             } else {
@@ -418,7 +423,7 @@ class ProjectController extends Controller
                 $query->where('client_id', $user->id);
             }
         }
-        
+
         $summary = [
             'total' => $query->count(),
             'received' => (clone $query)->where('status', 'received')->count(),
@@ -426,9 +431,9 @@ class ProjectController extends Controller
             'delivered' => (clone $query)->where('status', 'delivered')->count(),
             'due_today' => (clone $query)->whereDate('deadline', now()->format('Y-m-d'))->count(),
             'overdue' => (clone $query)->whereDate('deadline', '<', now()->format('Y-m-d'))
-                               ->whereNotIn('status', ['delivered'])->count(),
+                ->whereNotIn('status', ['delivered'])->count(),
         ];
-        
+
         return response()->json($summary);
     }
 }

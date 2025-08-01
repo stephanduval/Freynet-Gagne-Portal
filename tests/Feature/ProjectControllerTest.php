@@ -3,12 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\Project;
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use Laravel\Sanctum\Sanctum;
 use Illuminate\Support\Facades\Artisan;
+use Laravel\Sanctum\Sanctum;
+use Tests\TestCase;
 
 class ProjectControllerTest extends TestCase
 {
@@ -17,22 +17,22 @@ class ProjectControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Run migrations
         Artisan::call('migrate:fresh');
-        
+
         // Create roles
         Role::create(['name' => 'admin']);
         Role::create(['name' => 'client']);
-        
+
         // Create an admin user
         $this->admin = User::factory()->create();
         $this->admin->assignRole('admin');
-        
+
         // Create a client user
         $this->client = User::factory()->create();
         $this->client->assignRole('client');
-        
+
         // Create some test projects
         Project::factory()->count(15)->create([
             'client_id' => $this->client->id,
@@ -62,7 +62,7 @@ class ProjectControllerTest extends TestCase
 
         // Get the response data
         $responseData = $response->json();
-        
+
         // Assert that we got all projects
         $this->assertEquals(15, $responseData['total']);
         $this->assertEquals(15, count($responseData['data']));
@@ -96,7 +96,7 @@ class ProjectControllerTest extends TestCase
 
         // Get the response data
         $responseData = $response->json();
-        
+
         // Assert pagination
         $this->assertEquals(15, $responseData['total']);
         $this->assertEquals(5, count($responseData['data']));
@@ -130,14 +130,14 @@ class ProjectControllerTest extends TestCase
 
         // Get the response data
         $responseData = $response->json();
-        
+
         // Assert that client only sees their projects
         $this->assertEquals(15, $responseData['total']);
         $this->assertEquals(15, count($responseData['data']));
-        
+
         // Verify all projects belong to this client
         foreach ($responseData['data'] as $project) {
             $this->assertEquals($this->client->id, $project['client']['id']);
         }
     }
-} 
+}

@@ -3,25 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attachment;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AttachmentController extends Controller
 {
     /**
      * Download the specified attachment.
      *
-     * @param  \App\Models\Attachment  $attachment
      * @return \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\JsonResponse
      */
     public function download(Attachment $attachment)
     {
         Log::info("Attempting to download attachment ID: {$attachment->id}");
 
-        // --- Authorization Check Removed --- 
+        // --- Authorization Check Removed ---
         // The 'signed' middleware on the route provides temporary authorization.
         // We trust that the link was generated for an authorized user.
         // $message = $attachment->message()->first();
@@ -33,26 +30,28 @@ class AttachmentController extends Controller
         // Check if the file exists on the configured disk (e.g., 'public')
         // It's still good practice to check if the attachment record itself is valid
         // though the route model binding handles basic existence.
-        if (!$attachment->exists) { // Or check if $attachment itself is null if not using route model binding strictly
+        if (! $attachment->exists) { // Or check if $attachment itself is null if not using route model binding strictly
             Log::warning("Attempted download for non-existent attachment record ID (post-binding check): {$attachment->id}");
+
             return response()->json(['error' => 'Attachment record not found.'], 404);
         }
 
         // Use the same disk configuration as the MessageController
         $disk = config('filesystems.default');
-        
+
         Log::info("Checking for attachment file on disk: {$disk}", [
             'attachment_id' => $attachment->id,
             'path' => $attachment->path,
-            'filename' => $attachment->filename
+            'filename' => $attachment->filename,
         ]);
 
-        if (!Storage::disk($disk)->exists($attachment->path)) {
+        if (! Storage::disk($disk)->exists($attachment->path)) {
             Log::error("Attachment file not found on disk for attachment ID: {$attachment->id}", [
                 'path' => $attachment->path,
                 'disk' => $disk,
-                'full_path' => Storage::disk($disk)->path($attachment->path)
+                'full_path' => Storage::disk($disk)->path($attachment->path),
             ]);
+
             return response()->json(['error' => 'File not found.'], 404);
         }
 
@@ -62,11 +61,12 @@ class AttachmentController extends Controller
         try {
             return Storage::disk($disk)->download($attachment->path, $attachment->filename);
         } catch (\Exception $e) {
-            Log::error("Error preparing download for attachment ID {$attachment->id}: " . $e->getMessage(), [
+            Log::error("Error preparing download for attachment ID {$attachment->id}: ".$e->getMessage(), [
                 'disk' => $disk,
                 'path' => $attachment->path,
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
+
             return response()->json(['error' => 'Could not process file download.'], 500);
         }
     }

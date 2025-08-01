@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Role;
-use App\Models\Permission;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class RolePermissionActionSubjectSeeder extends Seeder
@@ -45,31 +44,31 @@ class RolePermissionActionSubjectSeeder extends Seeder
 
             // Verify all permissions were created
             $allPermissions = DB::table('permissions')->get();
-            \Log::info("Created permissions", [
+            \Log::info('Created permissions', [
                 'count' => $allPermissions->count(),
-                'permissions' => $allPermissions->pluck('subject', 'action')->toArray()
+                'permissions' => $allPermissions->pluck('subject', 'action')->toArray(),
             ]);
 
             // After creating permissions
             $allPermissions = DB::table('permissions')->get();
-            \Log::info("All permissions in database after creation", [
+            \Log::info('All permissions in database after creation', [
                 'count' => $allPermissions->count(),
-                'permissions' => $allPermissions->map(function($p) {
+                'permissions' => $allPermissions->map(function ($p) {
                     return [
                         'id' => $p->id,
                         'action' => $p->action,
-                        'subject' => $p->subject
+                        'subject' => $p->subject,
                     ];
-                })->toArray()
+                })->toArray(),
             ]);
 
             // Create roles
             $roles = ['Admin', 'Client', 'User'];
             foreach ($roles as $roleName) {
                 $role = Role::firstOrCreate(['name' => $roleName]);
-                \Log::info("Created role", [
+                \Log::info('Created role', [
                     'id' => $role->id,
-                    'name' => $roleName
+                    'name' => $roleName,
                 ]);
             }
 
@@ -86,21 +85,21 @@ class RolePermissionActionSubjectSeeder extends Seeder
                 $roleName = strtolower($role->name);
                 if (isset($roleHierarchy[$roleName])) {
                     $allowedSubjects = $roleHierarchy[$roleName];
-                    
+
                     // Get all permissions for allowed subjects
                     $permissions = DB::table('permissions')
                         ->whereIn('subject', $allowedSubjects)
                         ->get();
-                    
+
                     \Log::info("Found permissions for role: {$roleName}", [
                         'count' => $permissions->count(),
-                        'permissions' => $permissions->map(function($p) {
+                        'permissions' => $permissions->map(function ($p) {
                             return [
                                 'id' => $p->id,
                                 'action' => $p->action,
-                                'subject' => $p->subject
+                                'subject' => $p->subject,
                             ];
-                        })->toArray()
+                        })->toArray(),
                     ]);
 
                     // Clear existing permissions
@@ -116,7 +115,7 @@ class RolePermissionActionSubjectSeeder extends Seeder
                         ];
                     })->toArray();
 
-                    if (!empty($rolePermissions)) {
+                    if (! empty($rolePermissions)) {
                         DB::table('role_permissions')->insert($rolePermissions);
                     }
                 }
@@ -125,14 +124,14 @@ class RolePermissionActionSubjectSeeder extends Seeder
             // Final verification
             $clientRole = Role::where('name', 'Client')->first();
             $clientPermissions = $clientRole->permissions->pluck('subject', 'action');
-            \Log::info("Final Client role permissions", [
-                'permissions' => $clientPermissions->toArray()
+            \Log::info('Final Client role permissions', [
+                'permissions' => $clientPermissions->toArray(),
             ]);
 
         } catch (\Exception $e) {
-            \Log::error("Seeder failed", [
+            \Log::error('Seeder failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
             throw $e;
         }

@@ -1,4 +1,5 @@
 <?php
+
 // database/migrations/xxxx_xx_xx_xxxxxx_add_password_reset_required_to_users_table.php
 
 use Illuminate\Database\Migrations\Migration;

@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ModifyMessagesTableForInternalMessaging extends Migration
 {
@@ -11,7 +11,7 @@ class ModifyMessagesTableForInternalMessaging extends Migration
     {
         Schema::table('messages', function (Blueprint $table) {
             // Check if receiver_id already exists
-            if (!Schema::hasColumn('messages', 'receiver_id')) {
+            if (! Schema::hasColumn('messages', 'receiver_id')) {
                 $table->foreignId('receiver_id')->after('sender_id')->nullable()->constrained('users')->onDelete('cascade');
             }
         });

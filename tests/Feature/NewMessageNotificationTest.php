@@ -2,15 +2,14 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Message;
 use App\Models\Company;
+use App\Models\Message;
 use App\Models\NotificationRecipient;
-use Illuminate\Support\Facades\Mail;
+use App\Models\User;
 use App\Notifications\NewMessageNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Tests\TestCase;
 
 class NewMessageNotificationTest extends TestCase
 {
@@ -19,7 +18,7 @@ class NewMessageNotificationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create a test company
         $this->company = Company::create([
             'company_name' => 'Test Company',
@@ -103,4 +102,4 @@ class NewMessageNotificationTest extends TestCase
         }
         Notification::assertNotSentTo($this->recipient, NewMessageNotification::class);
     }
-} 
+}

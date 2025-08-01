@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\Company;
-use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
@@ -28,7 +28,7 @@ class UserSeeder extends Seeder
                 'email' => 'sophie@freynet-gagne.com',
                 'password' => Hash::make('password123'), // Use a secure password
             ],
-            
+
             [
                 'name' => 'Admin User',
                 'email' => 'admin@admin.com',

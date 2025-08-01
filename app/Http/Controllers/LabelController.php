@@ -19,7 +19,7 @@ class LabelController extends Controller
 
         $labels = Label::where('user_id', $userId)->get();
 
-        Log::info("Found {" . $labels->count() . "} labels for user {$userId}");
+        Log::info('Found {'.$labels->count()."} labels for user {$userId}");
 
         // Ensure ID is included along with name and color
         return response()->json($labels->map(function ($label) {
@@ -46,11 +46,12 @@ class LabelController extends Controller
 
         // Check if label already exists for this user
         $existingLabel = Label::where('user_id', $userId)
-                             ->where('label_name', $validated['label_name'])
-                             ->first();
+            ->where('label_name', $validated['label_name'])
+            ->first();
 
         if ($existingLabel) {
             Log::warning("Label '{$validated['label_name']}' already exists for user {$userId}");
+
             return response()->json(['message' => 'Label already exists.'], 409); // 409 Conflict
         }
 
@@ -61,7 +62,7 @@ class LabelController extends Controller
             'colour' => $validated['colour'],
         ]);
 
-        Log::info("Label created successfully", ['id' => $label->id]);
+        Log::info('Label created successfully', ['id' => $label->id]);
 
         return response()->json($label, 201); // Return the created label
     }
@@ -91,11 +92,12 @@ class LabelController extends Controller
         Log::info("Attempting to delete label {$id} for user {$userId}");
 
         $label = Label::where('id', $id)
-                      ->where('user_id', $userId)
-                      ->first();
+            ->where('user_id', $userId)
+            ->first();
 
-        if (!$label) {
+        if (! $label) {
             Log::warning("Label {$id} not found or does not belong to user {$userId}.");
+
             return response()->json(['message' => 'Label not found.'], 404);
         }
 
@@ -111,6 +113,7 @@ class LabelController extends Controller
             return response()->json(['message' => 'Label deleted successfully.']);
         } catch (\Exception $e) {
             Log::error("Error deleting label {$id}: {$e->getMessage()}");
+
             return response()->json(['message' => 'Failed to delete label.'], 500);
         }
     }

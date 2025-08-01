@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ProjectPolicy
@@ -27,26 +27,26 @@ class ProjectPolicy
         if ($user->roles()->where('name', 'admin')->exists()) {
             return true;
         }
-        
+
         // Check if the user and the project's client share a company
         return $this->usersShareCompany($user, $project->client);
     }
-    
+
     /**
      * Check if two users share at least one company
      */
     private function usersShareCompany(User $user1, ?User $user2): bool
     {
-        if (!$user2) {
+        if (! $user2) {
             return false;
         }
-        
+
         // Get company IDs for both users
         $user1CompanyIds = $user1->companies()->pluck('companies.id')->toArray();
         $user2CompanyIds = $user2->companies()->pluck('companies.id')->toArray();
-        
+
         // Check if there's any overlap
-        return !empty(array_intersect($user1CompanyIds, $user2CompanyIds));
+        return ! empty(array_intersect($user1CompanyIds, $user2CompanyIds));
     }
 
     /**
@@ -67,7 +67,7 @@ class ProjectPolicy
         if ($user->roles()->where('name', 'admin')->exists()) {
             return true;
         }
-        
+
         // Users can only update their own projects (not projects from others in their company)
         return $user->id === $project->client_id;
     }

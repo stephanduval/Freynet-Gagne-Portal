@@ -42,9 +42,9 @@ return [
         ],
         'api' => [
             'driver' => 'sanctum',
-        'provider' => 'users',
-        // Hashing the api breaks authentication
-        // 'hash' => false,
+            'provider' => 'users',
+            // Hashing the api breaks authentication
+            // 'hash' => false,
         ],
     ],
 

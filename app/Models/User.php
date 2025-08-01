@@ -2,18 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements CanResetPasswordContract
 {
-    use HasApiTokens, HasFactory, Notifiable, CanResetPassword;
+    use CanResetPassword, HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -44,8 +43,6 @@ class User extends Authenticatable implements CanResetPasswordContract
 
     /**
      * Define a many-to-many relationship with Role.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function roles(): BelongsToMany
     {
@@ -59,8 +56,6 @@ class User extends Authenticatable implements CanResetPasswordContract
 
     /**
      * Define a many-to-many relationship with Company.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function companies(): BelongsToMany
     {
@@ -78,7 +73,7 @@ class User extends Authenticatable implements CanResetPasswordContract
     public function subjects(): BelongsToMany
     {
         return $this->belongsToMany(Subject::class, 'subject_user')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 
     /**
@@ -117,7 +112,7 @@ class User extends Authenticatable implements CanResetPasswordContract
      */
     public function getPasswordResetUrl($token)
     {
-        return config('app.frontend_url') . '/reset-password?token=' . $token . '&email=' . urlencode($this->email);
+        return config('app.frontend_url').'/reset-password?token='.$token.'&email='.urlencode($this->email);
     }
 
     /**

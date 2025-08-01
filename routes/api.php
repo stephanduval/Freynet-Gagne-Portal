@@ -1,17 +1,17 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\RolesController;
-use App\Http\Controllers\MessageController;
-use App\Http\Controllers\LabelController;
 use App\Http\Controllers\AttachmentController;
-use App\Http\Controllers\SystemController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\LabelController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\RolesController;
+use App\Http\Controllers\SystemController;
+use App\Http\Controllers\UserController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Mail;
 Route::group(['prefix' => 'auth'], function () {
     Route::post('login', [AuthController::class, 'login']);
     Route::post('register', [AuthController::class, 'register']);
-    
+
     // Password Reset Routes
     Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('reset-password', [AuthController::class, 'resetPassword']);
@@ -74,9 +74,7 @@ Route::get('/diagnostic', function (Request $request) {
     return response()->json(['message' => 'API is up', 'user' => $request->user()]);
 });
 
-
 // Message Controller Routes:
-
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/messages', [MessageController::class, 'index']); // Fetch messages for UI display
@@ -124,7 +122,7 @@ Route::get('/send-message-notification', function () {
             ->latest()
             ->first();
 
-        if (!$message) {
+        if (! $message) {
             return response()->json([
                 'error' => 'No message found to send notification for',
             ], 404);
@@ -150,24 +148,24 @@ Route::get('/send-message-notification', function () {
 
         // Send email using the template with the message data
         Mail::mailer('mailgun')
-            ->send('emails.new-message-alert', ['msg' => $message], function($mail) use ($message) {
+            ->send('emails.new-message-alert', ['msg' => $message], function ($mail) use ($message) {
                 $mail->to('sophie@freynet-gagne.com')
-                     ->subject('Freynet-Gagné Portal - New Message: ' . $message->subject);
+                    ->subject('Freynet-Gagné Portal - New Message: '.$message->subject);
             });
 
         return response()->json([
             'success' => true,
             'message' => 'Notification sent successfully',
-            'message_id' => $message->id
+            'message_id' => $message->id,
         ]);
     } catch (\Exception $e) {
         \Log::error('Error sending message notification:', [
             'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+            'trace' => $e->getTraceAsString(),
         ]);
-        
+
         return response()->json([
-            'error' => 'Failed to process notification: ' . $e->getMessage()
+            'error' => 'Failed to process notification: '.$e->getMessage(),
         ], 500);
     }
 });

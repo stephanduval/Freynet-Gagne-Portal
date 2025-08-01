@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
-use App\Models\User;
-use App\Models\Role;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -35,8 +33,8 @@ class AuthController extends Controller
 
             // Create the user
             $user = new User([
-                'name'     => $request->name,
-                'email'    => $request->email,
+                'name' => $request->name,
+                'email' => $request->email,
                 'password' => bcrypt($request->password),
             ]);
 
@@ -50,17 +48,18 @@ class AuthController extends Controller
                     $user->roles()->attach($defaultRole->id);
                     \Log::info('Role assigned to user.', [
                         'user_id' => $user->id,
-                        'role_id' => $defaultRole->id
+                        'role_id' => $defaultRole->id,
                     ]);
                 } else {
                     \Log::warning('Client role not found.');
                 }
 
                 return response()->json([
-                    'message' => 'Successfully created user with Client role!'
+                    'message' => 'Successfully created user with Client role!',
                 ], 201);
             } else {
                 \Log::error('Failed to save user.', $user->toArray());
+
                 return response()->json(['error' => 'Unable to save user.'], 500);
             }
         } catch (\Exception $e) {
@@ -68,6 +67,7 @@ class AuthController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
             return response()->json(['message' => 'An error occurred. Please try again.'], 500);
         }
     }
@@ -79,16 +79,17 @@ class AuthController extends Controller
     {
         try {
             $request->validate([
-                'email'      => 'required|string|email',
-                'password'   => 'required|string',
-                'remember_me'=> 'boolean'
+                'email' => 'required|string|email',
+                'password' => 'required|string',
+                'remember_me' => 'boolean',
             ]);
 
             $credentials = $request->only('email', 'password');
             \Log::info('Login attempt:', $credentials);
 
-            if (!Auth::attempt($credentials)) {
-                \Log::warning('Unauthorized login attempt for email: ' . $credentials['email']);
+            if (! Auth::attempt($credentials)) {
+                \Log::warning('Unauthorized login attempt for email: '.$credentials['email']);
+
                 return response()->json(['message' => 'Unauthorized'], 401);
             }
 
@@ -101,10 +102,11 @@ class AuthController extends Controller
             } catch (\Exception $e) {
                 \Log::error('Token creation failed:', [
                     'user_id' => $user->id,
-                    'error'   => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
+
                 return response()->json([
-                    'message' => 'Unable to generate token. Please contact support.'
+                    'message' => 'Unable to generate token. Please contact support.',
                 ], 500);
             }
 
@@ -115,6 +117,7 @@ class AuthController extends Controller
             $userPermissions = $user->permissions ?? collect();
             if ($userPermissions->isEmpty()) {
                 \Log::warning('User has no permissions.', ['user_id' => $user->id]);
+
                 return response()->json(['message' => 'User does not have sufficient permissions.'], 403);
             }
 
@@ -125,26 +128,27 @@ class AuthController extends Controller
 
             // Fetch user role
             $userRole = $user->roles->first()->name ?? null;
-            if (!$userRole) {
+            if (! $userRole) {
                 \Log::error('User has no role assigned.', ['user_id' => $user->id]);
+
                 return response()->json(['message' => 'User does not have a valid role.'], 403);
             }
 
             // Prepare response data
             $userData = [
-                'id'           => $user->id,
-                'fullName'     => $user->name,
-                'username'     => $user->username ?? $user->email,
-                'email'        => $user->email,
-                'role'         => strtolower($userRole),
+                'id' => $user->id,
+                'fullName' => $user->name,
+                'username' => $user->username ?? $user->email,
+                'email' => $user->email,
+                'role' => strtolower($userRole),
                 'abilityRules' => $userPermissions->toArray(),
             ];
 
             // Return as JSON
             return response()->json([
-                'accessToken'   => $plainTextToken,  // This is what the Vue front end will store
-                'userData'      => $userData,
-                'abilityRules'  => $userPermissions,
+                'accessToken' => $plainTextToken,  // This is what the Vue front end will store
+                'userData' => $userData,
+                'abilityRules' => $userPermissions,
             ]);
 
             // If you want to set a cookie for the token, you could do so:
@@ -154,8 +158,9 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             \Log::error('Login error:', [
                 'message' => $e->getMessage(),
-                'trace'   => $e->getTraceAsString(),
+                'trace' => $e->getTraceAsString(),
             ]);
+
             return response()->json(['message' => 'An error occurred. Please try again.'], 500);
         }
     }
@@ -179,6 +184,7 @@ class AuthController extends Controller
         // Sanctum method to delete the currently used token:
         if ($request->user()) {
             $request->user()->currentAccessToken()->delete();
+
             return response()->json(['message' => 'Successfully logged out'], 200);
         }
 
@@ -217,6 +223,7 @@ class AuthController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
             return response()->json(['message' => 'An error occurred. Please try again.'], 500);
         }
     }
@@ -224,7 +231,6 @@ class AuthController extends Controller
     /**
      * Reset the user's password using a reset code.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function resetPassword(Request $request)
@@ -241,19 +247,18 @@ class AuthController extends Controller
                 ->where('email', $request->email)
                 ->first();
 
-            if (!$resetRecord) {
+            if (! $resetRecord) {
                 return response()->json(['message' => 'Invalid reset code.'], 400);
             }
 
             // Check if the reset code is valid
-            if (!Hash::check($request->reset_code, $resetRecord->token)) {
+            if (! Hash::check($request->reset_code, $resetRecord->token)) {
                 return response()->json(['message' => 'Invalid reset code.'], 400);
             }
 
-
             // Find the user
             $user = User::where('email', $request->email)->first();
-            if (!$user) {
+            if (! $user) {
                 return response()->json(['message' => 'User not found.'], 404);
             }
 
@@ -281,6 +286,7 @@ class AuthController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
             return response()->json(['message' => 'An error occurred. Please try again.'], 500);
         }
     }
@@ -288,7 +294,6 @@ class AuthController extends Controller
     /**
      * Validate a password reset token.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function validateResetToken(Request $request)
@@ -313,6 +318,7 @@ class AuthController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
             return response()->json(['message' => 'An error occurred while validating the token'], 500);
         }
     }

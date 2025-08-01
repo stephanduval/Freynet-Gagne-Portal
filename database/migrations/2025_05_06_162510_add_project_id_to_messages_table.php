@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('messages', function (Blueprint $table) {
             // Check if project_id column doesn't exist
-            if (!Schema::hasColumn('messages', 'project_id')) {
+            if (! Schema::hasColumn('messages', 'project_id')) {
                 $table->foreignId('project_id')->nullable()->constrained('projects')->onDelete('set null');
             }
         });

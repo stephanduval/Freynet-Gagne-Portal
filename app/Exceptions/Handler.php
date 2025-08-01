@@ -13,8 +13,8 @@ class Handler extends ExceptionHandler
     {
         \Log::error('Exception encountered', [
             'exception' => $exception,
-            'message'   => $exception->getMessage(),
-            'trace'     => $exception->getTraceAsString(),
+            'message' => $exception->getMessage(),
+            'trace' => $exception->getTraceAsString(),
         ]);
 
         if ($request->expectsJson()) {
@@ -24,7 +24,7 @@ class Handler extends ExceptionHandler
 
             return response()->json([
                 'message' => $exception->getMessage(),
-                'trace'   => config('app.debug') ? $exception->getTrace() : [],
+                'trace' => config('app.debug') ? $exception->getTrace() : [],
             ], $status);
         }
 

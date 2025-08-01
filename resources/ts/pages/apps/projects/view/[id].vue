@@ -797,7 +797,7 @@ const formatFileSize = (bytes: number) => {
                 <VListItemSubtitle>{{ formattedDate(project?.date_requested) }}</VListItemSubtitle>
               </VListItem>
               
-              <VListItem v-if="project?.company">
+              <VListItem v-if="project?.client?.companies && project.client.companies.length > 0">
                 <template #prepend>
                   <VIcon
                     color="primary"
@@ -808,7 +808,7 @@ const formatFileSize = (bytes: number) => {
                 <VListItemTitle>
                   {{ t('projects.details.company') }}
                 </VListItemTitle>
-                <VListItemSubtitle>{{ project.company.name }}</VListItemSubtitle>
+                <VListItemSubtitle>{{ project.client.companies[0].name }}</VListItemSubtitle>
               </VListItem>
               
               <VListItem>

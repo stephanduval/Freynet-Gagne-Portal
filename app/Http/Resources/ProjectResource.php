@@ -16,7 +16,7 @@ class ProjectResource extends JsonResource
     public function toArray(Request $request): array
     {
         // Eager load relationships if they aren't already
-        $this->resource->loadMissing(['client', 'messages.attachments']);
+        $this->resource->loadMissing(['client', 'client.companies', 'messages.attachments']);
 
         // Get all attachments from messages related to this project
         $allAttachments = $this->messages->flatMap(function ($message) {
@@ -53,9 +53,9 @@ class ProjectResource extends JsonResource
             'date_requested' => $this->date_requested?->toISOString(),
             'created_at' => $this->created_at->toISOString(),
             'updated_at' => $this->updated_at->toISOString(),
-            
+
             // Client information
-            'client' => $this->whenLoaded('client', function() {
+            'client' => $this->whenLoaded('client', function () {
                 return [
                     'id' => $this->client->id,
                     'name' => $this->client->name,
@@ -64,7 +64,7 @@ class ProjectResource extends JsonResource
             }),
 
             // Company information if available
-            'company' => $this->whenLoaded('company', function() {
+            'company' => $this->whenLoaded('company', function () {
                 return [
                     'id' => $this->company->id,
                     'name' => $this->company->name,
@@ -72,7 +72,7 @@ class ProjectResource extends JsonResource
             }),
 
             // Messages with their basic information
-            'messages' => $this->whenLoaded('messages', function() {
+            'messages' => $this->whenLoaded('messages', function () {
                 return $this->messages->map(function ($message) {
                     return [
                         'id' => $message->id,
@@ -93,4 +93,4 @@ class ProjectResource extends JsonResource
             'has_attachments' => $allAttachments->isNotEmpty(),
         ];
     }
-} 
+}

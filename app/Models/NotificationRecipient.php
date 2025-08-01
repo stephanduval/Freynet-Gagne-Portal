@@ -12,15 +12,15 @@ class NotificationRecipient extends Model
     protected $fillable = [
         'email',
         'name',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
     ];
 
     public function routeNotificationForMail()
     {
         return $this->email;
     }
-} 
+}
