@@ -232,8 +232,13 @@ class MessageController extends Controller
                     ? $user->id  // If sender is a client, use their ID
                     : $validated['receiver_id']; // If sender is admin, use receiver's ID
 
+                // Determine the company_id from the client's companies
+                $client = \App\Models\User::find($client_id);
+                $company_id = $client ? $client->companies()->first()?->id : null;
+
                 $projectData = [
                     'client_id' => $client_id,
+                    'company_id' => $company_id,
                     'title' => $validated['project_data']['title'],
                     'property' => $validated['project_data']['property'],
                     'contact_email' => $user->email,

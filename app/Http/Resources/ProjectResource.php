@@ -60,6 +60,12 @@ class ProjectResource extends JsonResource
                     'id' => $this->client->id,
                     'name' => $this->client->name,
                     'email' => $this->client->email,
+                    'companies' => $this->client->companies->map(function ($company) {
+                        return [
+                            'id' => $company->id,
+                            'name' => $company->company_name,
+                        ];
+                    }),
                 ];
             }),
 
@@ -67,7 +73,7 @@ class ProjectResource extends JsonResource
             'company' => $this->whenLoaded('company', function () {
                 return [
                     'id' => $this->company->id,
-                    'name' => $this->company->name,
+                    'name' => $this->company->company_name,
                 ];
             }),
 

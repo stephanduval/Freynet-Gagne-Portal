@@ -26,7 +26,7 @@ class ProjectController extends Controller
         $user = Auth::user();
         $userRole = $user->roles->first()?->name;
 
-        $query = Project::with(['client:id,name,email', 'client.companies', 'messages.attachments']);
+        $query = Project::with(['client:id,name,email', 'client.companies', 'company', 'messages.attachments']);
 
         // Admin users can see all projects
         if ($userRole === 'admin') {
@@ -185,7 +185,7 @@ class ProjectController extends Controller
         // Create the project
         $project = Project::create($validated);
 
-        return new ProjectResource($project->load(['client', 'client.companies', 'messages.attachments']));
+        return new ProjectResource($project->load(['client', 'client.companies', 'company', 'messages.attachments']));
     }
 
     /**
@@ -209,7 +209,7 @@ class ProjectController extends Controller
         ]);
 
         try {
-            $project = Project::with(['client:id,name,email', 'client.companies', 'messages.attachments'])->findOrFail($id);
+            $project = Project::with(['client:id,name,email', 'client.companies', 'company', 'messages.attachments'])->findOrFail($id);
             Log::info('Project found:', [
                 'project_id' => $project->id,
                 'client_id' => $project->client_id,
@@ -299,7 +299,7 @@ class ProjectController extends Controller
 
             $project->update($validated);
 
-            return new ProjectResource($project->load(['client', 'client.companies', 'messages.attachments']));
+            return new ProjectResource($project->load(['client', 'client.companies', 'company', 'messages.attachments']));
         } catch (\Exception $e) {
             Log::error('Error updating project: '.$e->getMessage());
 

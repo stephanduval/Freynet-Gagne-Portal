@@ -11,6 +11,7 @@ class Project extends Model
 
     protected $fillable = [
         'client_id',
+        'company_id',
         'title',
         'property',
         'contact_email',
@@ -35,6 +36,14 @@ class Project extends Model
     public function client()
     {
         return $this->belongsTo(User::class, 'client_id');
+    }
+
+    /**
+     * Get the company that owns the project.
+     */
+    public function company()
+    {
+        return $this->belongsTo(\App\Models\Company::class, 'company_id');
     }
 
     /**
