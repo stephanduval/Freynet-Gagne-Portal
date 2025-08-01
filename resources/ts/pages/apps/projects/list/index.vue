@@ -67,9 +67,9 @@ watch(projectsData, (data: ApiResponse | null) => {
     currentPage: data.current_page,
     lastPage: data.last_page,
     total: data.total,
-    perPage: data.per_page,
-    from: data.from,
-    to: data.to,
+    perPage: itemsPerPage.value === -1 ? data.total : data.per_page,
+    from: itemsPerPage.value === -1 ? 1 : data.from,
+    to: itemsPerPage.value === -1 ? data.total : data.to,
   }
 }, { immediate: true })
 
@@ -84,15 +84,23 @@ const isAdmin = computed(() => userRole.value === 'admin')
 const isClient = computed(() => userRole.value === 'client')
 
 // Headers
-const headers = computed(() => [
-  { title: t('headers.projects.project'), key: 'project', sortable: true },
-  { title: t('headers.projects.company'), key: 'company', sortable: true },
-  { title: t('headers.projects.client'), key: 'client', sortable: true },
-  { title: t('headers.projects.serviceType'), key: 'service_type', sortable: true },
-  { title: t('headers.projects.deadline'), key: 'deadline', sortable: true },
-  { title: t('headers.projects.status'), key: 'status', sortable: true },
-  { title: t('headers.projects.actions'), key: 'actions', sortable: false, align: 'end' },
-])
+const headers = computed(() => {
+  const baseHeaders = [
+    { title: t('headers.projects.project'), key: 'project', sortable: true },
+    { title: t('headers.projects.client'), key: 'client', sortable: true },
+    { title: t('headers.projects.serviceType'), key: 'service_type', sortable: true },
+    { title: t('headers.projects.deadline'), key: 'deadline', sortable: true },
+    { title: t('headers.projects.status'), key: 'status', sortable: true },
+    { title: t('headers.projects.actions'), key: 'actions', sortable: false, align: 'end' },
+  ]
+
+  // Insert Company column after Project column only for admin users
+  if (!isClient.value) {
+    baseHeaders.splice(1, 0, { title: t('headers.projects.company'), key: 'company', sortable: true })
+  }
+
+  return baseHeaders
+})
 
 // Status options
 const statusOptions = computed(() => [
@@ -135,8 +143,8 @@ const fetchProjects = async () => {
 
     params.append('page', page.value.toString())
     params.append('per_page', itemsPerPage.value.toString())
-    params.append('sort_by', sortBy.value || 'created_at')
-    params.append('sort_desc', orderBy.value === 'desc' ? '1' : '0')
+    params.append('sort_field', sortBy.value || 'created_at')
+    params.append('sort_direction', orderBy.value === 'desc' ? 'desc' : 'asc')
 
     const response = await axios.get('/projects', { params })
 

@@ -99,9 +99,9 @@ watch(companiesData, (data: CompanyApiResponse | null) => {
     currentPage: data.current_page,
     lastPage: data.last_page,
     total: data.total,
-    perPage: data.per_page,
-    from: data.from,
-    to: data.to,
+    perPage: itemsPerPage.value === -1 ? data.total : data.per_page,
+    from: itemsPerPage.value === -1 ? 1 : data.from,
+    to: itemsPerPage.value === -1 ? data.total : data.to,
   }
 }, { immediate: true })
 
