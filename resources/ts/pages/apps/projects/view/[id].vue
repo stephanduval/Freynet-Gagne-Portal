@@ -939,7 +939,7 @@ const formatFileSize = (bytes: number) => {
                 </VAvatar>
               </template>
 
-              <VListItemTitle>{{ message.subject }}</VListItemTitle>
+              <VListItemTitle>{{ message.project?.title || message.subject || 'Untitled Document' }}</VListItemTitle>
               <VListItemSubtitle class="d-flex flex-column">
                 <span>{{ t('projects.details.from') }}: {{ message.from?.fullName || message.from?.email || t('projects.details.unknown') }}</span>
                 <!-- Add message preview with truncation and HTML stripping -->
