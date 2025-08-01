@@ -1033,18 +1033,6 @@ const formatFileSize = (bytes: number) => {
                           />
                           {{ t('emails.actions.download') }}
                         </VBtn>
-                        <VBtn
-                          variant="outlined"
-                          size="small"
-                          @click="downloadAttachment(attachment)"
-                        >
-                          <VIcon
-                            icon="bx-show"
-                            size="16"
-                            class="me-1"
-                          />
-                          {{ t('emails.actions.preview') }}
-                        </VBtn>
                       </div>
                     </div>
                   </div>
