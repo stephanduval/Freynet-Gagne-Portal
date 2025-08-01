@@ -24,12 +24,11 @@ class ProjectController extends Controller
         ]);
 
         $user = Auth::user();
-        $userRole = $user->roles->first()?->name;
 
         $query = Project::with(['client:id,name,email', 'client.companies', 'company', 'messages.attachments']);
 
         // Admin users can see all projects
-        if ($userRole === 'admin') {
+        if ($user->roles()->where('name', 'Admin')->exists()) {
             // Filter by client for admin users if client_id is provided
             if ($request->has('client_id')) {
                 $query->where('client_id', $request->client_id);
@@ -172,9 +171,8 @@ class ProjectController extends Controller
 
         // Only admins can create projects for other clients
         $user = Auth::user();
-        $userRole = $user->roles->first()?->name;
 
-        if ($userRole !== 'admin' && $validated['client_id'] !== $user->id) {
+        if (! $user->roles()->where('name', 'Admin')->exists() && $validated['client_id'] !== $user->id) {
             return response()->json(['message' => 'Unauthorized to create project for another client'], 403);
         }
 
@@ -273,9 +271,8 @@ class ProjectController extends Controller
 
             // Validate based on user role
             $user = auth()->user();
-            $userRole = $user->roles->first()?->name;
 
-            if ($userRole === 'client') {
+            if ($user->roles()->where('name', 'Client')->exists()) {
                 $validated = $request->validate([
                     'property' => 'nullable|string|max:255',
                     'time_preference' => 'nullable|in:before_noon,before_4pm,anytime',
@@ -401,12 +398,11 @@ class ProjectController extends Controller
         Log::info('ProjectController::summary - Generating project summary');
 
         $user = Auth::user();
-        $userRole = $user->roles->first()?->name;
 
         $query = Project::query();
 
         // Admin users see all projects
-        if ($userRole !== 'admin') {
+        if (! $user->roles()->where('name', 'Admin')->exists()) {
             // Non-admin users see all projects from users in their company
             $userCompanyIds = $user->companies()->pluck('companies.id')->toArray();
 

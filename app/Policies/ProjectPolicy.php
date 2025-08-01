@@ -24,7 +24,7 @@ class ProjectPolicy
     public function view(User $user, Project $project): bool
     {
         // Admin can view all projects
-        if ($user->roles()->where('name', 'admin')->exists()) {
+        if ($user->roles()->where('name', 'Admin')->exists()) {
             return true;
         }
 
@@ -55,7 +55,7 @@ class ProjectPolicy
     public function create(User $user): bool
     {
         // Only admins can create projects directly
-        return $user->roles()->where('name', 'admin')->exists();
+        return $user->roles()->where('name', 'Admin')->exists();
     }
 
     /**
@@ -64,7 +64,7 @@ class ProjectPolicy
     public function update(User $user, Project $project): bool
     {
         // Admin can update all projects
-        if ($user->roles()->where('name', 'admin')->exists()) {
+        if ($user->roles()->where('name', 'Admin')->exists()) {
             return true;
         }
 
@@ -78,7 +78,7 @@ class ProjectPolicy
     public function delete(User $user, Project $project): bool
     {
         // Only admin can delete projects
-        return $user->roles()->where('name', 'admin')->exists();
+        return $user->roles()->where('name', 'Admin')->exists();
     }
 
     /**
@@ -87,7 +87,7 @@ class ProjectPolicy
     public function restore(User $user, Project $project): bool
     {
         // Only admin can restore projects
-        return $user->roles()->where('name', 'admin')->exists();
+        return $user->roles()->where('name', 'Admin')->exists();
     }
 
     /**
@@ -96,6 +96,6 @@ class ProjectPolicy
     public function forceDelete(User $user, Project $project): bool
     {
         // Only admin can force delete projects
-        return $user->roles()->where('name', 'admin')->exists();
+        return $user->roles()->where('name', 'Admin')->exists();
     }
 }
