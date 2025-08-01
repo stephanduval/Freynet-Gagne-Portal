@@ -156,7 +156,14 @@ const statusColorMap: Record<string, string> = {
 const formattedDate = (date: string | undefined) => {
   if (!date)
     return 'N/A'
-
+  
+  // Handle date-only strings (YYYY-MM-DD) without timezone conversion
+  if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const [year, month, day] = date.split('-').map(Number)
+    return format(new Date(year, month - 1, day), 'MMM dd, yyyy')
+  }
+  
+  // Handle datetime strings normally
   return format(new Date(date), 'MMM dd, yyyy')
 }
 
@@ -310,11 +317,11 @@ const composeMessage = () => {
 
 const startEditing = () => {
   if (project.value) {
-    // Format dates to YYYY-MM-DD for the date inputs
+    // Format dates to YYYY-MM-DD for the date inputs (timezone-safe)
     editedProject.value = {
       ...project.value,
-      deadline: project.value.deadline ? format(new Date(project.value.deadline), 'yyyy-MM-dd') : undefined,
-      latest_completion_date: project.value.latest_completion_date ? format(new Date(project.value.latest_completion_date), 'yyyy-MM-dd') : undefined,
+      deadline: project.value.deadline || undefined,
+      latest_completion_date: project.value.latest_completion_date || undefined,
     }
     isEditing.value = true
   }

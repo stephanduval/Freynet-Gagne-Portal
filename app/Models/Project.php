@@ -25,10 +25,30 @@ class Project extends Model
     ];
 
     protected $casts = [
-        'deadline' => 'date',
         'date_requested' => 'datetime',
-        'latest_completion_date' => 'date',
     ];
+
+    // Custom accessors to ensure dates are returned as strings without timezone conversion
+    public function getDeadlineAttribute($value)
+    {
+        return $value; // Return as-is from database (should be Y-m-d string)
+    }
+
+    public function getLatestCompletionDateAttribute($value)
+    {
+        return $value; // Return as-is from database (should be Y-m-d string)
+    }
+
+    // Custom mutators to ensure dates are stored as strings without timezone conversion
+    public function setDeadlineAttribute($value)
+    {
+        $this->attributes['deadline'] = $value; // Store as-is (should be Y-m-d string)
+    }
+
+    public function setLatestCompletionDateAttribute($value)
+    {
+        $this->attributes['latest_completion_date'] = $value; // Store as-is (should be Y-m-d string)
+    }
 
     /**
      * Get the client that owns the project.

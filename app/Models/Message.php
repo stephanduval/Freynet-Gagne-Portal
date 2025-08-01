@@ -32,9 +32,20 @@ class Message extends Model
         'status' => 'string', // ENUM values are stored as strings
         'is_starred' => 'boolean',
         'task_status' => 'string', // Cast enum to string
-        'due_date' => 'date:Y-m-d', // Cast to simple YYYY-MM-DD string
         'is_archived' => 'boolean',
     ];
+
+    // Custom accessor to ensure due_date is returned as string without timezone conversion
+    public function getDueDateAttribute($value)
+    {
+        return $value; // Return as-is from database (should be Y-m-d string)
+    }
+
+    // Custom mutator to ensure due_date is stored as string without timezone conversion
+    public function setDueDateAttribute($value)
+    {
+        $this->attributes['due_date'] = $value; // Store as-is (should be Y-m-d string)
+    }
 
     public function sender(): BelongsTo
     {

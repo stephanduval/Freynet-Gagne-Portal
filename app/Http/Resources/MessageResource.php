@@ -54,7 +54,7 @@ class MessageResource extends JsonResource
             'message' => $this->body, // Map body to message
             'time' => $this->created_at->toISOString(), // Map created_at to time
             'requestedDate' => $this->created_at->toISOString(), // Add requestedDate mapping
-            'dueDate' => $this->due_date?->toDateString(), // Format Y-m-d, handle null
+            'dueDate' => $this->due_date, // Already in Y-m-d format
             'labels' => $this->whenLoaded('labels', fn () => $this->labels->pluck('label_name')->toArray() ?? []),
             'attachments' => $this->whenLoaded('attachments', function () {
                 return $this->attachments->map(function ($attachment) {
@@ -85,7 +85,7 @@ class MessageResource extends JsonResource
             'folder' => $folder, // Calculated folder
             'status' => $this->status, // Existing status (read/unread/deleted)
             'task_status' => $this->task_status, // New task status ('new'/'completed')
-            'due_date' => $this->due_date?->toDateString(),
+            'due_date' => $this->due_date,
             'company_id' => $this->company_id,
             'project' => $this->whenLoaded('project', function () {
                 return $this->project ? [
@@ -93,7 +93,7 @@ class MessageResource extends JsonResource
                     'title' => $this->project->title,
                     'property' => $this->project->property,
                     'service_type' => $this->project->service_type,
-                    'deadline' => $this->project->deadline?->toDateString(),
+                    'deadline' => $this->project->deadline,
                 ] : null;
             }),
 

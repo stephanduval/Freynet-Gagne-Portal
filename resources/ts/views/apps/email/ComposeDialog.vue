@@ -43,6 +43,7 @@ const selectedUser = ref<string | null>(null)
 // Add back the loading ref
 const loading = ref(false)
 const isSending = ref(false)
+const contentError = ref<string | null>(null)
 
 // Update the interface for user data
 interface UserData {
@@ -234,19 +235,27 @@ onMounted(async () => {
     if (!serviceType.value)
       serviceType.value = ''
 
-    // Set default dates
+    // Set default dates (timezone-safe)
     if (!dueDate.value) {
       const defaultDueDate = new Date()
-
       defaultDueDate.setDate(defaultDueDate.getDate() + 14)
-      dueDate.value = defaultDueDate.toISOString().split('T')[0]
+      
+      // Format date as YYYY-MM-DD without timezone conversion
+      const year = defaultDueDate.getFullYear()
+      const month = String(defaultDueDate.getMonth() + 1).padStart(2, '0')
+      const day = String(defaultDueDate.getDate()).padStart(2, '0')
+      dueDate.value = `${year}-${month}-${day}`
     }
 
     if (!latestCompletionDate.value) {
       const defaultLatestCompletion = new Date()
-
       defaultLatestCompletion.setDate(defaultLatestCompletion.getDate() + 21)
-      latestCompletionDate.value = defaultLatestCompletion.toISOString().split('T')[0]
+      
+      // Format date as YYYY-MM-DD without timezone conversion
+      const year = defaultLatestCompletion.getFullYear()
+      const month = String(defaultLatestCompletion.getMonth() + 1).padStart(2, '0')
+      const day = String(defaultLatestCompletion.getDate()).padStart(2, '0')
+      latestCompletionDate.value = `${year}-${month}-${day}`
     }
 
     loading.value = false
@@ -302,6 +311,13 @@ watch(attachmentsRef, newFiles => {
   // }
 }, { deep: true })
 
+// Clear content error when user starts typing
+watch(content, () => {
+  if (contentError.value && content.value) {
+    contentError.value = null
+  }
+})
+
 // Add date validation computed properties
 const isDeadlineValid = computed(() => {
   if (!dueDate.value)
@@ -336,10 +352,14 @@ const sendMessage = async () => {
 
   // Basic validation
   if (!content.value) {
+    contentError.value = t('emails.compose.validation.messageRequired')
     console.error('Message field is required')
 
     return
   }
+  
+  // Clear content error if validation passes
+  contentError.value = null
 
   // Validate user selection
   if (!selectedUser.value) {
@@ -427,6 +447,9 @@ const resetValues = () => {
   property.value = ''
   timePreference.value = 'anytime'
   serviceType.value = ''
+  
+  // Clear errors
+  contentError.value = null
 }
 
 const isFormValid = computed(() => {
@@ -695,6 +718,18 @@ const isFormValid = computed(() => {
       v-model="content"
       :placeholder="t('emails.compose.message')"
     />
+    
+    <!-- Message validation error -->
+    <div v-if="contentError" class="px-6 pb-2">
+      <VAlert
+        color="error"
+        variant="tonal"
+        density="compact"
+        class="mb-0"
+      >
+        {{ contentError }}
+      </VAlert>
+    </div>
 
     <!-- Attachment Section -->
     <VDivider />

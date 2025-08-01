@@ -153,7 +153,14 @@ const fetchProjects = async () => {
 const formatDate = (date: string) => {
   if (!date)
     return 'N/A'
-
+  
+  // Handle date-only strings (YYYY-MM-DD) without timezone conversion
+  if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const [year, month, day] = date.split('-').map(Number)
+    return new Date(year, month - 1, day).toLocaleDateString()
+  }
+  
+  // Handle datetime strings normally
   return new Date(date).toLocaleDateString()
 }
 
