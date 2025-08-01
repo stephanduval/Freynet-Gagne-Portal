@@ -11,6 +11,7 @@
   "Widgets": "Widget",
   "Gamifications": "Gamifications",
   "Card Action": "Action de la carte",
+  "Card Action": "Action de la carte",
   "Components": "Composants",
   "Alert": "Alerte",
   "Close Alert": "Fermer l'alerte",
@@ -201,6 +202,7 @@
       "clear": "dégager",
       "appendAction": "ajouter une action",
       "prependAction": "préfixer l'action",
+      "counterSize": "Taille du compteur",
       "otp": "otp"
     },
     "fileInput": {
@@ -244,6 +246,7 @@
     "requests": "Demandes",
     "dueToday": "Demandes dues aujourd'hui",
     "newTasks": "Nouvelles tâches",
+    "unreadMessages": "Messages non lus",
     "viewDueToday": "Voir les demandes dues aujourd'hui",
     "viewMessages": "Voir les messages",
     "newCompany": "Nouvelle entreprise",
@@ -357,7 +360,8 @@
       "noHistory": "Aucun historique trouvé",
       "cancel": "Annuler",
       "saveChanges": "Enregistrer les Modifications",
-      "sendMessage": "Envoyer un Message"
+      "sendMessage": "Envoyer un Message",
+      "fromMessage": "Du message"
     },
     "showing": "Affichage de {from} à {to} sur {total} entrées"
   },
@@ -514,8 +518,14 @@
     },
     "status": {
       "new": "Nouveau",
-      "inProgress": "En cours",
-      "completed": "Terminé"
+      "in_process": "En cours",
+      "completed": "Terminé",
+      "sent": "Envoyé",
+      "received": "Reçu",
+      "read": "Lu",
+      "unread": "Non lu",
+      "deleted": "Supprimé",
+      "draft": "Brouillon"
     },
     "confirmations": {
       "trash": {
