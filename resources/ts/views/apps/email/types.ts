@@ -35,7 +35,7 @@ export interface Email {
   isStarred: boolean
   isDeleted?: boolean // Keep for compatibility if needed, but rely on 'status'/'folder'
   folder?: EmailFolder // Use folder for UI state if needed
-  status: 'read' | 'unread' | 'sent' | 'draft' | 'archived' | 'deleted' | 'spam' // Add status field
+  status: 'read' | 'unread' | 'sent' | 'draft' | 'archived' | 'deleted' | 'spam' | 'opened' | 'new' // Add status field with opened and new
   // Optional fields
   cc?: { name?: string; email: string }[]
   bcc?: { name?: string; email: string }[]

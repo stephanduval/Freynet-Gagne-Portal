@@ -196,7 +196,7 @@ const confirmLabelDelete = async () => {
               <VIcon :icon="folder.prependIcon" />
               {{ folder.title }}
               <VChip
-                v-if="folder.badge?.content"
+                v-if="folder.badge?.content !== undefined"
                 :color="folder.badge.color"
               >
                 {{ folder.badge.content }}

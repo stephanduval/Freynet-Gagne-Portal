@@ -290,6 +290,21 @@ const openMessage = async (message: Email) => {
     catch (error) {
       // console.error('Error marking message as read:', error);
     }
+  } else if (message.status === 'new') {
+    // If message is already read but status is 'new', change to 'opened'
+    try {
+      await emailComposable.updateEmails([message.id], { status: 'opened' })
+      if (openedMessage.value && openedMessage.value.id === message.id) {
+        openedMessage.value.status = 'opened'
+      }
+      const messageInList = messages.value.find(m => m.id === message.id)
+      if (messageInList) {
+        messageInList.status = 'opened'
+      }
+    }
+    catch (error) {
+      // console.error('Error marking message as opened:', error);
+    }
   }
 }
 
