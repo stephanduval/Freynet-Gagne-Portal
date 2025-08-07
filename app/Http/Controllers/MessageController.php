@@ -465,7 +465,7 @@ class MessageController extends Controller
         // Validate the incoming data first
         $validatedData = $request->validate([
             'status' => 'sometimes|string|in:read,deleted,opened', // Added 'opened' status
-            'task_status' => 'sometimes|string|in:new,in_process,completed', // Added 'in_process'
+            'task_status' => 'sometimes|string|in:new,opened,in_process,completed', // Added 'opened'
             'due_date' => 'sometimes|nullable|date_format:Y-m-d', // Allow updating/clearing due date
             'is_archived' => 'sometimes|boolean', // Allow updating archive status
             'isStarred' => 'sometimes|boolean',

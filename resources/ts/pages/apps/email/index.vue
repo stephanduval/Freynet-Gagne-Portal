@@ -34,7 +34,7 @@ const messages = ref<Email[]>([])
 interface MessageSummary {
   id: number
   due_date: string | null
-  task_status: 'new' | 'in_process' | 'completed' | null
+  task_status: 'new' | 'opened' | 'in_process' | 'completed' | null
 }
 const allUserMessagesSummary = ref<MessageSummary[]>([])
 
@@ -106,7 +106,7 @@ const userRole = computed(() => userData.value?.role?.toLowerCase() || '')
 const isClient = computed(() => userRole.value === 'client')
 
 const messagesMeta = computed(() => ({
-  inbox: messages.value.filter(m => m.folder === 'inbox' && !m.isArchived && m.status !== 'deleted').length,
+  inbox: messages.value.filter(m => m.folder === 'inbox' && !m.isArchived && m.status !== 'deleted' && !m.isRead).length,
   draft: 0,
   spam: 0,
   star: messages.value.filter(m => m.isStarred).length,
@@ -158,8 +158,8 @@ const dueTodayCount = computed(() => {
 })
 
 const newStatusCount = computed(() => {
-  // Count based on ALL user messages summary
-  return allUserMessagesSummary.value.filter(m => m.task_status === 'new').length
+  // Count based on current view messages (same as inbox counter)
+  return messages.value.filter(m => m.task_status === 'new' && !m.isArchived && m.status !== 'deleted').length
 })
 
 // --- Helper Functions ---
@@ -179,9 +179,11 @@ const formatDate = (dateString: string | Date | undefined | null, includeTime = 
 }
 
 // New helper for status colors
-const resolveStatusColor = (status?: 'new' | 'in_process' | 'completed' | null): string => {
+const resolveStatusColor = (status?: 'new' | 'opened' | 'in_process' | 'completed' | null): string => {
   if (status === 'new')
     return 'primary'
+  if (status === 'opened')
+    return 'info'
   if (status === 'in_process')
     return 'warning'
   if (status === 'completed')
@@ -193,6 +195,7 @@ const resolveStatusColor = (status?: 'new' | 'in_process' | 'completed' | null):
 // Task status options for the dropdown
 const taskStatusOptions = [
   { title: 'New', value: 'new' },
+  { title: 'Opened', value: 'opened' },
   { title: 'In Progress', value: 'in_process' },
   { title: 'Completed', value: 'completed' },
 ] as const
@@ -269,42 +272,66 @@ const changeOpenedMessage = async (dir: 'previous' | 'next') => {
 
 const openMessage = async (message: Email) => {
   // console.log('Opening message:', message);
+  // console.log('Message task_status:', message.task_status);
+  // console.log('Message isRead:', message.isRead);
 
   openedMessage.value = message
 
-  // console.log('openedMessage set to:', openedMessage.value);
-
+  // Handle both unread status and task_status updates
   if (!message.isRead) {
+    // console.log('Message is unread, marking as read');
     try {
-      await emailComposable.updateEmails([message.id], { status: 'read', isRead: true })
-      if (openedMessage.value && openedMessage.value.id === message.id) {
-        openedMessage.value.isRead = true
-        openedMessage.value.status = 'read'
-      }
-      const messageInList = messages.value.find(m => m.id === message.id)
-      if (messageInList) {
-        messageInList.isRead = true
-        messageInList.status = 'read'
+      // If message is unread AND has task_status 'new', update both
+      if (message.task_status === 'new') {
+        // console.log('Also updating task_status from new to opened');
+        await emailComposable.updateEmails([message.id], { status: 'read', isRead: true, task_status: 'opened' })
+        if (openedMessage.value && openedMessage.value.id === message.id) {
+          openedMessage.value.isRead = true
+          openedMessage.value.status = 'read'
+          openedMessage.value.task_status = 'opened'
+        }
+        const messageInList = messages.value.find(m => m.id === message.id)
+        if (messageInList) {
+          messageInList.isRead = true
+          messageInList.status = 'read'
+          messageInList.task_status = 'opened'
+        }
+      } else {
+        // Just mark as read
+        await emailComposable.updateEmails([message.id], { status: 'read', isRead: true })
+        if (openedMessage.value && openedMessage.value.id === message.id) {
+          openedMessage.value.isRead = true
+          openedMessage.value.status = 'read'
+        }
+        const messageInList = messages.value.find(m => m.id === message.id)
+        if (messageInList) {
+          messageInList.isRead = true
+          messageInList.status = 'read'
+        }
       }
     }
     catch (error) {
       // console.error('Error marking message as read:', error);
     }
-  } else if (message.status === 'new') {
-    // If message is already read but status is 'new', change to 'opened'
+  } else if (message.task_status === 'new') {
+    // console.log('Message is already read but has task_status new, changing to opened');
+    // If message has task_status 'new', change task_status to 'opened'
     try {
-      await emailComposable.updateEmails([message.id], { status: 'opened' })
+      await emailComposable.updateEmails([message.id], { task_status: 'opened' })
+      // console.log('Task status update request sent');
       if (openedMessage.value && openedMessage.value.id === message.id) {
-        openedMessage.value.status = 'opened'
+        openedMessage.value.task_status = 'opened'
       }
       const messageInList = messages.value.find(m => m.id === message.id)
       if (messageInList) {
-        messageInList.status = 'opened'
+        messageInList.task_status = 'opened'
       }
     }
     catch (error) {
-      // console.error('Error marking message as opened:', error);
+      // console.error('Error marking message task_status as opened:', error);
     }
+  } else {
+    // console.log('No status update needed. Current task_status:', message.task_status);
   }
 }
 
@@ -467,8 +494,11 @@ const handleEmailLabels = async (labelTitle: EmailLabel, messageIds: number[] | 
 
 // UPDATED: Handle Task Status Toggle for a single message (cycles through statuses)
 const handleTaskStatusToggle = async (message: Email) => {
-  let newStatus: 'new' | 'in_process' | 'completed'
+  let newStatus: 'new' | 'opened' | 'in_process' | 'completed'
   if (message.task_status === 'new') {
+    newStatus = 'opened'
+  }
+  else if (message.task_status === 'opened') {
     newStatus = 'in_process'
   }
   else if (message.task_status === 'in_process') {
@@ -492,7 +522,7 @@ const handleTaskStatusToggle = async (message: Email) => {
 }
 
 // NEW: Handle updating task status for SELECTED messages to a specific status
-const handleSelectedTaskStatusUpdate = async (status: 'new' | 'in_process' | 'completed') => {
+const handleSelectedTaskStatusUpdate = async (status: 'new' | 'opened' | 'in_process' | 'completed') => {
   const ids = selectedMessages.value
   if (!ids || ids.length === 0)
     return

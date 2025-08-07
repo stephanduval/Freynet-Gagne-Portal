@@ -42,7 +42,7 @@ export interface Email {
   reply_to_id?: number | null
   requestedDate?: string | Date // Added for 'Requested' column (maps from created_at)
   dueDate?: string | null // Added Due Date (YYYY-MM-DD or null)
-  task_status?: 'new' | 'in_process' | 'completed' // Added Task Status
+  task_status?: 'new' | 'opened' | 'in_process' | 'completed' // Added Task Status with opened
   isArchived: boolean // Added Archive flag
   company_id: number // Added company_id field
   project?: { // Added project information

@@ -518,6 +518,7 @@
     },
     "status": {
       "new": "Nouveau",
+      "opened": "Ouvert",
       "in_process": "En cours",
       "completed": "Terminé",
       "sent": "Envoyé",
