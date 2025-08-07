@@ -311,7 +311,7 @@ const openMessage = async (message: Email) => {
       }
     }
     catch (error) {
-      // console.error('Error marking message as read:', error);
+      console.error('Error marking message as read:', error);
     }
   } else if (message.task_status === 'new') {
     // console.log('Message is already read but has task_status new, changing to opened');
@@ -328,7 +328,7 @@ const openMessage = async (message: Email) => {
       }
     }
     catch (error) {
-      // console.error('Error marking message task_status as opened:', error);
+      console.error('Error marking message task_status as opened:', error);
     }
   } else {
     // console.log('No status update needed. Current task_status:', message.task_status);
