@@ -445,7 +445,8 @@
           "dueDateRequired": "Due date is required",
           "dueDateFuture": "Due date must be today or later",
           "completionDateRequired": "Latest completion date is required",
-          "completionDateAfterDue": "Latest completion date must be after or equal to the due date"
+          "completionDateAfterDue": "Latest completion date must be after or equal to the due date",
+          "completionDateMustBeAfterDue": "Latest completion date must be after the due date (cannot be equal)"
         }
       },
       "timePreferences": {
@@ -464,7 +465,8 @@
       "cancel": "Cancel",
       "validation": {
         "allFieldsRequired": "All fields must be filled before sending",
-        "titleRequired": "Document title is required"
+        "titleRequired": "Document title is required",
+        "messageRequired": "Message is required"
       }
     },
     "labels": {

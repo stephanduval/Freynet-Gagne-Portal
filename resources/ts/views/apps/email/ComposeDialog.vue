@@ -339,7 +339,7 @@ const isLatestCompletionDateValid = computed(() => {
   const deadlineDate = new Date(dueDate.value)
   const completionDate = new Date(latestCompletionDate.value)
 
-  return completionDate >= deadlineDate
+  return completionDate > deadlineDate
 })
 
 // Update sendMessage to use selected user ID
@@ -360,6 +360,12 @@ const sendMessage = async () => {
   
   // Clear content error if validation passes
   contentError.value = null
+
+  // Validate dates are not equal
+  if (dueDate.value && latestCompletionDate.value && dueDate.value === latestCompletionDate.value) {
+    console.error('Latest completion date must be after the due date')
+    return
+  }
 
   // Validate user selection
   if (!selectedUser.value) {
@@ -696,9 +702,9 @@ const isFormValid = computed(() => {
           :placeholder="t('emails.compose.project.datePlaceholder')"
           :rules="[
             (v: string | null) => !!v || t('emails.compose.project.validation.completionDateRequired'),
-            (v: string | null) => isLatestCompletionDateValid || t('emails.compose.project.validation.completionDateAfterDue'),
+            (v: string | null) => isLatestCompletionDateValid || t('emails.compose.project.validation.completionDateMustBeAfterDue'),
           ]"
-          :error-messages="!isLatestCompletionDateValid ? [t('emails.compose.project.validation.completionDateAfterDue')] : []"
+          :error-messages="!isLatestCompletionDateValid ? [t('emails.compose.project.validation.completionDateMustBeAfterDue')] : []"
           :required="isClient"
           clearable
         >
