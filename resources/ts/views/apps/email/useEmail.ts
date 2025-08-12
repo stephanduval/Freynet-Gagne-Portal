@@ -1,3 +1,4 @@
+import { isToday, parseISO } from 'date-fns'
 import type { PartialDeep } from 'type-fest'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -147,24 +148,18 @@ export const useEmail = () => {
         // Access messages from response.data
         const messageArray = response?.data || []
 
-        // Filter messages that are due today
-        const today = new Date()
-
-        today.setHours(0, 0, 0, 0)
-
-        const tomorrow = new Date(today)
-
-        tomorrow.setDate(tomorrow.getDate() + 1)
-
+        // Filter messages that are due today using the same logic as the count
         const filteredMessages = messageArray.filter((message: any) => {
-          try {
-            const dueDate = new Date(message.due_date)
+          if (!message.due_date) {
+            return false // Skip if no due date
+          }
 
-            return dueDate >= today && dueDate < tomorrow
+          try {
+            const dueDateObj = parseISO(message.due_date)
+            return isToday(dueDateObj)
           }
           catch (error) {
             console.error('useEmail.fetchMessages - Error parsing due date:', error)
-
             return false
           }
         })

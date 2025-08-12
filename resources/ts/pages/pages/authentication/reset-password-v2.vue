@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
-import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
-import { themeConfig } from '@themeConfig'
-
-import authV2ResetPasswordIllustration from '@images/pages/auth-v2-reset-password-illustration.png'
+import { VForm } from 'vuetify/components/VForm'
+import { layoutConfig } from '@layouts'
 
 // Password validation rules
 const passwordValidator = (v: string) => {
@@ -37,6 +35,7 @@ const loading = ref(false)
 const error = ref('')
 const success = ref('')
 const isValidCode = ref(false)
+const refVForm = ref<VForm>()
 
 // Validate reset code on component mount
 onMounted(async () => {
@@ -100,187 +99,173 @@ const handleSubmit = async () => {
     loading.value = false
   }
 }
+
+const onSubmit = () => {
+  refVForm.value?.validate()
+    .then(({ valid: isValid }) => {
+      if (isValid)
+        handleSubmit()
+    })
+}
 </script>
 
 <template>
-  <RouterLink to="/">
-    <div class="auth-logo d-flex align-center gap-x-2">
-      <VNodeRenderer :nodes="themeConfig.app.logo" />
-      <h1 class="auth-title">
-        {{ themeConfig.app.title }}
-      </h1>
-    </div>
-  </RouterLink>
-
-  <VRow
-    no-gutters
-    class="auth-wrapper bg-surface"
-  >
-    <VCol
-      md="8"
-      class="d-none d-md-flex"
+  <div class="reset-password-page d-flex align-center justify-center">
+    <VCard
+      class="reset-password-card"
+      max-width="450"
+      elevation="2"
     >
-      <div class="position-relative bg-background w-100 pa-8">
-        <div class="d-flex align-center justify-center w-100 h-100">
-          <VImg
-            max-width="700"
-            :src="authV2ResetPasswordIllustration"
-            class="auth-illustration"
-          />
-        </div>
-      </div>
-    </VCol>
+      <VCardText class="pa-10">
+        <h4 class="text-h4 mb-6 text-center">
+          Reset Password 🔒
+        </h4>
+        <p class="text-center mb-6">
+          Your new password must be different from previously used passwords
+        </p>
 
-    <VCol
-      cols="12"
-      md="4"
-      class="auth-card-v2 d-flex align-center justify-center"
-    >
-      <VCard
-        flat
-        :max-width="500"
-        class="mt-12 mt-sm-0 pa-6"
-      >
-        <VCardText>
-          <h4 class="text-h4 mb-1">
-            Reset Password 🔒
-          </h4>
-          <p class="mb-0">
-            Your new password must be different from previously used passwords
-          </p>
-        </VCardText>
-
-        <VCardText>
-          <VForm @submit.prevent="handleSubmit">
-            <VRow>
-              <!-- Code Validation Error -->
-              <VCol
-                v-if="!isValidCode && error"
-                cols="12"
+        <VForm
+          ref="refVForm"
+          @submit.prevent="onSubmit"
+        >
+          <VRow>
+            <!-- Code Validation Error -->
+            <VCol
+              v-if="!isValidCode && error"
+              cols="12"
+            >
+              <VAlert
+                color="error"
+                variant="tonal"
+                class="mb-4"
               >
-                <VAlert
-                  color="error"
-                  variant="tonal"
-                  class="mb-4"
-                >
-                  {{ error }}
-                </VAlert>
+                {{ error }}
+              </VAlert>
+            </VCol>
+
+            <!-- Success Alert -->
+            <VCol
+              v-if="success"
+              cols="12"
+            >
+              <VAlert
+                color="success"
+                variant="tonal"
+                class="mb-4"
+              >
+                {{ success }}
+              </VAlert>
+            </VCol>
+
+            <!-- Error Alert -->
+            <VCol
+              v-if="error && isValidCode"
+              cols="12"
+            >
+              <VAlert
+                color="error"
+                variant="tonal"
+                class="mb-4"
+              >
+                {{ error }}
+              </VAlert>
+            </VCol>
+
+            <!-- Form Fields (only show if code is valid) -->
+            <template v-if="isValidCode">
+              <!-- Reset Code -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="form.reset_code"
+                  label="Reset Code"
+                  placeholder="Enter the reset code"
+                  :disabled="true"
+                />
               </VCol>
 
-              <!-- Success Alert -->
-              <VCol
-                v-if="success"
-                cols="12"
-              >
-                <VAlert
-                  color="success"
-                  variant="tonal"
-                  class="mb-4"
-                >
-                  {{ success }}
-                </VAlert>
+              <!-- Email -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="form.email"
+                  label="Email"
+                  type="email"
+                  :disabled="true"
+                />
               </VCol>
 
-              <!-- Error Alert -->
-              <VCol
-                v-if="error"
-                cols="12"
-              >
-                <VAlert
-                  color="error"
-                  variant="tonal"
-                  class="mb-4"
-                >
-                  {{ error }}
-                </VAlert>
+              <!-- password -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="form.password"
+                  autofocus
+                  label="New Password"
+                  placeholder="············"
+                  :type="isPasswordVisible ? 'text' : 'password'"
+                  :append-inner-icon="isPasswordVisible ? 'bx-hide' : 'bx-show'"
+                  :disabled="loading"
+                  :rules="[requiredValidator, passwordValidator]"
+                  @click:append-inner="isPasswordVisible = !isPasswordVisible"
+                />
               </VCol>
 
-              <!-- Form Fields (only show if code is valid) -->
-              <template v-if="isValidCode">
-                <!-- Reset Code -->
-                <VCol cols="12">
-                  <AppTextField
-                    v-model="form.reset_code"
-                    label="Reset Code"
-                    placeholder="Enter the reset code"
-                    :disabled="true"
+              <!-- Confirm Password -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="form.password_confirmation"
+                  label="Confirm Password"
+                  placeholder="············"
+                  :type="isConfirmPasswordVisible ? 'text' : 'password'"
+                  :append-inner-icon="isConfirmPasswordVisible ? 'bx-hide' : 'bx-show'"
+                  :disabled="loading"
+                  :rules="[requiredValidator, passwordConfirmationValidator]"
+                  @click:append-inner="isConfirmPasswordVisible = !isConfirmPasswordVisible"
+                />
+              </VCol>
+
+              <!-- Set password -->
+              <VCol cols="12">
+                <VBtn
+                  block
+                  type="submit"
+                  :loading="loading"
+                  :disabled="loading"
+                >
+                  Save New Password
+                </VBtn>
+              </VCol>
+
+              <!-- back to login -->
+              <VCol
+                cols="12"
+                class="text-center"
+              >
+                <RouterLink
+                  class="text-primary d-inline-flex align-center"
+                  :to="{ name: 'login' }"
+                >
+                  <VIcon
+                    icon="bx-chevron-left"
+                    size="20"
+                    class="me-1 flip-in-rtl"
                   />
-                </VCol>
-
-                <!-- Email -->
-                <VCol cols="12">
-                  <AppTextField
-                    v-model="form.email"
-                    label="Email"
-                    type="email"
-                    :disabled="true"
-                  />
-                </VCol>
-
-                <!-- password -->
-                <VCol cols="12">
-                  <AppTextField
-                    v-model="form.password"
-                    autofocus
-                    label="New Password"
-                    placeholder="············"
-                    :type="isPasswordVisible ? 'text' : 'password'"
-                    :append-inner-icon="isPasswordVisible ? 'bx-hide' : 'bx-show'"
-                    :disabled="loading"
-                    :rules="[requiredValidator, passwordValidator]"
-                    @click:append-inner="isPasswordVisible = !isPasswordVisible"
-                  />
-                </VCol>
-
-                <!-- Confirm Password -->
-                <VCol cols="12">
-                  <AppTextField
-                    v-model="form.password_confirmation"
-                    label="Confirm Password"
-                    placeholder="············"
-                    :type="isConfirmPasswordVisible ? 'text' : 'password'"
-                    :append-inner-icon="isConfirmPasswordVisible ? 'bx-hide' : 'bx-show'"
-                    :disabled="loading"
-                    :rules="[requiredValidator, passwordConfirmationValidator]"
-                    @click:append-inner="isConfirmPasswordVisible = !isConfirmPasswordVisible"
-                  />
-                </VCol>
-
-                <!-- Set password -->
-                <VCol cols="12">
-                  <VBtn
-                    block
-                    type="submit"
-                    :loading="loading"
-                    :disabled="loading"
-                  >
-                    Save New Password
-                  </VBtn>
-                </VCol>
-
-                <!-- back to login -->
-                <VCol cols="12">
-                  <RouterLink
-                    class="d-flex align-center justify-center"
-                    :to="{ name: 'login' }"
-                  >
-                    <VIcon
-                      icon="bx-chevron-left"
-                      size="20"
-                      class="me-1 flip-in-rtl"
-                    />
-                    <span>Back to login</span>
-                  </RouterLink>
-                </VCol>
-              </template>
-            </VRow>
-          </VForm>
-        </VCardText>
-      </VCard>
-    </VCol>
-  </VRow>
+                  <span>Back to login</span>
+                </RouterLink>
+              </VCol>
+            </template>
+          </VRow>
+        </VForm>
+      </VCardText>
+    </VCard>
+  </div>
 </template>
 
-<style lang="scss">
-@use "@core-scss/template/pages/page-auth";
+<style lang="scss" scoped>
+.reset-password-page {
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.reset-password-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
 </style>
