@@ -133,46 +133,6 @@ export const useEmail = () => {
         queryParams.set('label', currentLabel)
       }
 
-      // Special handling for due-today filter
-      if (currentFilter === 'due-today') {
-        console.log('useEmail.fetchMessages - Handling due-today filter')
-
-        // For due-today, we'll fetch all messages and filter client-side
-        queryParams.delete('filter')
-
-        const response = await $api(`/messages?${queryParams.toString()}`)
-
-        // Log the full response for debugging
-        console.log('useEmail.fetchMessages - Due today API response:', response)
-
-        // Access messages from response.data
-        const messageArray = response?.data || []
-
-        // Filter messages that are due today using the same logic as the count
-        const filteredMessages = messageArray.filter((message: any) => {
-          if (!message.due_date) {
-            return false // Skip if no due date
-          }
-
-          try {
-            const dueDateObj = parseISO(message.due_date)
-            return isToday(dueDateObj)
-          }
-          catch (error) {
-            console.error('useEmail.fetchMessages - Error parsing due date:', error)
-            return false
-          }
-        })
-
-        console.log('useEmail.fetchMessages - Due today filtered messages:', {
-          total: filteredMessages.length,
-          firstMessage: filteredMessages[0],
-        })
-
-        messages.value = filteredMessages
-
-        return filteredMessages
-      }
 
       // Make the API call with the constructed query parameters
       const apiUrl = `/messages?${queryParams.toString()}`

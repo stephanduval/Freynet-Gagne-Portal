@@ -143,6 +143,14 @@ class MessageController extends Controller
                 Log::info('Applying trash filter');
                 $query->where('receiver_id', $userId)
                     ->where('status', 'deleted');
+            } elseif ($filter === 'due-today') {
+                Log::info('Applying due-today filter');
+                $query->where(function ($q) use ($userId) {
+                    $q->where('sender_id', $userId)
+                        ->orWhere('receiver_id', $userId);
+                })
+                    ->whereDate('due_date', now()->format('Y-m-d'))
+                    ->where('status', '!=', 'deleted');
             } elseif ($label) {
                 Log::info("Applying label filter: {$label}");
                 // Labels apply to non-archived, non-deleted received mail
