@@ -60,6 +60,7 @@ class ProjectResource extends JsonResource
                     'id' => $this->client->id,
                     'name' => $this->client->name,
                     'email' => $this->client->email,
+                    'department' => $this->client->department,
                     'companies' => $this->client->companies->map(function ($company) {
                         return [
                             'id' => $company->id,

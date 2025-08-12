@@ -16,6 +16,7 @@ interface Project {
   client?: {
     name: string
     email: string
+    department?: string
   }
   company?: {
     name: string
@@ -94,9 +95,14 @@ const headers = computed(() => {
     { title: t('headers.projects.actions'), key: 'actions', sortable: false, align: 'end' },
   ]
 
-  // Insert Company column after Project column only for admin users
+  // Insert Company column after Project column only for non-client users
   if (!isClient.value) {
     baseHeaders.splice(1, 0, { title: t('headers.projects.company'), key: 'company', sortable: true })
+  }
+
+  // Insert Department column after Client column only for client users
+  if (isClient.value) {
+    baseHeaders.splice(2, 0, { title: 'Department', key: 'department', sortable: true })
   }
 
   return baseHeaders
@@ -493,6 +499,20 @@ onMounted(() => {
                 <div class="text-sm text-disabled text-truncate">
                   {{ item.client?.email || '' }}
                 </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- Department (for client users only) -->
+          <template #item.department="{ item }">
+            <div class="d-flex align-center">
+              <div
+                class="d-flex flex-column text-truncate"
+                style="max-inline-size: 150px;"
+              >
+                <h6 class="text-base text-truncate">
+                  {{ item.client?.department || 'N/A' }}
+                </h6>
               </div>
             </div>
           </template>
